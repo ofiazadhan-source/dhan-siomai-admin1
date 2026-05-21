@@ -43,8 +43,8 @@
     let products = [];
     let cart = [];
 
-    // Load products from dhan-pos-web collection
-    db.collection('dhan-pos-web').onSnapshot(snapshot => {
+    // Load products from dhan-daily collection
+    db.collection('dhan-daily').onSnapshot(snapshot => {
       products = [];
       snapshot.forEach(doc => {
         products.push({id: doc.id, ...doc.data()});
@@ -134,9 +134,9 @@
         timestamp: Date.now()
       });
 
-      // Update stock in dhan-pos-web collection
+      // Update stock in dhan-daily collection
       cart.forEach(item => {
-        const productRef = db.collection('dhan-pos-web').doc(item.id);
+        const productRef = db.collection('dhan-daily').doc(item.id);
         batch.update(productRef, {
           stock: firebase.firestore.FieldValue.increment(-item.qty)
         });
