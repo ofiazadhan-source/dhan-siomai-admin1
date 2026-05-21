@@ -56,6 +56,7 @@ function loadProducts() {
       p.id = doc.id;
       productsArray.push(p);
     });
+    console.log("Products loaded:", productsArray.map(p => p.name));
   });
 }
 
@@ -101,11 +102,17 @@ async function saveDaily() {
   try {
     const batch = db.batch();
     let updatedCount = 0;
+    let notFound = [];
 
     dailyArray.forEach(d => {
       let qty = parseInt(document.getElementById(`qty-${d.id}`).value) || 0;
       let prodName = document.getElementById(`prod-${d.id}`).value.trim();
-      let prod = productsArray.find(p => p.name.trim().toLowerCase() === prodName.toLowerCase());
+      let prodNameLower = prodName.toLowerCase();
+      
+      // Hanapin product - ignore case at extra spaces
+      let prod = productsArray.find(p => 
+        p.name && p.name.trim().toLowerCase() === prodNameLower
+      );
 
       if(prod && qty > 0){
         // Dadagdag sa stock gamit increment
@@ -113,6 +120,10 @@ async function saveDaily() {
           stock: firebase.firestore.FieldValue.increment(qty) 
         });
         updatedCount++;
+        console.log(`Updated ${prod.name} +${qty}`);
+      } else if(qty > 0 && prodName) {
+        notFound.push(prodName);
+        console.log(`Product not found: ${prodName}`);
       }
 
       // Update yung daily record
@@ -124,12 +135,19 @@ async function saveDaily() {
     });
 
     await batch.commit();
-    alert(`✅ Saved! ${updatedCount} product stock updated.`);
+    
+    if(notFound.length > 0) {
+      alert(`⚠️ Saved! Pero hindi nahanap ang product:\n${notFound.join("\n")}\n\nCheck mo spelling sa Products page.`);
+    } else {
+      alert(`✅ Saved! ${updatedCount} product stock updated.`);
+    }
+    
     loadDaily();
     loadProducts();
     
   } catch(err) {
     alert("❌ Error: " + err.message);
+    console.error(err);
   }
 }
 
