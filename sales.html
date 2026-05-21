@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sales - DHAN SIOMAI Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-gray-100">
   <div class="bg-orange-500 p-4 flex justify-between items-center">
@@ -43,8 +43,8 @@
     let products = [];
     let cart = [];
 
-    // Load products
-    db.collection('products').onSnapshot(snapshot => {
+    // Load products from dhan-pos-web collection
+    db.collection('dhan-pos-web').onSnapshot(snapshot => {
       products = [];
       snapshot.forEach(doc => {
         products.push({id: doc.id, ...doc.data()});
@@ -64,8 +64,9 @@
             <p class="font-semibold">${p.name}</p>
             <p class="text-sm text-gray-600">₱${p.price} | Stock: ${p.stock || 0}</p>
           </div>
-          <button onclick="addToCart('${p.id}')" class="bg-orange-500 text-white px-3 py-1 rounded text-sm">
-            Add
+          <button onclick="addToCart('${p.id}')" ${p.stock <= 0 ? 'disabled' : ''} 
+            class="bg-orange-500 text-white px-3 py-1 rounded text-sm ${p.stock <= 0 ? 'opacity-50' : ''}">
+            ${p.stock <= 0 ? 'Out of Stock' : 'Add'}
           </button>
         </div>
       `).join('');
@@ -73,13 +74,8 @@
 
     function addToCart(productId) {
       const product = products.find(p => p.id === productId);
-      if(!product) return;
+      if(!product || product.stock <= 0) return;
       
-      if(product.stock <= 0) {
-        alert('Out of stock!');
-        return;
-      }
-
       const existing = cart.find(c => c.id === productId);
       if(existing) {
         existing.qty++;
@@ -102,12 +98,12 @@
         const subtotal = item.price * item.qty;
         total += subtotal;
         return `
-          <div class="flex justify-between items-center">
+          <div class="flex justify-between items-center border-b pb-2">
             <div>
               <p class="font-semibold">${item.name}</p>
               <p class="text-sm">₱${item.price} x ${item.qty}</p>
             </div>
-            <button onclick="removeFromCart('${item.id}')" class="text-red-500">Remove</button>
+            <button onclick="removeFromCart('${item.id}')" class="text-red-500 text-sm">Remove</button>
           </div>
         `;
       }).join('');
@@ -138,18 +134,22 @@
         timestamp: Date.now()
       });
 
-      // Update stock
+      // Update stock in dhan-pos-web collection
       cart.forEach(item => {
-        const productRef = db.collection('products').doc(item.id);
+        const productRef = db.collection('dhan-pos-web').doc(item.id);
         batch.update(productRef, {
           stock: firebase.firestore.FieldValue.increment(-item.qty)
         });
       });
 
-      await batch.commit();
-      alert('Sale completed! Total: ₱' + total);
-      cart = [];
-      displayCart();
+      try {
+        await batch.commit();
+        alert('✅ Sale completed! Total: ₱' + total);
+        cart = [];
+        displayCart();
+      } catch(err) {
+        alert('❌ Error: ' + err.message);
+      }
     }
   </script>
 </body>
