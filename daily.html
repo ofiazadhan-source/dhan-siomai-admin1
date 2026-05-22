@@ -95,20 +95,26 @@ async function saveDaily() {
       let prodName = document.getElementById(`prod-${d.id}`).value.trim();
       
       if(qty > 0 && prodName){
-        // Direct query - sure na makikita yung product
-        let prodSnap = await db.collection("dhan-pos-web")
-         .where("name", "==", prodName)
-         .limit(1)
-         .get();
+        // Kunin lahat ng products tapos i-compare gamit trim + lowercase
+        let prodSnap = await db.collection("dhan-pos-web").get();
         
-        if(!prodSnap.empty){
-          let prodDoc = prodSnap.docs[0];
-          batch.update(prodDoc.ref, { 
+        let foundDoc = null;
+        prodSnap.forEach(doc => {
+          let data = doc.data();
+          if(data.name && data.name.trim().toLowerCase() === prodName.toLowerCase()){
+            foundDoc = doc;
+          }
+        });
+        
+        if(foundDoc){
+          batch.update(foundDoc.ref, { 
             stock: firebase.firestore.FieldValue.increment(qty) 
           });
           updatedCount++;
+          console.log(`Updated ${foundDoc.data().name} +${qty}`);
         } else {
           notFound.push(prodName);
+          console.log(`Product not found: ${prodName}`);
         }
       }
 
