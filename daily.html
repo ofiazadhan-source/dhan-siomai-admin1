@@ -56,6 +56,7 @@ function loadProducts() {
       p.id = doc.id;
       productsArray.push(p);
     });
+    renderDaily();
   });
 }
 
@@ -97,8 +98,20 @@ function renderDaily() {
 }
 
 function addDaily() {
+  if(productsArray.length === 0){
+    alert("Wala pang product. Mag-add ka muna sa Products page.");
+    return;
+  }
+  
   let date = new Date().toISOString().split('T')[0];
-  db.collection("dhan-daily").add({date, productId:"", productName:"", qty:0}).then(loadDaily);
+  let firstProduct = productsArray[0];
+  
+  db.collection("dhan-daily").add({
+    date: date, 
+    productId: firstProduct.id,
+    productName: firstProduct.name,
+    qty: 0
+  }).then(loadDaily);
 }
 
 async function saveDaily() {
