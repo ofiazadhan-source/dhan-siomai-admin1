@@ -7,365 +7,213 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
-body {background:#f5f5f5; padding:15px;}
+body {background:linear-gradient(135deg, #fff5f0, #ffe8dd); min-height:100vh;}
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  background: white;
-  padding: 12px 15px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  background: linear-gradient(135deg, #ff6b35, #ff8c65);
+  color:white; padding:15px; display:flex; justify-content:space-between; align-items:center;
+  box-shadow:0 4px 12px rgba(255,107,53,0.3);
 }
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.header h1 { font-size: 18px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.header a { color:#ff6b35; background:#fff; text-decoration:none; font-weight:600; padding:8px 14px; border-radius:8px; }
+
+.container {padding:15px;}
+.card {background:white; padding:18px; border-radius:16px; box-shadow:0 4px 16px rgba(0,0,0,0.08); margin-bottom:15px;}
+
+.product-grid {
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:12px;
 }
-.brand img {
-  height: 45px;
-  width: auto;
-  border-radius: 8px;
+.product-card {
+  background:white; border-radius:14px; padding:10px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
+  border:2px solid #ffd4c2;
+  text-align:center;
+  cursor:pointer;
+  transition:0.2s;
 }
-.brand h1 {
-  font-size: 16px;
-  color: #ff6b35;
-  margin: 0;
-  font-weight: 700;
+.product-card:active {transform:scale(0.96); border-color:#ff6b35;}
+.product-img {
+  width:100%; height:80px; object-fit:cover; border-radius:10px; margin-bottom:6px;
+  background:#ffe8dd;
 }
-.header a {
-  color: #ff6b35;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 14px;
+.product-name {font-size:13px; font-weight:600; color:#333; margin-bottom:4px;}
+.product-price {font-size:15px; font-weight:700; color:#ff6b35;}
+.product-stock {font-size:11px; color:#666;}
+
+.cart-item {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 0; border-bottom:1px solid #eee;
 }
-.container {display:grid; grid-template-columns: 2fr 1fr; gap:15px;}
-.products, .cart {background:white; padding:15px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08);}
-.product-grid {display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap:10px;}
-.product-card {border:2px solid #eee; padding:12px; border-radius:10px; text-align:center; cursor:pointer; transition:0.2s;}
-.product-card:hover {border-color:#ff6b35;}
-.product-name {font-weight:700; font-size:14px; margin-bottom:5px;}
-.product-price {color:#ff6b35; font-weight:600; font-size:15px;}
-.product-stock {font-size:12px; color:#666;}
-.cart-item {display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee; font-size:14px;}
-.total {font-size:18px; font-weight:700; margin:15px 0;}
-.btn {width:100%; padding:14px; background:#ff6b35; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:16px;}
-.btn:hover {background:#e55a2b;}
-.btn:disabled {background:#ccc; cursor:not-allowed;}
-.qty-btn {background:#ff6b35; color:white; border:none; padding:2px 8px; border-radius:4px; cursor:pointer;}
-.payment-method {display:flex; gap:10px; margin:15px 0;}
-.payment-btn {flex:1; padding:12px; border:2px solid #ddd; border-radius:8px; background:white; cursor:pointer; font-weight:600;}
-.payment-btn.active {border-color:#ff6b35; background:#fff2ee; color:#ff6b35;}
-.cash-section {display:none; margin-top:15px;}
-.cash-section.show {display:block;}
-.cash-section input {width:100%; padding:12px; border:2px solid #ddd; border-radius:8px; font-size:16px; margin-bottom:10px;}
-.cash-section input:focus {border-color:#ff6b35; outline:none;}
-.change-display {background:#e8f5e9; padding:12px; border-radius:8px; text-align:center; margin-bottom:15px;}
-.change-display h4 {font-size:13px; color:#2e7d32; margin-bottom:5px;}
-.change-display p {font-size:24px; font-weight:700; color:#2e7d32;}
-.proof-upload {display:none; margin-top:10px;}
-.proof-upload.show {display:block;}
-.proof-upload input {width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;}
-.modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;}
-.modal.show {display:flex;}
-.modal-content {background:white; padding:25px; border-radius:12px; max-width:400px; width:90%;}
-@media (max-width:768px) {.container {grid-template-columns: 1fr;}}
+.cart-item-info {flex:1;}
+.cart-item-name {font-weight:600; font-size:14px;}
+.cart-item-qty {font-size:12px; color:#666;}
+.cart-controls {display:flex; gap:8px; align-items:center;}
+.cart-controls button {
+  width:30px; height:30px; padding:0; border-radius:50%;
+  background:#ff6b35; color:white; border:none; font-weight:700;
+}
+
+.checkout-btn {
+  width:100%; padding:14px; background:linear-gradient(135deg, #4caf50, #66bb6a);
+  color:white; border:none; border-radius:12px; font-weight:700; font-size:16px;
+  margin-top:10px;
+}
+.checkout-btn:disabled {background:#ccc;}
+
+.total {
+  font-size:20px; font-weight:700; color:#ff6b35; text-align:right; margin-top:10px;
+}
 </style>
 </head>
 <body>
-
 <div class="header">
-  <div class="brand">
-  <img src="https://i.imgur.com/RK3ArWT.jpeg" alt="Giant Siomai Logo">
-    <div>
-      <h1>POS</h1>
-    </div>
-  </div>
+  <h1><img src="logo.png" style="height:30px;"> POS</h1>
   <a href="index.html">← Back</a>
 </div>
 
 <div class="container">
-  <div class="products">
-    <h3 style="margin-bottom:12px;">Products</h3>
-    <div class="product-grid" id="productList">Loading products...</div>
+  <div class="card">
+    <h3 style="margin-bottom:12px; color:#ff6b35;">🛒 Products</h3>
+    <div id="productGrid" class="product-grid">Loading...</div>
   </div>
 
-  <div class="cart">
-    <h3 style="margin-bottom:12px;">Cart</h3>
+  <div class="card">
+    <h3 style="margin-bottom:12px; color:#ff6b35;">🧾 Cart</h3>
     <div id="cartItems">Empty cart</div>
-    <div class="total">Total: ₱<span id="total">0</span></div>
-    
-    <div id="paymentSection" style="display:none;">
-      <h4 style="margin-bottom:10px;">Payment Method</h4>
-      <div class="payment-method">
-        <button type="button" class="payment-btn active" onclick="selectPayment('cash')">💵 Cash</button>
-        <button type="button" class="payment-btn" onclick="selectPayment('gcash')">📱 GCash</button>
-      </div>
-      
-      <div class="cash-section" id="cashSection">
-        <label style="font-size:13px; color:#666;">Cash Received:</label>
-        <input type="number" id="cashReceived" placeholder="0" inputmode="numeric" oninput="calculateChange()">
-        <div class="change-display" id="changeDisplay" style="display:none;">
-          <h4>Change</h4>
-          <p>₱<span id="changeAmount">0</span></p>
-        </div>
-      </div>
-      
-      <div class="proof-upload" id="proofUpload">
-        <label style="font-size:13px; color:#666;">Upload GCash Screenshot:</label>
-        <input type="file" id="proofFile" accept="image/*">
-      </div>
-      
-      <button type="button" class="btn" onclick="confirmCheckout()">Confirm Payment</button>
-    </div>
-    
-    <button type="button" class="btn" id="checkoutBtn" onclick="showPayment()" disabled>Checkout</button>
-  </div>
-</div>
-
-<div class="modal" id="confirmModal">
-  <div class="modal-content">
-    <h3 style="margin-bottom:10px;">Payment Successful!</h3>
-    <p id="confirmText"></p>
-    <button type="button" class="btn" onclick="closeModal()" style="margin-top:15px;">OK</button>
+    <div class="total" id="totalAmount">Total: ₱0</div>
+    <button class="checkout-btn" id="checkoutBtn" disabled onclick="checkout()">Checkout</button>
   </div>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, onSnapshot, doc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+import { getFirestore, collection, onSnapshot, doc, updateDoc, increment, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { db } from './firebase-config.js';
 
 let cart = [];
-let products = [];
-let paymentMethod = 'cash';
-let proofFile = null;
+let products = {};
 
-onSnapshot(collection(db, "products"), 
-  (snapshot) => {
-    products = [];
-    snapshot.forEach(doc => {
-      products.push({id: doc.id, ...doc.data()});
-    });
-    renderProducts();
-  },
-  (error) => {
-    console.error("Error loading products:", error);
-    document.getElementById("productList").innerHTML = "Error loading products.";
-  }
-);
+// Load products with images
+onSnapshot(collection(db, "products"), (snapshot) => {
+  const grid = document.getElementById("productGrid");
+  grid.innerHTML = '';
 
-function renderProducts() {
-  const list = document.getElementById("productList");
-  if(products.length === 0) {
-    list.innerHTML = "No products yet. Add sa Products page.";
-    return;
-  }
-  list.innerHTML = products.map(p => `
-    <div class="product-card" onclick="addToCart('${p.id}')">
-      <div class="product-name">${p.name}</div>
-      <div class="product-price">₱${p.price}</div>
-      <div class="product-stock">Stock: ${p.stock || 0}</div>
-    </div>
-  `).join('');
-}
+  snapshot.forEach(docSnap => {
+    const p = docSnap.data();
+    products[docSnap.id] = {id: docSnap.id,...p};
 
-window.addToCart = function(productId) {
-  const product = products.find(p => p.id === productId);
-  if(!product) return;
-  if(product.stock <= 0) {
-    alert("Out of stock na boss");
-    return;
-  }
-  const existing = cart.find(item => item.id === productId);
-  if(existing) {
-    if(existing.qty >= product.stock) {
-      alert("Wala nang stock");
-      return;
-    }
-    existing.qty += 1;
-  } else {
-    cart.push({...product, qty: 1});
-  }
-  renderCart();
-}
+    const imgUrl = p.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZmZlOGRkIi8+PHRleHQgeD0iNDAiIHk9IjQwIiBmb250LXNpemU9IjEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmY2YjM1Ij5ObyBJbWc8L3RleHQ+PC9zdmc+';
 
-window.changeQty = function(productId, change) {
-  const item = cart.find(i => i.id === productId);
-  const product = products.find(p => p.id === productId);
-  if(!item || !product) return;
-  
-  item.qty += change;
-  if(item.qty <= 0) {
-    cart = cart.filter(i => i.id !== productId);
-  } else if(item.qty > product.stock) {
-    alert("Sobra sa stock boss");
-    item.qty = product.stock;
-  }
-  renderCart();
-}
-
-function renderCart() {
-  const cartDiv = document.getElementById("cartItems");
-  const totalSpan = document.getElementById("total");
-  const checkoutBtn = document.getElementById("checkoutBtn");
-  
-  if(cart.length === 0) {
-    cartDiv.innerHTML = "Empty cart";
-    totalSpan.textContent = "0";
-    checkoutBtn.disabled = true;
-    document.getElementById("paymentSection").style.display = 'none';
-    return;
-  }
-  
-  let total = 0;
-  cartDiv.innerHTML = cart.map(item => {
-    total += item.price * item.qty;
-    return `
-      <div class="cart-item">
-        <div>
-          <div>${item.name}</div>
-          <div>
-            <button type="button" class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-            <span style="margin:0 8px;">${item.qty}</span>
-            <button type="button" class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-          </div>
-        </div>
-        <div>₱${item.price * item.qty}</div>
+    grid.innerHTML += `
+      <div class="product-card" onclick="addToCart('${docSnap.id}')">
+        <img src="${imgUrl}" class="product-img" alt="${p.name}">
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">₱${p.price}</div>
+        <div class="product-stock">Stock: ${p.stock || 0}</div>
       </div>
     `;
-  }).join('');
-  
-  totalSpan.textContent = total;
-  checkoutBtn.disabled = false;
-  calculateChange();
-}
-
-window.showPayment = function() {
-  document.getElementById("paymentSection").style.display = 'block';
-  calculateChange();
-}
-
-window.selectPayment = function(method) {
-  paymentMethod = method;
-  document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
-  
-  if(method === 'cash') {
-    document.getElementById('cashSection').classList.add('show');
-    document.getElementById('proofUpload').classList.remove('show');
-  } else {
-    document.getElementById('cashSection').classList.remove('show');
-    document.getElementById('proofUpload').classList.add('show');
-  }
-  calculateChange();
-}
-
-document.getElementById('proofFile').addEventListener('change', (e) => {
-  proofFile = e.target.files[0];
+  });
 });
 
-window.calculateChange = function() {
-  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const cashReceived = parseFloat(document.getElementById('cashReceived').value) || 0;
-  const change = cashReceived - total;
-  
-  const changeDisplay = document.getElementById('changeDisplay');
-  const changeAmount = document.getElementById('changeAmount');
-  
-  if(paymentMethod === 'cash' && cashReceived > 0) {
-    changeDisplay.style.display = 'block';
-    changeAmount.textContent = change >= 0 ? change : 0;
-  } else {
-    changeDisplay.style.display = 'none';
+// Add to cart
+window.addToCart = function(id) {
+  const product = products[id];
+  if(!product || product.stock <= 0) {
+    alert("Out of stock!");
+    return;
   }
+
+  const existing = cart.find(item => item.id === id);
+  if(existing) {
+    if(existing.qty >= product.stock) {
+      alert("Not enough stock!");
+      return;
+    }
+    existing.qty++;
+  } else {
+    cart.push({id, name: product.name, price: product.price, qty: 1});
+  }
+  updateCart();
+};
+
+// Update cart display
+function updateCart() {
+  const cartDiv = document.getElementById("cartItems");
+  const totalDiv = document.getElementById("totalAmount");
+  const checkoutBtn = document.getElementById("checkoutBtn");
+
+  if(cart.length === 0) {
+    cartDiv.innerHTML = "Empty cart";
+    totalDiv.innerHTML = "Total: ₱0";
+    checkoutBtn.disabled = true;
+    return;
+  }
+
+  let total = 0;
+  cartDiv.innerHTML = '';
+
+  cart.forEach(item => {
+    total += item.price * item.qty;
+    cartDiv.innerHTML += `
+      <div class="cart-item">
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-qty">₱${item.price} x ${item.qty}</div>
+        </div>
+        <div class="cart-controls">
+          <button onclick="changeQty('${item.id}', -1)">-</button>
+          <span>${item.qty}</span>
+          <button onclick="changeQty('${item.id}', 1)">+</button>
+        </div>
+      </div>
+    `;
+  });
+
+  totalDiv.innerHTML = `Total: ₱${total}`;
+  checkoutBtn.disabled = false;
 }
 
-window.confirmCheckout = async function() {
-  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const cashReceived = parseFloat(document.getElementById('cashReceived').value) || 0;
-  
-  if(paymentMethod === 'cash' && cashReceived < total) {
-    alert("Kulang ang bayad boss. Total: ₱" + total);
-    return;
+// Change quantity
+window.changeQty = function(id, change) {
+  const item = cart.find(i => i.id === id);
+  const product = products[id];
+
+  item.qty += change;
+
+  if(item.qty <= 0) {
+    cart = cart.filter(i => i.id!== id);
+  } else if(item.qty > product.stock) {
+    alert("Not enough stock!");
+    item.qty = product.stock;
   }
-  
-  if(paymentMethod === 'gcash' && !proofFile) {
-    alert("Upload mo muna yung GCash screenshot boss");
-    return;
-  }
-  
+
+  updateCart();
+};
+
+// Checkout
+window.checkout = async function() {
+  if(cart.length === 0) return;
+
   try {
-    let proofBase64 = null;
-    if(proofFile) {
-      proofBase64 = await fileToBase64(proofFile);
-    }
-    
-    await runTransaction(db, async (transaction) => {
-      const productRefs = cart.map(item => doc(db, "products", item.id));
-      const productSnaps = await Promise.all(
-        productRefs.map(ref => transaction.get(ref))
-      );
-      
-      for(let i = 0; i < cart.length; i++) {
-        const snap = productSnaps[i];
-        if(!snap.exists()) throw new Error(cart[i].name + " not found");
-        
-        const currentStock = snap.data().stock || 0;
-        if(currentStock < cart[i].qty) throw new Error("Not enough stock for " + cart[i].name);
-      }
-      
-      for(let i = 0; i < cart.length; i++) {
-        const currentStock = productSnaps[i].data().stock || 0;
-        transaction.update(productRefs[i], { stock: currentStock - cart[i].qty });
-      }
-      
-      transaction.set(doc(collection(db, "sales")), {
-        items: cart,
-        total: total,
-        paymentMethod: paymentMethod,
-        cashReceived: paymentMethod === 'cash' ? cashReceived : null,
-        change: paymentMethod === 'cash' ? cashReceived - total : 0,
-        proof: proofBase64,
-        date: serverTimestamp()
-      });
+    await addDoc(collection(db, "sales"), {
+      items: cart,
+      total: cart.reduce((sum, i) => sum + i.price * i.qty, 0),
+      date: new Date()
     });
-    
-    const change = cashReceived - total;
-    let successMsg = `Sale recorded! Payment: ${paymentMethod.toUpperCase()}. Total: ₱${total}`;
-    if(paymentMethod === 'cash' && change > 0) {
-      successMsg += `\nChange: ₱${change}`;
+
+    for(const item of cart) {
+      await updateDoc(doc(db, "products", item.id), {
+        stock: increment(-item.qty)
+      });
     }
-    
-    document.getElementById('confirmText').textContent = successMsg;
-    document.getElementById('confirmModal').classList.add('show');
-    
+
+    alert("✅ Sale completed!");
     cart = [];
-    proofFile = null;
-    document.getElementById('cashReceived').value = '';
-    document.getElementById('proofFile').value = '';
-    renderCart();
-    document.getElementById("paymentSection").style.display = 'none';
-    
+    updateCart();
+
   } catch(e) {
     alert("Error: " + e.message);
-    console.error(e);
   }
-}
-
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-}
-
-window.closeModal = function() {
-  document.getElementById('confirmModal').classList.remove('show');
 }
 </script>
 </body>
