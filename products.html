@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,203 +7,202 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
-body {background:#f5f5f5; padding:15px;}
-.header {display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;}
-.header h1 {font-size:20px; color:#ff6b35;}
-.card {background:white; padding:15px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08); margin-bottom:15px;}
-input, button {width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd; font-size:14px;}
-button {background:#ff6b35; color:white; border:none; font-weight:700; cursor:pointer;}
-button:hover {background:#e55a2b;}
-.btn-secondary {background:#666;}
-.btn-add-stock {background:#4caf50; padding:6px 12px; font-size:12px; width:auto; margin-right:5px;}
-.btn-remove-stock {background:#f44336; padding:6px 12px; font-size:12px; width:auto;}
-.product-row {display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #eee;}
-.product-info h4 {margin-bottom:4px; font-size:15px;}
-.product-info p {font-size:13px; color:#666;}
-.product-actions {display:flex; gap:5px;}
-.modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;}
-.modal.show {display:flex;}
-.modal-content {background:white; padding:20px; border-radius:12px; max-width:350px; width:90%;}
-.modal-content label {font-size:13px; color:#666; display:block; margin-bottom:5px;}
+body {background:linear-gradient(135deg, #fff5f0, #ffe8dd);}
+.header {
+  background: linear-gradient(135deg, #ff6b35, #ff8c65);
+  color:white; padding:15px; display:flex; justify-content:space-between; align-items:center;
+  box-shadow:0 4px 12px rgba(255,107,53,0.3);
+}
+.header h1 { font-size: 18px; font-weight:700; }
+.header a { color:#ff6b35; background:#fff; text-decoration:none; font-weight:600; padding:8px 14px; border-radius:8px; }
+
+.container {padding:15px;}
+.card {background:white; padding:18px; border-radius:16px; box-shadow:0 4px 16px rgba(0,0,0,0.08); margin-bottom:15px;}
+
+input, button, select {width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:2px solid #ffd4c2; font-size:14px;}
+input:focus {outline:none; border-color:#ff6b35;}
+button {background:linear-gradient(135deg, #ff6b35, #ff8c65); color:white; border:none; font-weight:700; cursor:pointer; transition:0.2s;}
+button:active {transform:scale(0.98);}
+
+.btn-add-stock {background:linear-gradient(135deg, #4caf50, #66bb6a); padding:8px 14px; font-size:12px; width:auto;}
+.btn-remove-stock {background:linear-gradient(135deg, #f44336, #ef5350); padding:8px 14px; font-size:12px; width:auto;}
+
+.product-grid {display:grid; gap:12px;}
+.product-card {
+  background:white; border-radius:14px; padding:12px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
+  border-left:4px solid #ff6b35;
+}
+.product-img {
+  width:100%; height:120px; object-fit:cover; border-radius:10px; margin-bottom:8px;
+  background:#ffe8dd;
+}
+.product-info h4 {margin-bottom:4px; font-size:16px; color:#333;}
+.product-info p {font-size:13px; color:#666; margin-bottom:8px;}
+.product-actions {display:flex; gap:6px; align-items:center; margin-top:8px;}
+.qty-input {width:70px!important; padding:8px!important; margin:0!important;}
+
+.file-input {
+  padding:8px; background:#fff5f0; border:2px dashed #ff6b35; text-align:center;
+}
 </style>
 </head>
 <body>
-
 <div class="header">
   <h1>📦 Products</h1>
-  <a href="index.html" style="color:#ff6b35; text-decoration:none; font-weight:600;">← Back</a>
+  <a href="index.html">← Back</a>
 </div>
 
-<div class="card">
-  <h3 style="margin-bottom:12px;">Add New Product</h3>
-  <input type="text" id="prodName" placeholder="Product Name">
-  <input type="number" id="prodPrice" placeholder="Price">
-  <input type="number" id="prodStock" placeholder="Initial Stock">
-  <button onclick="addProduct()">Add Product</button>
-</div>
+<div class="container">
+  <div class="card">
+    <h3 style="margin-bottom:12px; color:#ff6b35;">➕ Add New Product</h3>
+    <input type="text" id="prodName" placeholder="Product Name">
+    <input type="number" id="prodPrice" placeholder="Price">
+    <input type="number" id="prodStock" placeholder="Initial Stock">
+    <input type="file" id="prodImage" accept="image/*" class="file-input">
+    <button onclick="addProduct()">Add Product</button>
+  </div>
 
-<div class="card">
-  <h3 style="margin-bottom:12px;">Product List</h3>
-  <div id="productList">Loading...</div>
-</div>
-
-<!-- Stock Adjustment Modal -->
-<div class="modal" id="stockModal">
-  <div class="modal-content">
-    <h3 style="margin-bottom:10px;" id="modalTitle">Adjust Stock</h3>
-    <p id="modalProductName" style="margin-bottom:10px; color:#666;"></p>
-    <label>Quantity:</label>
-    <input type="number" id="adjustStockQty" placeholder="Enter quantity" inputmode="numeric">
-    <label id="reasonLabel" style="display:none;">Reason:</label>
-    <input type="text" id="adjustReason" placeholder="e.g. New delivery, Damaged, Free" style="display:none;">
-    <button id="modalConfirmBtn" onclick="confirmAdjustStock()">Confirm</button>
-    <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+  <div class="card">
+    <h3 style="margin-bottom:12px; color:#ff6b35;">📋 Product List</h3>
+    <div id="productList" class="product-grid">Loading...</div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, increment, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 import { db } from './firebase-config.js';
+import { storage } from './firebase-config.js';
 
-let currentProductId = null;
-let adjustType = 'add';
-
+// Display products
 onSnapshot(collection(db, "products"), (snapshot) => {
   const list = document.getElementById("productList");
   if(snapshot.empty) {
-    list.innerHTML = "No products yet";
+    list.innerHTML = "<p style='text-align:center; color:#999;'>No products yet</p>";
     return;
   }
-  
+
   list.innerHTML = '';
   snapshot.forEach(docSnap => {
     const p = docSnap.data();
+    const imgUrl = p.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iI2ZmZThkZCIvPjx0ZXh0IHg9IjYwIiB5PSI2MCIgZm9udC1zaXplPSIxNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmNmIzNSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+';
+
     list.innerHTML += `
-      <div class="product-row">
+      <div class="product-card">
+        <img src="${imgUrl}" class="product-img" alt="${p.name}">
         <div class="product-info">
           <h4>${p.name}</h4>
-          <p>Price: ₱${p.price} | Stock: <strong>${p.stock || 0}</strong></p>
+          <p>₱${p.price} | Stock: <strong style="color:#ff6b35;">${p.stock || 0}</strong></p>
         </div>
         <div class="product-actions">
-          <button class="btn-add-stock" onclick="openStockModal('${docSnap.id}', '${p.name}', 'add', ${p.stock || 0})">+ Add</button>
-          <button class="btn-remove-stock" onclick="openStockModal('${docSnap.id}', '${p.name}', 'remove', ${p.stock || 0})">- Remove</button>
+          <input type="number" id="qty-${docSnap.id}" placeholder="Qty" class="qty-input" inputmode="numeric" min="1">
+          <button class="btn-add-stock" onclick="quickAdjust('${docSnap.id}', 'add')">+ Add</button>
+          <button class="btn-remove-stock" onclick="quickAdjust('${docSnap.id}', 'remove')">- Remove</button>
         </div>
       </div>
     `;
   });
 });
 
-window.addProduct = async function() {
-  const name = document.getElementById('prodName').value.trim();
-  const price = parseFloat(document.getElementById('prodPrice').value);
-  const stock = parseInt(document.getElementById('prodStock').value) || 0;
-  
-  if(!name || !price) {
-    alert("Fill up name and price boss");
-    return;
-  }
-  
-  try {
-    await addDoc(collection(db, "products"), {
-      name: name,
-      price: price,
-      stock: stock
-    });
-    
-    document.getElementById('prodName').value = '';
-    document.getElementById('prodPrice').value = '';
-    document.getElementById('prodStock').value = '';
-    alert("Product added!");
-  } catch(e) {
-    alert("Error: " + e.message);
-  }
-}
+// Quick add/remove stock
+window.quickAdjust = async function(id, type) {
+  const qtyInput = document.getElementById(`qty-${id}`);
+  const qty = parseInt(qtyInput.value);
 
-window.openStockModal = function(id, name, type, currentStock) {
-  currentProductId = id;
-  adjustType = type;
-  
-  document.getElementById('modalTitle').textContent = type === 'add' ? 'Add Stock' : 'Remove Stock';
-  document.getElementById('modalProductName').textContent = `${name} - Current Stock: ${currentStock}`;
-  document.getElementById('adjustStockQty').value = '';
-  document.getElementById('adjustReason').value = '';
-  
-  // Show reason field only for remove
-  if(type === 'remove') {
-    document.getElementById('reasonLabel').style.display = 'block';
-    document.getElementById('adjustReason').style.display = 'block';
-  } else {
-    document.getElementById('reasonLabel').style.display = 'none';
-    document.getElementById('adjustReason').style.display = 'none';
-  }
-  
-  document.getElementById('stockModal').classList.add('show');
-}
-
-window.closeModal = function() {
-  document.getElementById('stockModal').classList.remove('show');
-  currentProductId = null;
-}
-
-window.confirmAdjustStock = async function() {
-  const qty = parseInt(document.getElementById('adjustStockQty').value);
-  const reason = document.getElementById('adjustReason').value.trim();
-  
   if(!qty || qty <= 0) {
-    alert("Enter valid quantity boss");
+    alert("Lagay mo muna quantity boss");
     return;
   }
-  
-  if(adjustType === 'remove' && !reason) {
-    alert("Lagay mo reason boss. Bakit binabawas?");
-    return;
-  }
-  
+
+  const productRef = doc(db, "products", id);
+
   try {
-    const productRef = doc(db, "products", currentProductId);
-    
-    if(adjustType === 'add') {
-      await updateDoc(productRef, {
-        stock: increment(qty)
-      });
-      alert(`Added ${qty} stock successfully!`);
+    if(type === 'add') {
+      await updateDoc(productRef, { stock: increment(qty) });
+      alert(`✅ Added ${qty} stock!`);
+      qtyInput.value = '';
     } else {
-      // Check if enough stock
-      const productSnap = await getDoc(productRef);
-      const currentStock = productSnap.data().stock || 0;
-      
+      const snap = await getDoc(productRef);
+      const currentStock = snap.data().stock || 0;
+
       if(currentStock < qty) {
-        alert("Hindi pwede! Kulang sa stock. Current: " + currentStock);
+        alert(`❌ Kulang sa stock. Current: ${currentStock}`);
         return;
       }
-      
-      await updateDoc(productRef, {
-        stock: increment(-qty)
-      });
-      
-      // Save adjustment log - optional, pero maganda for tracking
+
+      const reason = prompt("Reason for removing stock:");
+      if(!reason) return;
+
+      await updateDoc(productRef, { stock: increment(-qty) });
       await addDoc(collection(db, "stockAdjustments"), {
-        productId: currentProductId,
-        productName: productSnap.data().name,
+        productId: id,
+        productName: snap.data().name,
         type: 'remove',
         qty: qty,
         reason: reason,
         date: new Date()
       });
-      
-      alert(`Removed ${qty} stock. Reason: ${reason}`);
+      alert(`✅ Removed ${qty} stock`);
+      qtyInput.value = '';
     }
-    
-    closeModal();
   } catch(e) {
     alert("Error: " + e.message);
   }
 }
 
-// Add getDoc import
-import { getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+// Add product with image upload
+window.addProduct = async function() {
+  const name = document.getElementById('prodName').value.trim();
+  const price = parseFloat(document.getElementById('prodPrice').value);
+  const stock = parseInt(document.getElementById('prodStock').value) || 0;
+  const file = document.getElementById('prodImage').files[0];
+
+  if(!name ||!price) {
+    alert("Fill up name and price boss");
+    return;
+  }
+
+  let imageUrl = '';
+
+  try {
+    // Upload image to Firebase Storage if meron
+    if(file) {
+      const storageRef = ref(storage, `products/${Date.now()}_${file.name}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      imageUrl = await getDownloadURL(snapshot.ref);
+    }
+
+    // Check for duplicate
+    let existingProduct = null;
+    const snapshot = await getDocs(collection(db, "products"));
+    snapshot.forEach(docSnap => {
+      if(docSnap.data().name.toLowerCase() === name.toLowerCase()) {
+        existingProduct = {id: docSnap.id};
+      }
+    });
+
+    if(existingProduct) {
+      await updateDoc(doc(db, "products", existingProduct.id), {
+        stock: increment(stock),
+        imageUrl: imageUrl || docSnap.data().imageUrl
+      });
+      alert(`✅ ${name} updated! Added ${stock} to existing stock.`);
+    } else {
+      await addDoc(collection(db, "products"), { name, price, stock, imageUrl });
+      alert("✅ Product added!");
+    }
+
+    document.getElementById('prodName').value = '';
+    document.getElementById('prodPrice').value = '';
+    document.getElementById('prodStock').value = '';
+    document.getElementById('prodImage').value = '';
+
+  } catch(e) {
+    alert("Error: " + e.message);
+  }
+}
 </script>
 </body>
 </html>
