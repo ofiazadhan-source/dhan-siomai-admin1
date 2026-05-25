@@ -7,51 +7,101 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
-body {background:#f5f5f5; padding:20px;}
-.header {display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;}
-.header h1 {font-size:22px; color:#ff6b35;}
-.container {display:grid; grid-template-columns: 2fr 1fr; gap:20px;}
-.products, .cart {background:white; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08);}
-.product-grid {display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:12px;}
-.product-card {border:2px solid #eee; padding:15px; border-radius:10px; text-align:center; cursor:pointer; transition:0.2s;}
-.product-card:hover {border-color:#ff6b35; transform:translateY(-2px);}
-.product-name {font-weight:700; margin-bottom:5px;}
-.product-price {color:#ff6b35; font-weight:600;}
-.cart-item {display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;}
-.total {font-size:20px; font-weight:700; margin:15px 0;}
-.btn {width:100%; padding:12px; background:#ff6b35; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:16px;}
+body {background:#f5f5f5; padding:15px;}
+.header {display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;}
+.header h1 {font-size:20px; color:#ff6b35;}
+.container {display:grid; grid-template-columns: 2fr 1fr; gap:15px;}
+.products, .cart {background:white; padding:15px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.product-grid {display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap:10px;}
+.product-card {border:2px solid #eee; padding:12px; border-radius:10px; text-align:center; cursor:pointer; transition:0.2s;}
+.product-card:hover {border-color:#ff6b35;}
+.product-name {font-weight:700; font-size:14px; margin-bottom:5px;}
+.product-price {color:#ff6b35; font-weight:600; font-size:15px;}
+.product-stock {font-size:12px; color:#666;}
+.cart-item {display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee; font-size:14px;}
+.total {font-size:18px; font-weight:700; margin:15px 0;}
+.btn {width:100%; padding:14px; background:#ff6b35; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:16px;}
 .btn:hover {background:#e55a2b;}
 .btn:disabled {background:#ccc; cursor:not-allowed;}
+.qty-btn {background:#ff6b35; color:white; border:none; padding:2px 8px; border-radius:4px; cursor:pointer;}
+.payment-method {display:flex; gap:10px; margin:15px 0;}
+.payment-btn {flex:1; padding:12px; border:2px solid #ddd; border-radius:8px; background:white; cursor:pointer; font-weight:600;}
+.payment-btn.active {border-color:#ff6b35; background:#fff2ee; color:#ff6b35;}
+.proof-upload {display:none; margin-top:10px;}
+.proof-upload.show {display:block;}
+.proof-upload input {width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;}
+.modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;}
+.modal.show {display:flex;}
+.modal-content {background:white; padding:25px; border-radius:12px; max-width:400px; width:90%;}
 @media (max-width:768px) {.container {grid-template-columns: 1fr;}}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>💻 DHAN SIOMAI POS</h1>
+  <h1>💻 POS</h1>
   <a href="index.html" style="color:#ff6b35; text-decoration:none; font-weight:600;">← Back</a>
 </div>
 
 <div class="container">
   <div class="products">
-    <h3 style="margin-bottom:15px;">Products</h3>
+    <h3 style="margin-bottom:12px;">Products</h3>
     <div class="product-grid" id="productList">Loading products...</div>
   </div>
 
   <div class="cart">
-    <h3 style="margin-bottom:15px;">Cart</h3>
+    <h3 style="margin-bottom:12px;">Cart</h3>
     <div id="cartItems">Empty cart</div>
     <div class="total">Total: ₱<span id="total">0</span></div>
-    <button class="btn" id="checkoutBtn" onclick="checkout()" disabled>Checkout</button>
+    
+    <div id="paymentSection" style="display:none;">
+      <h4 style="margin-bottom:10px;">Payment Method</h4>
+      <div class="payment-method">
+        <button class="payment-btn active" onclick="selectPayment('cash')">💵 Cash</button>
+        <button class="payment-btn" onclick="selectPayment('gcash')">📱 GCash</button>
+      </div>
+      
+      <div class="proof-upload" id="proofUpload">
+        <label style="font-size:13px; color:#666;">Upload GCash Screenshot:</label>
+        <input type="file" id="proofFile" accept="image/*">
+      </div>
+      
+      <button class="btn" onclick="confirmCheckout()">Confirm Payment</button>
+    </div>
+    
+    <button class="btn" id="checkoutBtn" onclick="showPayment()" disabled>Checkout</button>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal" id="confirmModal">
+  <div class="modal-content">
+    <h3 style="margin-bottom:10px;">Payment Successful!</h3>
+    <p id="confirmText"></p>
+    <button class="btn" onclick="closeModal()" style="margin-top:15px;">OK</button>
   </div>
 </div>
 
 <script type="module">
-import { db } from './firebase-config.js';
-import { collection, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, doc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDk3ZbOXuw3PEfJzdt8AI2ueJq5yksfekE",
+  authDomain: "dhan-siomai-pos-fe1e5.firebaseapp.com",
+  projectId: "dhan-siomai-pos-fe1e5",
+  storageBucket: "dhan-siomai-pos-fe1e5.firebasestorage.app",
+  messagingSenderId: "305932123173",
+  appId: "1:305932123173:web:f27894a2d5e6e6ab8253cc"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 let cart = [];
 let products = [];
+let paymentMethod = 'cash';
+let proofFile = null;
 
 onSnapshot(collection(db, "products"), (snapshot) => {
   products = [];
@@ -64,22 +114,30 @@ onSnapshot(collection(db, "products"), (snapshot) => {
 function renderProducts() {
   const list = document.getElementById("productList");
   if(products.length === 0) {
-    list.innerHTML = "No products yet. Add sa Firebase Console";
+    list.innerHTML = "No products yet. Add sa Products page.";
     return;
   }
   list.innerHTML = products.map(p => `
     <div class="product-card" onclick="addToCart('${p.id}')">
       <div class="product-name">${p.name}</div>
       <div class="product-price">₱${p.price}</div>
-      <div style="font-size:12px; color:#666;">Stock: ${p.stock || 0}</div>
+      <div class="product-stock">Stock: ${p.stock || 0}</div>
     </div>
   `).join('');
 }
 
 window.addToCart = function(productId) {
   const product = products.find(p => p.id === productId);
+  if(product.stock <= 0) {
+    alert("Out of stock na boss");
+    return;
+  }
   const existing = cart.find(item => item.id === productId);
   if(existing) {
+    if(existing.qty >= product.stock) {
+      alert("Wala nang stock");
+      return;
+    }
     existing.qty += 1;
   } else {
     cart.push({...product, qty: 1});
@@ -87,8 +145,16 @@ window.addToCart = function(productId) {
   renderCart();
 }
 
-window.removeFromCart = function(productId) {
-  cart = cart.filter(item => item.id !== productId);
+window.changeQty = function(productId, change) {
+  const item = cart.find(i => i.id === productId);
+  const product = products.find(p => p.id === productId);
+  item.qty += change;
+  if(item.qty <= 0) {
+    cart = cart.filter(i => i.id !== productId);
+  } else if(item.qty > product.stock) {
+    alert("Sobra sa stock boss");
+    item.qty = product.stock;
+  }
   renderCart();
 }
 
@@ -101,6 +167,7 @@ function renderCart() {
     cartDiv.innerHTML = "Empty cart";
     totalSpan.textContent = "0";
     checkoutBtn.disabled = true;
+    document.getElementById("paymentSection").style.display = 'none';
     return;
   }
   
@@ -109,8 +176,15 @@ function renderCart() {
     total += item.price * item.qty;
     return `
       <div class="cart-item">
-        <div>${item.name} x${item.qty}</div>
-        <div>₱${item.price * item.qty} <button onclick="removeFromCart('${item.id}')" style="border:none; background:none; color:red; cursor:pointer;">x</button></div>
+        <div>
+          <div>${item.name}</div>
+          <div>
+            <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+            <span style="margin:0 8px;">${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+          </div>
+        </div>
+        <div>₱${item.price * item.qty}</div>
       </div>
     `;
   }).join('');
@@ -119,24 +193,88 @@ function renderCart() {
   checkoutBtn.disabled = false;
 }
 
-window.checkout = async function() {
-  if(cart.length === 0) return;
+window.showPayment = function() {
+  document.getElementById("paymentSection").style.display = 'block';
+}
+
+window.selectPayment = function(method) {
+  paymentMethod = method;
+  document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  if(method === 'gcash') {
+    document.getElementById('proofUpload').classList.add('show');
+  } else {
+    document.getElementById('proofUpload').classList.remove('show');
+  }
+}
+
+document.getElementById('proofFile').addEventListener('change', (e) => {
+  proofFile = e.target.files[0];
+});
+
+window.confirmCheckout = async function() {
+  if(paymentMethod === 'gcash' && !proofFile) {
+    alert("Upload mo muna yung GCash screenshot boss");
+    return;
+  }
   
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   
   try {
-    await addDoc(collection(db, "sales"), {
-      items: cart,
-      total: total,
-      date: serverTimestamp()
+    await runTransaction(db, async (transaction) => {
+      for(const item of cart) {
+        const productRef = doc(db, "products", item.id);
+        const productSnap = await transaction.get(productRef);
+        
+        if(!productSnap.exists()) throw new Error(item.name + " not found");
+        
+        const currentStock = productSnap.data().stock || 0;
+        if(currentStock < item.qty) throw new Error("Not enough stock for " + item.name);
+        
+        transaction.update(productRef, { stock: currentStock - item.qty });
+      }
+      
+      // Convert file to base64 for storage
+      let proofBase64 = null;
+      if(proofFile) {
+        proofBase64 = await fileToBase64(proofFile);
+      }
+      
+      transaction.set(doc(collection(db, "sales")), {
+        items: cart,
+        total: total,
+        paymentMethod: paymentMethod,
+        proof: proofBase64,
+        date: serverTimestamp()
+      });
     });
     
-    alert("Sale recorded boss!");
+    document.getElementById('confirmText').textContent = `Sale recorded! Payment: ${paymentMethod.toUpperCase()}. Total: ₱${total}`;
+    document.getElementById('confirmModal').classList.add('show');
+    
     cart = [];
+    proofFile = null;
+    document.getElementById('proofFile').value = '';
     renderCart();
+    document.getElementById("paymentSection").style.display = 'none';
+    
   } catch(e) {
     alert("Error: " + e.message);
   }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+}
+
+window.closeModal = function() {
+  document.getElementById('confirmModal').classList.remove('show');
 }
 </script>
 </body>
