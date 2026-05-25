@@ -5,11 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Products - DHAN SIOMAI</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff6b35">
+
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
-body {background:#f5f5f5; padding:15px;}
-.header {display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;}
-.header h1 {font-size:20px; color:#ff6b35;}
+body {background:#f5f5f5;}
+.header {
+  background: linear-gradient(135deg, #ff6b35, #ff8c65);
+  color:white;
+  padding:12px 15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand img {
+  height: 40px;
+  width: auto;
+  border-radius: 6px;
+}
+.brand h1 {
+  font-size: 18px;
+  font-weight:700;
+  margin: 0;
+}
+.header a {
+  color:#ff6b35;
+  background:#fff;
+  text-decoration:none;
+  font-weight:600;
+  padding:8px 14px;
+  border-radius:8px;
+}
+.container {padding:0 15px 15px 15px;}
 .card {background:white; padding:15px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08); margin-bottom:15px;}
 input, button {width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd; font-size:14px;}
 button {background:#ff6b35; color:white; border:none; font-weight:700; cursor:pointer;}
@@ -30,21 +64,26 @@ button:hover {background:#e55a2b;}
 <body>
 
 <div class="header">
-  <h1>📦 Products</h1>
-  <a href="index.html" style="color:#ff6b35; text-decoration:none; font-weight:600;">← Back</a>
+  <div class="brand">
+    <img src="https://i.imgur.com/RK3ArWT.jpeg" alt="Giant Siomai Logo">
+    <h1>📦 Products</h1>
+  </div>
+  <a href="index.html">← Back</a>
 </div>
 
-<div class="card">
-  <h3 style="margin-bottom:12px;">Add New Product</h3>
-  <input type="text" id="prodName" placeholder="Product Name">
-  <input type="number" id="prodPrice" placeholder="Price">
-  <input type="number" id="prodStock" placeholder="Initial Stock">
-  <button onclick="addProduct()">Add Product</button>
-</div>
+<div class="container">
+  <div class="card">
+    <h3 style="margin-bottom:12px;">Add New Product</h3>
+    <input type="text" id="prodName" placeholder="Product Name">
+    <input type="number" id="prodPrice" placeholder="Price">
+    <input type="number" id="prodStock" placeholder="Initial Stock">
+    <button onclick="addProduct()">Add Product</button>
+  </div>
 
-<div class="card">
-  <h3 style="margin-bottom:12px;">Product List</h3>
-  <div id="productList">Loading...</div>
+  <div class="card">
+    <h3 style="margin-bottom:12px;">Product List</h3>
+    <div id="productList">Loading...</div>
+  </div>
 </div>
 
 <!-- Stock Adjustment Modal -->
@@ -63,8 +102,7 @@ button:hover {background:#e55a2b;}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { db } from './firebase-config.js';
 
 let currentProductId = null;
@@ -76,7 +114,6 @@ onSnapshot(collection(db, "products"), (snapshot) => {
     list.innerHTML = "No products yet";
     return;
   }
-  
   list.innerHTML = '';
   snapshot.forEach(docSnap => {
     const p = docSnap.data();
@@ -99,19 +136,16 @@ window.addProduct = async function() {
   const name = document.getElementById('prodName').value.trim();
   const price = parseFloat(document.getElementById('prodPrice').value);
   const stock = parseInt(document.getElementById('prodStock').value) || 0;
-  
   if(!name || !price) {
     alert("Fill up name and price boss");
     return;
   }
-  
   try {
     await addDoc(collection(db, "products"), {
       name: name,
       price: price,
       stock: stock
     });
-    
     document.getElementById('prodName').value = '';
     document.getElementById('prodPrice').value = '';
     document.getElementById('prodStock').value = '';
@@ -124,13 +158,11 @@ window.addProduct = async function() {
 window.openStockModal = function(id, name, type, currentStock) {
   currentProductId = id;
   adjustType = type;
-  
   document.getElementById('modalTitle').textContent = type === 'add' ? 'Add Stock' : 'Remove Stock';
   document.getElementById('modalProductName').textContent = `${name} - Current Stock: ${currentStock}`;
   document.getElementById('adjustStockQty').value = '';
   document.getElementById('adjustReason').value = '';
   
-  // Show reason field only for remove
   if(type === 'remove') {
     document.getElementById('reasonLabel').style.display = 'block';
     document.getElementById('adjustReason').style.display = 'block';
@@ -138,7 +170,6 @@ window.openStockModal = function(id, name, type, currentStock) {
     document.getElementById('reasonLabel').style.display = 'none';
     document.getElementById('adjustReason').style.display = 'none';
   }
-  
   document.getElementById('stockModal').classList.add('show');
 }
 
@@ -150,40 +181,27 @@ window.closeModal = function() {
 window.confirmAdjustStock = async function() {
   const qty = parseInt(document.getElementById('adjustStockQty').value);
   const reason = document.getElementById('adjustReason').value.trim();
-  
   if(!qty || qty <= 0) {
     alert("Enter valid quantity boss");
     return;
   }
-  
   if(adjustType === 'remove' && !reason) {
     alert("Lagay mo reason boss. Bakit binabawas?");
     return;
   }
-  
   try {
     const productRef = doc(db, "products", currentProductId);
-    
     if(adjustType === 'add') {
-      await updateDoc(productRef, {
-        stock: increment(qty)
-      });
+      await updateDoc(productRef, { stock: increment(qty) });
       alert(`Added ${qty} stock successfully!`);
     } else {
-      // Check if enough stock
       const productSnap = await getDoc(productRef);
       const currentStock = productSnap.data().stock || 0;
-      
       if(currentStock < qty) {
         alert("Hindi pwede! Kulang sa stock. Current: " + currentStock);
         return;
       }
-      
-      await updateDoc(productRef, {
-        stock: increment(-qty)
-      });
-      
-      // Save adjustment log - optional, pero maganda for tracking
+      await updateDoc(productRef, { stock: increment(-qty) });
       await addDoc(collection(db, "stockAdjustments"), {
         productId: currentProductId,
         productName: productSnap.data().name,
@@ -192,18 +210,13 @@ window.confirmAdjustStock = async function() {
         reason: reason,
         date: new Date()
       });
-      
       alert(`Removed ${qty} stock. Reason: ${reason}`);
     }
-    
     closeModal();
   } catch(e) {
     alert("Error: " + e.message);
   }
 }
-
-// Add getDoc import
-import { getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 </script>
 </body>
 </html>
