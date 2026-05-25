@@ -57,8 +57,8 @@ body {background:#f5f5f5; padding:15px;}
     <div id="paymentSection" style="display:none;">
       <h4 style="margin-bottom:10px;">Payment Method</h4>
       <div class="payment-method">
-        <button class="payment-btn active" onclick="selectPayment('cash')">💵 Cash</button>
-        <button class="payment-btn" onclick="selectPayment('gcash')">📱 GCash</button>
+        <button type="button" class="payment-btn active" onclick="selectPayment('cash')">💵 Cash</button>
+        <button type="button" class="payment-btn" onclick="selectPayment('gcash')">📱 GCash</button>
       </div>
       
       <div class="proof-upload" id="proofUpload">
@@ -66,10 +66,10 @@ body {background:#f5f5f5; padding:15px;}
         <input type="file" id="proofFile" accept="image/*">
       </div>
       
-      <button class="btn" onclick="confirmCheckout()">Confirm Payment</button>
+      <button type="button" class="btn" onclick="confirmCheckout()">Confirm Payment</button>
     </div>
     
-    <button class="btn" id="checkoutBtn" onclick="showPayment()" disabled>Checkout</button>
+    <button type="button" class="btn" id="checkoutBtn" onclick="showPayment()" disabled>Checkout</button>
   </div>
 </div>
 
@@ -78,38 +78,38 @@ body {background:#f5f5f5; padding:15px;}
   <div class="modal-content">
     <h3 style="margin-bottom:10px;">Payment Successful!</h3>
     <p id="confirmText"></p>
-    <button class="btn" onclick="closeModal()" style="margin-top:15px;">OK</button>
+    <button type="button" class="btn" onclick="closeModal()" style="margin-top:15px;">OK</button>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, doc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDk3ZbOXuw3PEfJzdt8AI2ueJq5yksfekE",
-  authDomain: "dhan-siomai-pos-fe1e5.firebaseapp.com",
-  projectId: "dhan-siomai-pos-fe1e5",
-  storageBucket: "dhan-siomai-pos-fe1e5.firebasestorage.app",
-  messagingSenderId: "305932123173",
-  appId: "1:305932123173:web:f27894a2d5e6e6ab8253cc"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// PALITAN MO TO KUNG NASA IBANG FOLDER YUNG firebase-config.js
+// Kung same folder: './firebase-config.js'
+// Kung nasa root at nasa folder yung pos.html: '../firebase-config.js'
+import { db } from './firebase-config.js';
 
 let cart = [];
 let products = [];
 let paymentMethod = 'cash';
 let proofFile = null;
 
-onSnapshot(collection(db, "products"), (snapshot) => {
-  products = [];
-  snapshot.forEach(doc => {
-    products.push({id: doc.id, ...doc.data()});
-  });
-  renderProducts();
-});
+// Load products real-time
+onSnapshot(collection(db, "products"), 
+  (snapshot) => {
+    products = [];
+    snapshot.forEach(doc => {
+      products.push({id: doc.id, ...doc.data()});
+    });
+    renderProducts();
+  },
+  (error) => {
+    console.error("Error loading products:", error);
+    document.getElementById("productList").innerHTML = "Error loading products. Check console.";
+  }
+);
 
 function renderProducts() {
   const list = document.getElementById("productList");
@@ -128,6 +128,7 @@ function renderProducts() {
 
 window.addToCart = function(productId) {
   const product = products.find(p => p.id === productId);
+  if(!product) return;
   if(product.stock <= 0) {
     alert("Out of stock na boss");
     return;
@@ -148,6 +149,8 @@ window.addToCart = function(productId) {
 window.changeQty = function(productId, change) {
   const item = cart.find(i => i.id === productId);
   const product = products.find(p => p.id === productId);
+  if(!item || !product) return;
+  
   item.qty += change;
   if(item.qty <= 0) {
     cart = cart.filter(i => i.id !== productId);
@@ -179,9 +182,9 @@ function renderCart() {
         <div>
           <div>${item.name}</div>
           <div>
-            <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+            <button type="button" class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
             <span style="margin:0 8px;">${item.qty}</span>
-            <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+            <button type="button" class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
           </div>
         </div>
         <div>₱${item.price * item.qty}</div>
@@ -235,7 +238,6 @@ window.confirmCheckout = async function() {
         transaction.update(productRef, { stock: currentStock - item.qty });
       }
       
-      // Convert file to base64 for storage
       let proofBase64 = null;
       if(proofFile) {
         proofBase64 = await fileToBase64(proofFile);
@@ -261,6 +263,7 @@ window.confirmCheckout = async function() {
     
   } catch(e) {
     alert("Error: " + e.message);
+    console.error(e);
   }
 }
 
