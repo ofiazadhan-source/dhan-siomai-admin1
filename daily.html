@@ -5,10 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daily Production - Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff6b35">
+
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
 body {background:#f5f5f5;}
-.header {background: linear-gradient(135deg, #ff6b35, #ff8c65); color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center;}
+.header {
+  background: linear-gradient(135deg, #ff6b35, #ff8c65);
+  color:white;
+  padding:12px 15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand img {
+  height: 40px;
+  width: auto;
+  border-radius: 6px;
+}
+.brand h1 {
+  font-size: 18px;
+  margin: 0;
+}
 .container {padding:15px; max-width:1100px; margin:0 auto;}
 .notice {background:#e8f5e9; color:#2e7d32; padding:12px; border-radius:8px; margin-bottom:15px; font-size:14px;}
 .add-btn {background:#ff6b35; color:white; border:none; padding:10px 16px; border-radius:8px; font-weight:600; cursor:pointer; margin-bottom:15px;}
@@ -23,17 +47,22 @@ body {background:#f5f5f5;}
 </style>
 </head>
 <body>
+
 <div class="header">
-<h1>📊 Daily Production</h1>
-<button onclick="window.location.href='index.html'" style="padding:8px 14px; border:none; border-radius:8px; font-weight:600; cursor:pointer; background:#fff; color:#ff6b35;">← Back</button>
+  <div class="brand">
+    <img src="https://i.imgur.com/RK3ArWT.jpeg" alt="Giant Siomai Logo">
+    <h1>📊 Daily Production</h1>
+  </div>
+  <button onclick="window.location.href='index.html'" style="padding:8px 14px; border:none; border-radius:8px; font-weight:600; cursor:pointer; background:#fff; color:#ff6b35;">← Back</button>
 </div>
+
 <div class="container">
-<div class="notice">💡 Piliin mo yung product sa dropdown. Walang typing, walang mali.</div>
-<button class="add-btn" onclick="addDaily()">+ Add Daily Record</button>
-<div id="dailyList"><div class="loading">Loading...</div></div>
-<br>
-<button class="btn-back" onclick="window.location.href='index.html'">Back</button>
-<button class="btn-save" onclick="saveDaily()">💾 Save All</button>
+  <div class="notice">💡 Piliin mo yung product sa dropdown. Walang typing, walang mali.</div>
+  <button class="add-btn" onclick="addDaily()">+ Add Daily Record</button>
+  <div id="dailyList"><div class="loading">Loading...</div></div>
+  <br>
+  <button class="btn-back" onclick="window.location.href='index.html'">Back</button>
+  <button class="btn-save" onclick="saveDaily()">💾 Save All</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -77,7 +106,6 @@ function renderDaily() {
     document.getElementById('dailyList').innerHTML = '<div class="loading">No records yet</div>';
     return;
   }
-  
   let html = `<table class="table"><tr><th>Date</th><th>Product</th><th>Qty</th><th>Action</th></tr>`;
   dailyArray.forEach(d => {
     let options = `<option value="">-- Select Product --</option>`;
@@ -85,7 +113,6 @@ function renderDaily() {
       let selected = p.id === d.productId? 'selected' : '';
       options += `<option value="${p.id}" ${selected}>${p.name}</option>`;
     });
-    
     html += `<tr>
       <td><input type="date" id="date-${d.id}" value="${d.date}"></td>
       <td><select id="prod-${d.id}">${options}</select></td>
@@ -102,12 +129,10 @@ function addDaily() {
     alert("Wala pang product. Mag-add ka muna sa Products page.");
     return;
   }
-  
   let date = new Date().toISOString().split('T')[0];
   let firstProduct = productsArray[0];
-  
   db.collection("dhan-daily").add({
-    date: date, 
+    date: date,
     productId: firstProduct.id,
     productName: firstProduct.name,
     qty: 0
@@ -116,45 +141,39 @@ function addDaily() {
 
 async function saveDaily() {
   if(!confirm("Save all changes?")) return;
-  
   try {
     const batch = db.batch();
     let updatedCount = 0;
-
     for(const d of dailyArray) {
       let qty = parseInt(document.getElementById(`qty-${d.id}`).value) || 0;
       let productId = document.getElementById(`prod-${d.id}`).value;
       let date = document.getElementById(`date-${d.id}`).value;
-      
+
       if(qty > 0 && productId){
-        batch.update(db.collection("dhan-pos-web").doc(productId), { 
-          stock: firebase.firestore.FieldValue.increment(qty) 
+        batch.update(db.collection("dhan-pos-web").doc(productId), {
+          stock: firebase.firestore.FieldValue.increment(qty)
         });
         updatedCount++;
-        
         let prod = productsArray.find(p => p.id === productId);
-        
-        batch.update(db.collection("dhan-daily").doc(d.id), { 
-          date: date, 
+        batch.update(db.collection("dhan-daily").doc(d.id), {
+          date: date,
           productId: productId,
           productName: prod? prod.name : "",
-          qty: qty 
+          qty: qty
         });
       } else {
-        batch.update(db.collection("dhan-daily").doc(d.id), { 
-          date: date, 
+        batch.update(db.collection("dhan-daily").doc(d.id), {
+          date: date,
           productId: productId,
           productName: "",
-          qty: qty 
+          qty: qty
         });
       }
     }
-
     await batch.commit();
     alert(`✅ Saved! ${updatedCount} product stock updated.`);
     loadDaily();
     loadProducts();
-    
   } catch(err) {
     alert("❌ Error: " + err.message);
   }
