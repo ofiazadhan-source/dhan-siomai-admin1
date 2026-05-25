@@ -1,1 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DHAN SIOMAI POS</title>
+<style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { margin: 0; background: #f5f5f5; }
 
+    header {
+        background: #ff6b35;
+        color: white;
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+   .container { padding: 15px; max-width: 1200px; margin: 0 auto; }
+
+   .section {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+   .section h3 { margin: 0 0 15px; color: #ff6b35; }
+
+   .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+    }
+
+   .product-card {
+        border: 2px solid #ffe8d6;
+        border-radius: 8px;
+        overflow: hidden;
+        text-align: center;
+        background: white;
+    }
+
+   .product-card img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+    }
+
+   .product-info { padding: 10px; }
+   .product-info h4 { margin: 5px 0; font-size: 14px; }
+   .product-info p { margin: 5px 0; color: #ff6b35; font-weight: bold; }
+   .product-info small { color: #666; }
+
+   .btn-add {
+        width: 100%;
+        padding: 8px;
+        background: #ff6b35;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+   .cart-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+   .qty-btn {
+        background: #ff6b35;
+        color: white;
+        border: none;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+   .btn-checkout {
+        width: 100%;
+        padding: 15px;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+   .total { text-align: right; font-size: 20px; color: #ff6b35; font-weight: bold; margin: 15px 0; }
+
+    /* Modal Styles */
+    #paymentModal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+   .modal-content {
+        background: white;
+        width: 100%;
+        max-width: 400px;
+        border-radius: 12px;
+        padding: 20px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+   .modal-content input,.modal-content select {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        font-size: 16px;
+    }
+
+   .cash-btns {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 5px;
+        margin: 10px 0;
+    }
+
+   .cash-btns button {
+        padding: 8px;
+        border: 2px solid #ffb703;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h2>🍢 DHAN SIOMAI POS</h2>
+    <button onclick="window.location.href='index.html'" style="background:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer;">← Back</button>
+</header>
+
+<div class="container">
+    <!-- Products Section -->
+    <div class="section">
+        <h3>🛒 Products</h3>
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
+
+    <!-- Cart Section -->
+    <div class="section">
+        <h3>📝 Cart</h3>
+        <div id="cartItems"></div>
+        <div class="total" id="cartTotal">Total: ₱0</div>
+        <button class="btn-checkout" onclick="checkout()">Checkout</button>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="paymentModal">
+  <div class="modal-content">
+    <h3 style="text-align:center; color:#e63946; margin:0 0 10px;">DHAN SIOMAI</h3>
+    <div id="receiptContent" style="font-size:14px; line-height:1.6;"></div>
+
+    <div style="margin-top:15px;">
+      <label><strong>Payment Method:</strong></label>
+      <select id="paymentMethod">
+        <option value="Cash">Cash</option>
+        <option value="GCash">GCash</option>
+      </select>
+
+      <label><strong>Cash Received:</strong></label>
+      <input type="number" id="cashReceived" placeholder="0" oninput="calculateChange()">
+
+      <div class="cash-btns">
+        <button onclick="addCash(10)">₱10</button>
+        <button onclick="addCash(50)">₱50</button>
+        <button onclick="addCash(100)">₱100</button>
+        <button onclick="addCash(500)">₱500</button>
+        <button onclick="addCash(1000)">₱1000</button>
+      </div>
+
+      <h4 style="text-align:right;">Change: ₱<span id="changeAmount">0</span></h4>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:15px;">
+      <button onclick="confirmPayment()"
+              style="flex:1; padding:12px; background:#e63946; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">
+        Print & Confirm
+      </button>
+      <button onclick="closeModal()"
+              style="flex:1; padding:12px; background:#6c757d; color:white; border:none; border-radius:8px; cursor:pointer;">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+let products = JSON.parse(localStorage.getItem('products') || '[]');
+let cart = [];
+let currentTotal = 0;
+
+// Load products on start
+function loadProducts() {
+    products = JSON.parse(localStorage.getItem('products') || '[]');
+    const grid = document.getElementById('productsGrid');
+    grid.innerHTML = '';
+
+    if (products.length === 0) {
+        grid.innerHTML = '<p style="text-align:center; color:#666;">No products yet. Add some in Products page.</p>';
+        return;
+    }
+
+    products.forEach((p, index) => {
+        if (p.stock > 0) {
+            grid.innerHTML += `
+            <div class="product-card">
+                <img src="${p.image || 'https://via.placeholder.com/150'}" alt="${p.name}">
+                <div class="product-info">
+                    <h4>${p.name}</h4>
+                    <p>₱${p.price}</p>
+                    <small>Stock: ${p.stock}</small>
+                    <button class="btn-add" onclick="addToCart(${index})">Add</button>
+                </div>
+            </div>`;
+        }
+    });
+}
+
+function addToCart(index) {
+    const product = products[index];
+    const existing = cart.find(item => item.name === product.name);
+
+    if (existing) {
+        if (existing.qty < product.stock) {
+            existing.qty++;
+        } else {
+            alert('Out of stock!');
+            return;
+        }
+    } else {
+        cart.push({...product, qty: 1});
+    }
+    renderCart();
+}
+
+function renderCart() {
+    const cartDiv = document.getElementById('cartItems');
+    cartDiv.innerHTML = '';
+
+    if (cart.length === 0) {
+        cartDiv.innerHTML = '<p style="text-align:center; color:#666;">Empty</p>';
+    }
+
+    let total = 0;
+    cart.forEach((item, index) => {
+        total += item.price * item.qty;
+        cartDiv.innerHTML += `
+        <div class="cart-item">
+            <div>
+                <strong>${item.name}</strong><br>
+                <small>₱${item.price} x ${item.qty}</small>
+            </div>
+            <div>
+                <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
+                ${item.qty}
+                <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
+            </div>
+        </div>`;
+    });
+
+    currentTotal = total;
+    document.getElementById('cartTotal').textContent = `Total: ₱${total}`;
+}
+
+function updateQty(index, change) {
+    cart[index].qty += change;
+    if (cart[index].qty <= 0) {
+        cart.splice(index, 1);
+    }
+    renderCart();
+}
+
+function checkout() {
+    if (cart.length === 0) {
+        alert("Cart is empty!");
+        return;
+    }
+
+    let receiptHTML = `
+      Thank you!<br>
+      ${new Date().toLocaleString()}<br><hr>
+    `;
+
+    cart.forEach(item => {
+        receiptHTML += `${item.name} x${item.qty}
+          <span style="float:right;">₱${item.price * item.qty}</span><br>`;
+    });
+
+    receiptHTML += `<hr><strong>Total <span style="float:right;">₱${currentTotal}</span></strong>`;
+
+    document.getElementById('receiptContent').innerHTML = receiptHTML;
+    document.getElementById('cashReceived').value = '';
+    document.getElementById('changeAmount').textContent = '0';
+    document.getElementById('paymentModal').style.display = 'flex';
+}
+
+function addCash(amount) {
+    let current = parseFloat(document.getElementById('cashReceived').value) || 0;
+    document.getElementById('cashReceived').value = current + amount;
+    calculateChange();
+}
+
+function calculateChange() {
+    const cash = parseFloat(document.getElementById('cashReceived').value) || 0;
+    const change = cash - currentTotal;
+    document.getElementById('changeAmount').textContent = change >= 0? change : 0;
+}
+
+function confirmPayment() {
+    const cash = parseFloat(document.getElementById('cashReceived').value) || 0;
+    const method = document.getElementById('paymentMethod').value;
+
+    if (method === 'Cash' && cash < currentTotal) {
+        alert('Insufficient cash!');
+        return;
+    }
+
+    const change = cash - currentTotal;
+
+    // Update stock in localStorage
+    cart.forEach(cartItem => {
+        const product = products.find(p => p.name === cartItem.name);
+        if (product) {
+            product.stock -= cartItem.qty;
+        }
+    });
+    localStorage.setItem('products', JSON.stringify(products));
+
+    alert(`✅ Sale completed!\nPayment: ${method}\nChange: ₱${change >= 0? change : 0}`);
+
+    cart = [];
+    renderCart();
+    loadProducts();
+    closeModal();
+}
+
+function closeModal() {
+    document.getElementById('paymentModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+document.getElementById('paymentModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+loadProducts();
+</script>
+
+</body>
+</html>
