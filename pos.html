@@ -73,7 +73,6 @@ body {background:#f5f5f5; padding:15px;}
   </div>
 </div>
 
-<!-- Confirmation Modal -->
 <div class="modal" id="confirmModal">
   <div class="modal-content">
     <h3 style="margin-bottom:10px;">Payment Successful!</h3>
@@ -86,9 +85,6 @@ body {background:#f5f5f5; padding:15px;}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, onSnapshot, doc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// PALITAN MO TO KUNG NASA IBANG FOLDER YUNG firebase-config.js
-// Kung same folder: './firebase-config.js'
-// Kung nasa root at nasa folder yung pos.html: '../firebase-config.js'
 import { db } from './firebase-config.js';
 
 let cart = [];
@@ -96,7 +92,6 @@ let products = [];
 let paymentMethod = 'cash';
 let proofFile = null;
 
-// Load products real-time
 onSnapshot(collection(db, "products"), 
   (snapshot) => {
     products = [];
@@ -107,7 +102,7 @@ onSnapshot(collection(db, "products"),
   },
   (error) => {
     console.error("Error loading products:", error);
-    document.getElementById("productList").innerHTML = "Error loading products. Check console.";
+    document.getElementById("productList").innerHTML = "Error loading products.";
   }
 );
 
@@ -216,6 +211,7 @@ document.getElementById('proofFile').addEventListener('change', (e) => {
   proofFile = e.target.files[0];
 });
 
+// FIXED: Basahin muna file BAGO pumasok sa transaction
 window.confirmCheckout = async function() {
   if(paymentMethod === 'gcash' && !proofFile) {
     alert("Upload mo muna yung GCash screenshot boss");
@@ -225,22 +221,33 @@ window.confirmCheckout = async function() {
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   
   try {
+    // 1. Basahin muna yung file outside transaction
+    let proofBase64 = null;
+    if(proofFile) {
+      proofBase64 = await fileToBase64(proofFile);
+    }
+    
+    // 2. Dito na lang mag-transaction. Lahat ng reads una, tapos writes
     await runTransaction(db, async (transaction) => {
-      for(const item of cart) {
-        const productRef = doc(db, "products", item.id);
-        const productSnap = await transaction.get(productRef);
+      // LAHAT NG READS MUNA
+      const productRefs = cart.map(item => doc(db, "products", item.id));
+      const productSnaps = await Promise.all(
+        productRefs.map(ref => transaction.get(ref))
+      );
+      
+      // Check stock
+      for(let i = 0; i < cart.length; i++) {
+        const snap = productSnaps[i];
+        if(!snap.exists()) throw new Error(cart[i].name + " not found");
         
-        if(!productSnap.exists()) throw new Error(item.name + " not found");
-        
-        const currentStock = productSnap.data().stock || 0;
-        if(currentStock < item.qty) throw new Error("Not enough stock for " + item.name);
-        
-        transaction.update(productRef, { stock: currentStock - item.qty });
+        const currentStock = snap.data().stock || 0;
+        if(currentStock < cart[i].qty) throw new Error("Not enough stock for " + cart[i].name);
       }
       
-      let proofBase64 = null;
-      if(proofFile) {
-        proofBase64 = await fileToBase64(proofFile);
+      // TAPOS LAHAT NG WRITES
+      for(let i = 0; i < cart.length; i++) {
+        const currentStock = productSnaps[i].data().stock || 0;
+        transaction.update(productRefs[i], { stock: currentStock - cart[i].qty });
       }
       
       transaction.set(doc(collection(db, "sales")), {
