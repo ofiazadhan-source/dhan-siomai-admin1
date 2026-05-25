@@ -5,45 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sales - DHAN SIOMAI</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ff6b35">
-
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
-body {background:#f5f5f5;}
-.header {
-  background: linear-gradient(135deg, #ff6b35, #ff8c65);
-  color:white;
-  padding:12px 15px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:15px;
-}
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.brand img {
-  height: 40px;
-  width: auto;
-  border-radius: 6px;
-}
-.brand h1 {
-  font-size: 18px;
-  font-weight:700;
-  margin: 0;
-}
-.header a {
-  color:#ff6b35;
-  background:#fff;
-  text-decoration:none;
-  font-weight:600;
-  padding:8px 14px;
-  border-radius:8px;
-}
-.container {padding:0 15px 15px 15px;}
+body {background:#f5f5f5; padding:15px;}
+.header {display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;}
+.header h1 {font-size:20px; color:#ff6b35;}
 .card {background:white; padding:15px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08); margin-bottom:15px;}
 .summary {display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:15px;}
 .summary-box {background:#ff6b35; color:white; padding:12px; border-radius:10px; text-align:center;}
@@ -67,45 +33,40 @@ th {background:#f8f8f8; font-weight:700;}
 <body>
 
 <div class="header">
-  <div class="brand">
-    <img src="https://i.imgur.com/RK3ArWT.jpeg" alt="Giant Siomai Logo">
-    <h1>📊 Sales Records</h1>
-  </div>
-  <a href="index.html">← Back</a>
+  <h1>📊 Sales Records</h1>
+  <a href="index.html" style="color:#ff6b35; text-decoration:none; font-weight:600;">← Back</a>
 </div>
 
-<div class="container">
-  <div class="summary">
-    <div class="summary-box">
-      <h4>Today</h4>
-      <p>₱<span id="todaySales">0</span></p>
-    </div>
-    <div class="summary-box">
-      <h4>This Month</h4>
-      <p>₱<span id="monthSales">0</span></p>
-    </div>
-    <div class="summary-box">
-      <h4>Transactions</h4>
-      <p id="totalTrans">0</p>
-    </div>
+<div class="summary">
+  <div class="summary-box">
+    <h4>Today</h4>
+    <p>₱<span id="todaySales">0</span></p>
   </div>
+  <div class="summary-box">
+    <h4>This Month</h4>
+    <p>₱<span id="monthSales">0</span></p>
+  </div>
+  <div class="summary-box">
+    <h4>Transactions</h4>
+    <p id="totalTrans">0</p>
+  </div>
+</div>
 
-  <div class="card">
-    <h3 style="margin-bottom:12px;">Recent Sales</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Items Sold</th>
-          <th>Payment</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody id="salesTable">
-        <tr><td colspan="4">Loading...</td></tr>
-      </tbody>
-    </table>
-  </div>
+<div class="card">
+  <h3 style="margin-bottom:12px;">Recent Sales</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Items Sold</th>
+        <th>Payment</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody id="salesTable">
+      <tr><td colspan="4">Loading...</td></tr>
+    </tbody>
+  </table>
 </div>
 
 <!-- Image Modal -->
@@ -133,10 +94,11 @@ onSnapshot(query(collection(db, "sales"), orderBy("date", "desc")), (snapshot) =
   const tbody = document.getElementById("salesTable");
   let todayTotal = 0;
   let monthTotal = 0;
+  
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
+  
   if(snapshot.empty) {
     tbody.innerHTML = '<tr><td colspan="4">No sales yet</td></tr>';
     document.getElementById("todaySales").textContent = 0;
@@ -150,7 +112,8 @@ onSnapshot(query(collection(db, "sales"), orderBy("date", "desc")), (snapshot) =
     const s = docSnap.data();
     const date = s.date?.toDate ? s.date.toDate() : new Date();
     const dateStr = date.toLocaleString('en-PH', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
-
+    
+    // Items list
     let itemsHtml = '';
     s.items.forEach(item => {
       itemsHtml += `<div class="item-row">
@@ -158,14 +121,18 @@ onSnapshot(query(collection(db, "sales"), orderBy("date", "desc")), (snapshot) =
         <span>₱${item.price * item.qty}</span>
       </div>`;
     });
-
+    
+    // Payment badge
     const payMethod = s.paymentMethod || 'cash';
     const payBadge = payMethod === 'gcash' 
       ? '<span class="payment-badge payment-gcash">📱 GCash</span>' 
       : '<span class="payment-badge payment-cash">💵 Cash</span>';
     
-    const proofHtml = s.proof ? `<br><img src="${s.proof}" class="proof-img" onclick="showImage('${s.proof}')">` : '';
-
+    // Proof image if GCash
+    const proofHtml = s.proof 
+      ? `<br><img src="${s.proof}" class="proof-img" onclick="showImage('${s.proof}')">` 
+      : '';
+    
     tbody.innerHTML += `
       <tr>
         <td>${dateStr}</td>
@@ -174,11 +141,11 @@ onSnapshot(query(collection(db, "sales"), orderBy("date", "desc")), (snapshot) =
         <td><strong>₱${s.total}</strong></td>
       </tr>
     `;
-
+    
     if(date >= todayStart) todayTotal += s.total;
     if(date >= monthStart) monthTotal += s.total;
   });
-
+  
   document.getElementById("todaySales").textContent = todayTotal;
   document.getElementById("monthSales").textContent = monthTotal;
   document.getElementById("totalTrans").textContent = snapshot.size;
