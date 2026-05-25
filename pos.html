@@ -8,159 +8,108 @@
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
 body {background:linear-gradient(135deg, #fff5f0, #ffe8dd); min-height:100vh;}
-.header {
-  background: linear-gradient(135deg, #ff6b35, #ff8c65);
-  color:white; padding:15px; display:flex; justify-content:space-between; align-items:center;
-  box-shadow:0 4px 12px rgba(255,107,53,0.3);
-}
+.header { background: linear-gradient(135deg, #ff6b35, #ff8c65); color:white; padding:15px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 4px 12px rgba(255,107,53,0.3); }
 .header h1 { font-size: 18px; font-weight:700; display:flex; align-items:center; gap:8px; }
 .header a { color:#ff6b35; background:#fff; text-decoration:none; font-weight:600; padding:8px 14px; border-radius:8px; }
 .container {padding:15px;}
 .card {background:white; padding:18px; border-radius:16px; box-shadow:0 4px 16px rgba(0,0,0,0.08); margin-bottom:15px;}
-.product-grid {
-  display:grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap:12px;
+
+/* Menu with Image */
+.menu-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; }
+.menu-item { 
+  background:white; 
+  border-radius:14px; 
+  padding:10px; 
+  box-shadow:0 3px 10px rgba(0,0,0,0.08); 
+  border:2px solid #ffd4c2; 
+  text-align:center; 
+  cursor:pointer; 
+  transition:0.2s; 
 }
-.product-card {
-  background:white; border-radius:14px; padding:10px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.08);
-  border:2px solid #ffd4c2;
-  text-align:center;
-  cursor:pointer;
-  transition:0.2s;
+.menu-item:active {transform:scale(0.96); border-color:#ff6b35;}
+.menu-img { 
+  width:100%; 
+  height:80px; 
+  object-fit:cover; 
+  border-radius:10px; 
+  margin-bottom:6px; 
+  background:#ffe8dd; 
 }
-.product-card:active {transform:scale(0.96); border-color:#ff6b35;}
-.product-img {
-  width:100%; height:80px; object-fit:cover; border-radius:10px; margin-bottom:6px;
-  background:#ffe8dd;
-}
-.product-name {font-size:13px; font-weight:600; color:#333; margin-bottom:4px;}
-.product-price {font-size:15px; font-weight:700; color:#ff6b35;}
-.product-stock {font-size:11px; color:#666;}
-.cart-item {
-  display:flex; justify-content:space-between; align-items:center;
-  padding:10px 0; border-bottom:1px solid #eee;
-}
+.menu-name {font-size:13px; font-weight:600; color:#333; margin-bottom:4px;}
+.menu-price {font-size:15px; font-weight:700; color:#ff6b35;}
+
+.cart-item { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #eee; }
 .cart-item-info {flex:1;}
 .cart-item-name {font-weight:600; font-size:14px;}
 .cart-item-qty {font-size:12px; color:#666;}
 .cart-controls {display:flex; gap:8px; align-items:center;}
-.cart-controls button {
-  width:30px; height:30px; padding:0; border-radius:50%;
-  background:#ff6b35; color:white; border:none; font-weight:700;
-}
-.checkout-btn {
-  width:100%; padding:14px; background:linear-gradient(135deg, #4caf50, #66bb6a);
-  color:white; border:none; border-radius:12px; font-weight:700; font-size:16px;
-  margin-top:10px;
-}
+.cart-controls button { width:30px; height:30px; padding:0; border-radius:50%; background:#ff6b35; color:white; border:none; font-weight:700; }
+.checkout-btn { width:100%; padding:14px; background:linear-gradient(135deg, #4caf50, #66bb6a); color:white; border:none; border-radius:12px; font-weight:700; font-size:16px; margin-top:10px; }
 .checkout-btn:disabled {background:#ccc;}
-.total {
-  font-size:20px; font-weight:700; color:#ff6b35; text-align:right; margin-top:10px;
-}
+.total { font-size:20px; font-weight:700; color:#ff6b35; text-align:right; margin-top:10px; }
 
 /* Payment Modal */
-#paymentModal {
-  display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-  background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center;
-  padding:20px;
-}
-.modal-content {
-  background:white; width:100%; max-width:400px; border-radius:12px; padding:20px;
-  max-height:90vh; overflow-y:auto;
-}
-.modal-content input,.modal-content select {
-  width:100%; padding:10px; margin:5px 0; border:2px solid #ddd; border-radius:6px; font-size:16px;
-}
-.cash-btns {
-  display:grid; grid-template-columns: repeat(5, 1fr); gap:5px; margin:10px 0;
-}
-.cash-btns button {
-  padding:8px; border:2px solid #ffb703; background:white; border-radius:6px; cursor:pointer;
-}
-#proofUpload {
-  display:none;
-  margin-top:10px;
-  padding:10px;
-  border:2px dashed #0077ff;
-  border-radius:8px;
-  text-align:center;
-}
-#proofPreview {
-  max-width:100%;
-  max-height:150px;
-  margin-top:10px;
-  border-radius:8px;
-  display:none;
-}
+#paymentModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center; padding:20px; }
+.modal-content { background:white; width:100%; max-width:400px; border-radius:12px; padding:20px; max-height:90vh; overflow-y:auto; }
+.modal-content input,.modal-content select { width:100%; padding:10px; margin:5px 0; border:2px solid #ddd; border-radius:6px; font-size:16px; }
+.cash-btns { display:grid; grid-template-columns: repeat(5, 1fr); gap:5px; margin:10px 0; }
+.cash-btns button { padding:8px; border:2px solid #ffb703; background:white; border-radius:6px; cursor:pointer; }
+#proofUpload { display:none; margin-top:10px; padding:10px; border:2px dashed #0077ff; border-radius:8px; text-align:center; }
+#proofPreview { max-width:100%; max-height:150px; margin-top:10px; border-radius:8px; display:none; }
 </style>
 </head>
 <body>
-
 <div class="header">
-  <h1><img src="logo.png" style="height:30px;"> POS</h1>
-  <a href="index.html">← Back</a>
+<h1><img src="logo.png" style="height:30px;"> POS</h1>
+<a href="index.html">← Back</a>
 </div>
-
 <div class="container">
-  <div class="card">
-    <h3 style="margin-bottom:12px; color:#ff6b35;">🛒 Products</h3>
-    <div id="productGrid" class="product-grid">Loading...</div>
-  </div>
-
-  <div class="card">
-    <h3 style="margin-bottom:12px; color:#ff6b35;">🧾 Cart</h3>
-    <div id="cartItems">Empty cart</div>
-    <div class="total" id="totalAmount">Total: ₱0</div>
-    <button class="checkout-btn" id="checkoutBtn" disabled onclick="openPayment()">Checkout</button>
-  </div>
+<div class="card">
+<h3 style="margin-bottom:12px; color:#ff6b35;">🛒 Menu</h3>
+<div id="menuGrid" class="menu-grid">Loading...</div>
+</div>
+<div class="card">
+<h3 style="margin-bottom:12px; color:#ff6b35;">🧾 Cart</h3>
+<div id="cartItems">Empty cart</div>
+<div class="total" id="totalAmount">Total: ₱0</div>
+<button class="checkout-btn" id="checkoutBtn" disabled onclick="openPayment()">Checkout</button>
+</div>
 </div>
 
 <!-- Payment Modal -->
 <div id="paymentModal">
-  <div class="modal-content">
-    <h3 style="text-align:center; color:#e63946; margin:0 0 10px;">DHAN SIOMAI</h3>
-    <div id="receiptContent" style="font-size:14px; line-height:1.6;"></div>
-
-    <div style="margin-top:15px;">
-      <label><strong>Payment Method:</strong></label>
-      <select id="paymentMethod" onchange="toggleProofUpload()">
-        <option value="Cash">Cash</option>
-        <option value="GCash">GCash</option>
-      </select>
-
-      <div id="cashSection">
-        <label><strong>Cash Received:</strong></label>
-        <input type="number" id="cashReceived" placeholder="0" oninput="calculateChange()">
-        <div class="cash-btns">
-          <button onclick="addCash(10)">₱10</button>
-          <button onclick="addCash(50)">₱50</button>
-          <button onclick="addCash(100)">₱100</button>
-          <button onclick="addCash(500)">₱500</button>
-          <button onclick="addCash(1000)">₱1000</button>
-        </div>
-        <h4 style="text-align:right;">Change: ₱<span id="changeAmount">0</span></h4>
-      </div>
-
-      <div id="proofUpload">
-        <label><strong>Upload Proof of Payment:</strong></label>
-        <input type="file" id="proofFile" accept="image/*" onchange="previewProof()">
-        <img id="proofPreview" alt="Proof Preview">
-      </div>
-    </div>
-
-    <div style="display:flex; gap:10px; margin-top:15px;">
-      <button id="confirmBtn" onclick="confirmPayment()"
-              style="flex:1; padding:12px; background:#e63946; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">
-        Confirm
-      </button>
-      <button onclick="closeModal()"
-              style="flex:1; padding:12px; background:#6c757d; color:white; border:none; border-radius:8px; cursor:pointer;">
-        Cancel
-      </button>
-    </div>
-  </div>
+<div class="modal-content">
+<h3 style="text-align:center; color:#e63946; margin:0 0 10px;">DHAN SIOMAI</h3>
+<div id="receiptContent" style="font-size:14px; line-height:1.6;"></div>
+<div style="margin-top:15px;">
+<label><strong>Payment Method:</strong></label>
+<select id="paymentMethod" onchange="toggleProofUpload()">
+<option value="Cash">Cash</option>
+<option value="GCash">GCash</option>
+</select>
+<div id="cashSection">
+<label><strong>Cash Received:</strong></label>
+<input type="number" id="cashReceived" placeholder="0" oninput="calculateChange()">
+<div class="cash-btns">
+<button onclick="addCash(10)">₱10</button>
+<button onclick="addCash(50)">₱50</button>
+<button onclick="addCash(100)">₱100</button>
+<button onclick="addCash(500)">₱500</button>
+<button onclick="addCash(1000)">₱1000</button>
+</div>
+<h4 style="text-align:right;">Change: ₱<span id="changeAmount">0</span></h4>
+</div>
+<div id="proofUpload">
+<label><strong>Upload Proof of Payment:</strong></label>
+<input type="file" id="proofFile" accept="image/*" onchange="previewProof()">
+<img id="proofPreview" alt="Proof Preview">
+</div>
+</div>
+<div style="display:flex; gap:10px; margin-top:15px;">
+<button id="confirmBtn" onclick="confirmPayment()" style="flex:1; padding:12px; background:#e63946; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;"> Confirm </button>
+<button onclick="closeModal()" style="flex:1; padding:12px; background:#6c757d; color:white; border:none; border-radius:8px; cursor:pointer;"> Cancel </button>
+</div>
+</div>
 </div>
 
 <script type="module">
@@ -172,204 +121,190 @@ let products = {};
 let currentTotal = 0;
 let proofBase64 = '';
 
-// Load products
+// Load products with image
 onSnapshot(collection(db, "products"), (snapshot) => {
-  const grid = document.getElementById("productGrid");
-  grid.innerHTML = '';
-  products = {};
+const grid = document.getElementById("menuGrid");
+grid.innerHTML = '';
+products = {};
+snapshot.forEach(docSnap => {
+const p = docSnap.data();
+products[docSnap.id] = {id: docSnap.id,...p};
 
-  snapshot.forEach(docSnap => {
-    const p = docSnap.data();
-    products[docSnap.id] = {id: docSnap.id,...p};
-    const imgUrl = p.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZmZlOGRkIi8+PHRleHQgeD0iNDAiIHk9IjQwIiBmb250LXNpemU9IjEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmY2YjM1Ij5ObyBJbWc8L3RleHQ+PC9zdmc+';
+// Fallback image if no imageUrl
+const imgUrl = p.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZmZlOGRkIi8+PHRleHQgeD0iNDAiIHk9IjQwIiBmb250LXNpemU9IjEyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmY2YjM1Ij5ObyBJbWc8L3RleHQ+PC9zdmc+';
 
-    if(p.stock > 0) {
-      grid.innerHTML += `
-      <div class="product-card" onclick="addToCart('${docSnap.id}')">
-        <img src="${imgUrl}" class="product-img" alt="${p.name}">
-        <div class="product-name">${p.name}</div>
-        <div class="product-price">₱${p.price}</div>
-        <div class="product-stock">Stock: ${p.stock || 0}</div>
-      </div>
-      `;
-    }
-  });
+grid.innerHTML += `
+<div class="menu-item" onclick="addToCart('${docSnap.id}')">
+  <img src="${imgUrl}" class="menu-img" alt="${p.name}">
+  <div class="menu-name">${p.name}</div>
+  <div class="menu-price">₱${p.price}</div>
+</div>
+`;
+});
 });
 
 // Add to cart
 window.addToCart = function(id) {
-  const product = products[id];
-  if(!product || product.stock <= 0) {
-    alert("Out of stock!");
-    return;
-  }
-  const existing = cart.find(item => item.id === id);
-  if(existing) {
-    if(existing.qty >= product.stock) {
-      alert("Not enough stock!");
-      return;
-    }
-    existing.qty++;
-  } else {
-    cart.push({id, name: product.name, price: product.price, qty: 1});
-  }
-  updateCart();
+const product = products[id];
+if(!product) return;
+
+const existing = cart.find(item => item.id === id);
+if(existing) {
+  existing.qty++;
+} else {
+  cart.push({id, name: product.name, price: product.price, qty: 1});
+}
+updateCart();
 };
 
 // Update cart display
 function updateCart() {
-  const cartDiv = document.getElementById("cartItems");
-  const totalDiv = document.getElementById("totalAmount");
-  const checkoutBtn = document.getElementById("checkoutBtn");
-
-  if(cart.length === 0) {
-    cartDiv.innerHTML = "Empty cart";
-    totalDiv.innerHTML = "Total: ₱0";
-    checkoutBtn.disabled = true;
-    return;
-  }
-
-  let total = 0;
-  cartDiv.innerHTML = '';
-  cart.forEach(item => {
-    total += item.price * item.qty;
-    cartDiv.innerHTML += `
-    <div class="cart-item">
-      <div class="cart-item-info">
-        <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-qty">₱${item.price} x ${item.qty}</div>
-      </div>
-      <div class="cart-controls">
-        <button onclick="changeQty('${item.id}', -1)">-</button>
-        <span>${item.qty}</span>
-        <button onclick="changeQty('${item.id}', 1)">+</button>
-      </div>
-    </div>
-    `;
-  });
-
-  currentTotal = total;
-  totalDiv.innerHTML = `Total: ₱${total}`;
-  checkoutBtn.disabled = false;
+const cartDiv = document.getElementById("cartItems");
+const totalDiv = document.getElementById("totalAmount");
+const checkoutBtn = document.getElementById("checkoutBtn");
+if(cart.length === 0) {
+cartDiv.innerHTML = "Empty cart";
+totalDiv.innerHTML = "Total: ₱0";
+checkoutBtn.disabled = true;
+return;
+}
+let total = 0;
+cartDiv.innerHTML = '';
+cart.forEach(item => {
+total += item.price * item.qty;
+cartDiv.innerHTML += `
+<div class="cart-item">
+<div class="cart-item-info">
+<div class="cart-item-name">${item.name}</div>
+<div class="cart-item-qty">₱${item.price} x ${item.qty}</div>
+</div>
+<div class="cart-controls">
+<button onclick="changeQty('${item.id}', -1)">-</button>
+<span>${item.qty}</span>
+<button onclick="changeQty('${item.id}', 1)">+</button>
+</div>
+</div>
+`;
+});
+currentTotal = total;
+totalDiv.innerHTML = `Total: ₱${total}`;
+checkoutBtn.disabled = false;
 }
 
 // Change quantity
 window.changeQty = function(id, change) {
-  const item = cart.find(i => i.id === id);
-  const product = products[id];
-  item.qty += change;
-  if(item.qty <= 0) {
-    cart = cart.filter(i => i.id!== id);
-  } else if(item.qty > product.stock) {
-    alert("Not enough stock!");
-    item.qty = product.stock;
-  }
-  updateCart();
+const item = cart.find(i => i.id === id);
+item.qty += change;
+if(item.qty <= 0) {
+cart = cart.filter(i => i.id!== id);
+}
+updateCart();
 };
 
 // Open payment modal
 window.openPayment = function() {
-  if(cart.length === 0) return;
-
-  let receiptHTML = `
-    Thank you!<br>
-    ${new Date().toLocaleString()}<br><hr>
-  `;
-
-  cart.forEach(item => {
-    receiptHTML += `${item.name} x${item.qty}
-      <span style="float:right;">₱${item.price * item.qty}</span><br>`;
-  });
-
-  receiptHTML += `<hr><strong>Total <span style="float:right;">₱${currentTotal}</span></strong>`;
-
-  document.getElementById('receiptContent').innerHTML = receiptHTML;
-  document.getElementById('cashReceived').value = '';
-  document.getElementById('changeAmount').textContent = '0';
-  document.getElementById('paymentMethod').value = 'Cash';
-  proofBase64 = '';
-  document.getElementById('proofPreview').style.display = 'none';
-  toggleProofUpload();
-  document.getElementById('paymentModal').style.display = 'flex';
+if(cart.length === 0) return;
+let receiptHTML = `
+Thank you!<br>
+${new Date().toLocaleString()}<br><hr>
+`;
+cart.forEach(item => {
+receiptHTML += `${item.name} x${item.qty} <span style="float:right;">₱${item.price * item.qty}</span><br>`;
+});
+receiptHTML += `<hr><strong>Total <span style="float:right;">₱${currentTotal}</span></strong>`;
+document.getElementById('receiptContent').innerHTML = receiptHTML;
+document.getElementById('cashReceived').value = '';
+document.getElementById('changeAmount').textContent = '0';
+document.getElementById('paymentMethod').value = 'Cash';
+proofBase64 = '';
+document.getElementById('proofPreview').style.display = 'none';
+toggleProofUpload();
+document.getElementById('paymentModal').style.display = 'flex';
 }
 
 window.toggleProofUpload = function() {
-  const method = document.getElementById('paymentMethod').value;
-  document.getElementById('cashSection').style.display = method === 'Cash'? 'block' : 'none';
-  document.getElementById('proofUpload').style.display = method === 'GCash'? 'block' : 'none';
+const method = document.getElementById('paymentMethod').value;
+document.getElementById('cashSection').style.display = method === 'Cash'? 'block' : 'none';
+document.getElementById('proofUpload').style.display = method === 'GCash'? 'block' : 'none';
 }
 
 window.addCash = function(amount) {
-  let current = parseFloat(document.getElementById('cashReceived').value) || 0;
-  document.getElementById('cashReceived').value = current + amount;
-  calculateChange();
+let current = parseFloat(document.getElementById('cashReceived').value) || 0;
+document.getElementById('cashReceived').value = current + amount;
+calculateChange();
 }
 
 window.calculateChange = function() {
-  const cash = parseFloat(document.getElementById('cashReceived').value) || 0;
-  const change = cash - currentTotal;
-  document.getElementById('changeAmount').textContent = change >= 0? change : 0;
+const cash = parseFloat(document.getElementById('cashReceived').value) || 0;
+const change = cash - currentTotal;
+document.getElementById('changeAmount').textContent = change >= 0? change : 0;
 }
 
 window.previewProof = function() {
-  const file = document.getElementById('proofFile').files[0];
-  if(!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    proofBase64 = e.target.result;
-    document.getElementById('proofPreview').src = proofBase64;
-    document.getElementById('proofPreview').style.display = 'block';
-  }
-  reader.readAsDataURL(file);
+const file = document.getElementById('proofFile').files[0];
+if(!file) return;
+const reader = new FileReader();
+reader.onload = function(e) {
+proofBase64 = e.target.result;
+document.getElementById('proofPreview').src = proofBase64;
+document.getElementById('proofPreview').style.display = 'block';
+}
+reader.readAsDataURL(file);
 }
 
 window.closeModal = function() {
-  document.getElementById('paymentModal').style.display = 'none';
+document.getElementById('paymentModal').style.display = 'none';
 }
 
-// Checkout
+// Checkout with pending status for GCash
 window.confirmPayment = async function() {
-  const method = document.getElementById('paymentMethod').value;
-  const cash = parseFloat(document.getElementById('cashReceived').value) || 0;
-  const change = cash - currentTotal;
+const method = document.getElementById('paymentMethod').value;
+const cash = parseFloat(document.getElementById('cashReceived').value) || 0;
+const change = cash - currentTotal;
 
-  if(method === 'Cash' && cash < currentTotal) {
-    alert('Insufficient cash!');
-    return;
-  }
+if(method === 'Cash' && cash < currentTotal) {
+alert('Insufficient cash!');
+return;
+}
+if(method === 'GCash' &&!proofBase64) {
+alert('Please upload proof of payment for GCash!');
+return;
+}
 
-  if(method === 'GCash' &&!proofBase64) {
-    alert('Please upload proof of payment for GCash!');
-    return;
-  }
+try {
+const saleData = {
+  items: cart,
+  total: currentTotal,
+  paymentMethod: method,
+  cashReceived: method === 'Cash'? cash : currentTotal,
+  change: method === 'Cash'? change : 0,
+  date: new Date()
+};
 
-  try {
-    await addDoc(collection(db, "sales"), {
-      items: cart,
-      total: currentTotal,
-      paymentMethod: method,
-      cashReceived: method === 'Cash'? cash : currentTotal,
-      change: method === 'Cash'? change : 0,
-      proofOfPayment: proofBase64,
-      date: new Date()
-    });
+if(method === 'GCash') {
+  saleData.proofOfPayment = proofBase64;
+  saleData.status = "pending";
+  saleData.approvedBy = null;
+} else {
+  saleData.status = "approved";
+}
 
-    for(const item of cart) {
-      await updateDoc(doc(db, "products", item.id), {
-        stock: increment(-item.qty)
-      });
-    }
+await addDoc(collection(db, "sales"), saleData);
 
-    alert(`✅ Sale completed!\nPayment: ${method}\nChange: ₱${change >= 0? change : 0}`);
-    cart = [];
-    updateCart();
-    closeModal();
-  } catch(e) {
-    alert("Error: " + e.message);
-  }
+for(const item of cart) {
+  await updateDoc(doc(db, "products", item.id), {
+    stock: increment(-item.qty)
+  });
+}
+
+alert(`✅ Sale ${method === 'GCash'? 'submitted for approval' : 'completed'}!\nPayment: ${method}\nChange: ₱${change >= 0? change : 0}`);
+cart = [];
+updateCart();
+closeModal();
+
+} catch(e) {
+alert("Error: " + e.message);
 }
 </script>
-
 </body>
 </html>
