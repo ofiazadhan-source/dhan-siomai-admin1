@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Approve Payments - DHAN SIOMAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body {background:#f5f5f5; padding:15px; font-family:'Poppins', sans-serif;}
+.header {display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;}
+.header h1 {font-size:20px; color:#ff6b35;}
+.card {background:white; padding:15px; border-radius:12px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.btn {padding:10px 20px; border:none; border-radius:8px; font-weight:700; cursor:pointer; margin-right:8px;}
+.btn-approve {background:#4caf50; color:white;}
+.btn-reject {background:#f44336; color:white;}
+.proof-img {max-width:100%; border-radius:8px; margin:10px 0; border:2px solid #0077ff; cursor:pointer;}
+.header a {color:#ff6b35; text-decoration:none; font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⏳ Pending GCash Payments</h1>
+  <a href="dashboard.html">← Back</a>
+</div>
+
+<div id="pendingList">Loading...</div>
+
+<script type="module">
+import { collection, query, where, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { db } from './firebase-config.js';
+
+async function loadPending() {
+  const q = query(collection(db, "sales"), where("status", "==", "pending"));
+  const snap = await getDocs(q);
+
+  if(snap.empty) {
+    document.getElementById("pendingList").innerHTML = "<div class='card'><p>No pending payments</p></div>";
+    return;
+  }
+
+  let html = '';
+  snap.forEach(docSnap => {
+    const s = docSnap.data();
+    const time = s.date.toDate().toLocaleString('en-PH');
+
+    html += `
+      <div class="card">
+        <div style="display:flex; justify-content:space-between;">
+          <div>
+            <strong style="font-size:18px; color:#ff6b35;">₱${s.total}</strong><br>
+            <small>${time}</small>
+          </div>
+        </div>
+        <div style="margin-top:8px; font-size:13px;">
+          ${s.items.map(i => `${i.name} x${i.qty}`).join(', ')}
+        </div>
+        <img src="${s.proofOfPayment}" class="proof-img" onclick="window.open('${s.proofOfPayment}', '_blank')">
+        <div style="margin-top:10px;">
+          <button class="btn btn-approve" onclick="approve('${docSnap.id}')">Approve</button>
+          <button class="btn btn-reject" onclick="reject('${docSnap.id}')">Reject</button>
+        </div>
+      </div>
+    `;
+  });
+  document.getElementById("pendingList").innerHTML = html;
+}
+
+window.approve = async function(id) {
+  await updateDoc(doc(db, "sales", id), {
+    status: "approved",
+    approvedBy: "Admin",
+    approvedAt: new Date()
+  });
+  alert("Approved!");
+  loadPending();
+}
+
+window.reject = async function(id) {
+  if(confirm("Reject this payment? This will delete the record.")) {
+    await deleteDoc(doc(db, "sales", id));
+    alert("Rejected and deleted");
+    loadPending();
+  }
+}
+
+loadPending();
+</script>
+</body>
+</html>
