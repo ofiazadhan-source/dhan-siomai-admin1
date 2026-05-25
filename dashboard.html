@@ -1,1 +1,200 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - DHAN SIOMAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
+body {background:#f5f5f5; min-height:100vh;}
+
+.header {
+  background: linear-gradient(135deg, #ff6b35, #ff8c65);
+  color:white; padding:15px; display:flex; justify-content:space-between; align-items:center;
+  border-radius:0 0 20px 20px;
+}
+.header h1 { font-size:18px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.header a { color:#ff6b35; background:#fff; text-decoration:none; font-weight:600; padding:8px 14px; border-radius:8px; }
+
+.container {padding:15px;}
+.card {
+  background:white; padding:18px; border-radius:16px; 
+  box-shadow:0 4px 16px rgba(0,0,0,0.08); margin-bottom:15px;
+}
+
+.card h3 {margin-bottom:12px; color:#333; font-size:16px;}
+input[type="date"], select {
+  width:100%; padding:12px; border:2px solid #ddd; border-radius:10px; 
+  font-size:16px; margin-bottom:12px;
+}
+.btn {
+  width:100%; padding:14px; background:#ff6b35; color:white; 
+  border:none; border-radius:12px; font-weight:700; font-size:16px; cursor:pointer;
+}
+
+.stats-grid {
+  display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:15px;
+}
+.stat-card {
+  background:white; padding:15px 10px; border-radius:12px; text-align:center;
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+}
+.stat-card label {font-size:12px; color:#666; display:block; margin-bottom:5px;}
+.stat-card .value {font-size:18px; font-weight:700; color:#ff6b35;}
+
+.detail-item {
+  padding:10px 0; border-bottom:1px solid #eee;
+}
+.detail-item:last-child {border-bottom:none;}
+.detail-item .row {
+  display:flex; justify-content:space-between; align-items:center;
+}
+.detail-item small {color:#666;}
+.proof-img {
+  max-width:100%; max-height:200px; border-radius:8px; margin-top:8px;
+  border:2px solid #0077ff; cursor:pointer;
+}
+.no-data {text-align:center; color:#999; padding:20px 0;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📊 Dashboard</h1>
+  <a href="index.html">← Back</a>
+</div>
+
+<div class="container">
+  <div class="card">
+    <h3>Select Date</h3>
+    <input type="date" id="datePicker">
+    <button class="btn" onclick="loadReport()">View Report</button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <label>Total Sales</label>
+      <div class="value" id="totalSales">₱0</div>
+    </div>
+    <div class="stat-card">
+      <label>Total Expenses</label>
+      <div class="value" id="totalExpenses">₱0</div>
+    </div>
+    <div class="stat-card">
+      <label>Net Profit</label>
+      <div class="value" id="netProfit">₱0</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Sales Details</h3>
+    <div id="salesDetails"><div class="no-data">No sales</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Expenses Details</h3>
+    <div id="expensesDetails"><div class="no-data">No expenses</div></div>
+  </div>
+</div>
+
+<script type="module">
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { db } from './firebase-config.js';
+
+// Set today's date as default
+document.getElementById('datePicker').valueAsDate = new Date();
+
+window.loadReport = async function() {
+  const date = document.getElementById('datePicker').value;
+  if(!date) {
+    alert('Please select a date');
+    return;
+  }
+
+  const startDate = new Date(date + 'T00:00:00');
+  const endDate = new Date(date + 'T23:59:59');
+
+  let totalSales = 0;
+  let totalExpenses = 0;
+  let salesHTML = '';
+  let expensesHTML = '';
+
+  // Load Sales
+  const salesQuery = query(
+    collection(db, "sales"),
+    where("date", ">=", startDate),
+    where("date", "<=", endDate)
+  );
+  const salesSnap = await getDocs(salesQuery);
+
+  if(salesSnap.empty) {
+    salesHTML = '<div class="no-data">No sales</div>';
+  } else {
+    salesSnap.forEach(doc => {
+      const sale = doc.data();
+      totalSales += sale.total;
+      
+      const time = sale.date.toDate().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+      salesHTML += `
+        <div class="detail-item">
+          <div class="row">
+            <div>
+              <strong>${sale.paymentMethod}</strong><br>
+              <small>${time}</small>
+            </div>
+            <strong>₱${sale.total}</strong>
+          </div>
+          ${sale.proofOfPayment ? `<img src="${sale.proofOfPayment}" class="proof-img" onclick="window.open('${sale.proofOfPayment}')">` : ''}
+        </div>
+      `;
+    });
+  }
+
+  // Load Expenses
+  const expensesQuery = query(
+    collection(db, "expenses"),
+    where("date", ">=", startDate),
+    where("date", "<=", endDate)
+  );
+  const expensesSnap = await getDocs(expensesQuery);
+
+  if(expensesSnap.empty) {
+    expensesHTML = '<div class="no-data">No expenses</div>';
+  } else {
+    expensesSnap.forEach(doc => {
+      const exp = doc.data();
+      totalExpenses += exp.amount;
+      
+      const time = exp.date.toDate().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+      expensesHTML += `
+        <div class="detail-item">
+          <div class="row">
+            <div>
+              <strong>${exp.category}</strong><br>
+              <small>${exp.note || ''} - ${time}</small>
+            </div>
+            <strong>₱${exp.amount}</strong>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  // Update UI
+  document.getElementById('totalSales').textContent = `₱${totalSales}`;
+  document.getElementById('totalExpenses').textContent = `₱${totalExpenses}`;
+  document.getElementById('netProfit').textContent = `₱${totalSales - totalExpenses}`;
+  document.getElementById('salesDetails').innerHTML = salesHTML;
+  document.getElementById('expensesDetails').innerHTML = expensesHTML;
+}
+
+// Auto load today's report on page load
+window.addEventListener('load', () => {
+  loadReport();
+});
+</script>
+
+</body>
+</html>
