@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,6 +56,7 @@ input[type="date"], select {
   border:2px solid #0077ff; cursor:pointer;
 }
 .no-data {text-align:center; color:#999; padding:20px 0;}
+.loading {text-align:center; color:#ff6b35; padding:20px 0;}
 </style>
 </head>
 <body>
@@ -107,87 +107,103 @@ import { db } from './firebase-config.js';
 document.getElementById('datePicker').valueAsDate = new Date();
 
 window.loadReport = async function() {
-  const date = document.getElementById('datePicker').value;
-  if(!date) {
+  const dateStr = document.getElementById('datePicker').value;
+  if(!dateStr) {
     alert('Please select a date');
     return;
   }
 
-  const startDate = new Date(date + 'T00:00:00');
-  const endDate = new Date(date + 'T23:59:59');
+  // Show loading
+  document.getElementById('salesDetails').innerHTML = '<div class="loading">Loading...</div>';
+  document.getElementById('expensesDetails').innerHTML = '<div class="loading">Loading...</div>';
+
+  // Fix timezone issue - create date at local timezone
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const startDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+  const endDate = new Date(year, month - 1, day, 23, 59, 59, 999);
 
   let totalSales = 0;
   let totalExpenses = 0;
   let salesHTML = '';
   let expensesHTML = '';
 
-  // Load Sales
-  const salesQuery = query(
-    collection(db, "sales"),
-    where("date", ">=", startDate),
-    where("date", "<=", endDate)
-  );
-  const salesSnap = await getDocs(salesQuery);
+  try {
+    // Load Sales
+    const salesQuery = query(
+      collection(db, "sales"),
+      where("date", ">=", startDate),
+      where("date", "<=", endDate)
+    );
+    const salesSnap = await getDocs(salesQuery);
 
-  if(salesSnap.empty) {
-    salesHTML = '<div class="no-data">No sales</div>';
-  } else {
-    salesSnap.forEach(doc => {
-      const sale = doc.data();
-      totalSales += sale.total;
-      
-      const time = sale.date.toDate().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
-      salesHTML += `
-        <div class="detail-item">
-          <div class="row">
-            <div>
-              <strong>${sale.paymentMethod}</strong><br>
-              <small>${time}</small>
+    if(salesSnap.empty) {
+      salesHTML = '<div class="no-data">No sales</div>';
+    } else {
+      salesSnap.forEach(doc => {
+        const sale = doc.data();
+        const saleDate = sale.date.toDate(); // Convert Firestore Timestamp to JS Date
+        totalSales += sale.total;
+        
+        const time = saleDate.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+        salesHTML += `
+          <div class="detail-item">
+            <div class="row">
+              <div>
+                <strong>${sale.paymentMethod}</strong><br>
+                <small>${time}</small>
+              </div>
+              <strong>₱${sale.total}</strong>
             </div>
-            <strong>₱${sale.total}</strong>
+            ${sale.proofOfPayment ? `<img src="${sale.proofOfPayment}" class="proof-img" onclick="window.open('${sale.proofOfPayment}')">` : ''}
           </div>
-          ${sale.proofOfPayment ? `<img src="${sale.proofOfPayment}" class="proof-img" onclick="window.open('${sale.proofOfPayment}')">` : ''}
-        </div>
-      `;
-    });
-  }
+        `;
+      });
+    }
 
-  // Load Expenses
-  const expensesQuery = query(
-    collection(db, "expenses"),
-    where("date", ">=", startDate),
-    where("date", "<=", endDate)
-  );
-  const expensesSnap = await getDocs(expensesQuery);
+    // Load Expenses
+    const expensesQuery = query(
+      collection(db, "expenses"),
+      where("date", ">=", startDate),
+      where("date", "<=", endDate)
+    );
+    const expensesSnap = await getDocs(expensesQuery);
 
-  if(expensesSnap.empty) {
-    expensesHTML = '<div class="no-data">No expenses</div>';
-  } else {
-    expensesSnap.forEach(doc => {
-      const exp = doc.data();
-      totalExpenses += exp.amount;
-      
-      const time = exp.date.toDate().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
-      expensesHTML += `
-        <div class="detail-item">
-          <div class="row">
-            <div>
-              <strong>${exp.category}</strong><br>
-              <small>${exp.note || ''} - ${time}</small>
+    if(expensesSnap.empty) {
+      expensesHTML = '<div class="no-data">No expenses</div>';
+    } else {
+      expensesSnap.forEach(doc => {
+        const exp = doc.data();
+        const expDate = exp.date.toDate();
+        totalExpenses += exp.amount;
+        
+        const time = expDate.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+        expensesHTML += `
+          <div class="detail-item">
+            <div class="row">
+              <div>
+                <strong>${exp.category}</strong><br>
+                <small>${exp.note || ''} - ${time}</small>
+              </div>
+              <strong>₱${exp.amount}</strong>
             </div>
-            <strong>₱${exp.amount}</strong>
           </div>
-        </div>
-      `;
-    });
-  }
+        `;
+      });
+    }
 
-  // Update UI
-  document.getElementById('totalSales').textContent = `₱${totalSales}`;
-  document.getElementById('totalExpenses').textContent = `₱${totalExpenses}`;
-  document.getElementById('netProfit').textContent = `₱${totalSales - totalExpenses}`;
-  document.getElementById('salesDetails').innerHTML = salesHTML;
-  document.getElementById('expensesDetails').innerHTML = expensesHTML;
+    // Update UI
+    document.getElementById('totalSales').textContent = `₱${totalSales}`;
+    document.getElementById('totalExpenses').textContent = `₱${totalExpenses}`;
+    document.getElementById('netProfit').textContent = `₱${totalSales - totalExpenses}`;
+    document.getElementById('salesDetails').innerHTML = salesHTML;
+    document.getElementById('expensesDetails').innerHTML = expensesHTML;
+
+  } catch(error) {
+    console.error('Error:', error);
+    alert('Error loading data: ' + error.message);
+    document.getElementById('salesDetails').innerHTML = '<div class="no-data">Error loading data</div>';
+    document.getElementById('expensesDetails').innerHTML = '<div class="no-data">Error loading data</div>';
+  }
 }
 
 // Auto load today's report on page load
