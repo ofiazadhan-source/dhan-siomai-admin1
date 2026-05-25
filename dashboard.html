@@ -19,10 +19,10 @@ input[type="date"] {width:100%; padding:12px; border:2px solid #ddd; border-radi
 .stats-grid {display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:15px;}
 .stat-card {background:white; padding:15px 10px; border-radius:12px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.06);}
 .stat-card label {font-size:12px; color:#666; display:block; margin-bottom:5px;}
-.stat-card .value {font-size:18px; font-weight:700; color:#ff6b35;}
+.stat-card.value {font-size:18px; font-weight:700; color:#ff6b35;}
 .detail-item {padding:12px 0; border-bottom:1px solid #eee;}
 .detail-item:last-child {border-bottom:none;}
-.detail-item .row {display:flex; justify-content:space-between; align-items:flex-start;}
+.detail-item.row {display:flex; justify-content:space-between; align-items:flex-start;}
 .detail-item small {color:#666; font-size:12px;}
 .proof-img {max-width:100%; max-height:200px; border-radius:8px; margin-top:8px; border:2px solid #0077ff; cursor:pointer;}
 .no-data {text-align:center; color:#999; padding:20px 0;}
@@ -36,7 +36,10 @@ input[type="date"] {width:100%; padding:12px; border:2px solid #ddd; border-radi
 
 <div class="header">
   <h1>📊 Dashboard</h1>
-  <a href="index.html">← Back</a>
+  <div>
+    <a href="approve.html" style="margin-right:8px;">Approve</a>
+    <a href="index.html">POS</a>
+  </div>
 </div>
 
 <div class="container">
@@ -76,15 +79,11 @@ input[type="date"] {width:100%; padding:12px; border:2px solid #ddd; border-radi
 import { collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { db } from './firebase-config.js';
 
-// Set today's date
 document.getElementById('datePicker').valueAsDate = new Date();
 
 window.loadReport = async function() {
   const dateStr = document.getElementById('datePicker').value;
-  if(!dateStr) {
-    alert('Please select a date');
-    return;
-  }
+  if(!dateStr) return alert('Please select a date');
 
   document.getElementById('salesDetails').innerHTML = '<div class="loading">Loading...</div>';
   document.getElementById('expensesDetails').innerHTML = '<div class="loading">Loading...</div>';
@@ -93,17 +92,16 @@ window.loadReport = async function() {
   const startDate = new Date(year, month - 1, day, 0, 0, 0, 0);
   const endDate = new Date(year, month - 1, day, 23, 59, 59, 999);
 
-  let totalSales = 0;
-  let totalExpenses = 0;
-  let salesHTML = '';
-  let expensesHTML = '';
+  let totalSales = 0, totalExpenses = 0;
+  let salesHTML = '', expensesHTML = '';
 
   try {
-    // Load Sales
+    // Only approved sales
     const salesQuery = query(
       collection(db, "sales"),
       where("date", ">=", startDate),
       where("date", "<=", endDate),
+      where("status", "==", "approved"),
       orderBy("date", "desc")
     );
     const salesSnap = await getDocs(salesQuery);
@@ -115,32 +113,29 @@ window.loadReport = async function() {
         const sale = doc.data();
         const saleDate = sale.date.toDate();
         totalSales += sale.total;
-        
-        const time = saleDate.toLocaleTimeString('en-PH', {hour:'2-digit', minute:'2-digit'});
-        const badgeClass = sale.paymentMethod === 'GCash' ? 'badge-gcash' : 'badge-cash';
-        
-        let itemsList = '';
-        if(sale.items) {
-          itemsList = sale.items.map(i => `${i.name} x${i.qty}`).join(', ');
-        }
-        
+
+        const payMethod = sale.paymentMethod || 'Cash';
+        const badgeClass = payMethod === 'GCash'? 'badge-gcash' : 'badge-cash';
+
         salesHTML += `
           <div class="detail-item">
             <div class="row">
               <div style="flex:1;">
-                <span class="badge ${badgeClass}">${sale.paymentMethod}</span>
-                <div style="margin-top:5px; font-size:13px;">${itemsList}</div>
-                <small>${time}</small>
+                <span class="badge ${badgeClass}">${payMethod}</span>
+                <div style="margin-top:5px; font-size:13px;">
+                  ${sale.items? sale.items.map(i => `${i.name} x${i.qty}`).join(', ') : ''}
+                </div>
+                <small>${saleDate.toLocaleTimeString('en-PH', {hour:'2-digit', minute:'2-digit'})}</small>
               </div>
               <strong style="font-size:16px; color:#ff6b35;">₱${sale.total}</strong>
             </div>
-            ${sale.proofOfPayment ? `<img src="${sale.proofOfPayment}" class="proof-img" onclick="window.open('${sale.proofOfPayment}', '_blank')">` : ''}
+            ${sale.proofOfPayment? `<img src="${sale.proofOfPayment}" class="proof-img" onclick="window.open('${sale.proofOfPayment}', '_blank')">` : ''}
           </div>
         `;
       });
     }
 
-    // Load Expenses - FIXED: use desc not note
+    // Expenses
     const expensesQuery = query(
       collection(db, "expenses"),
       where("date", ">=", startDate),
@@ -156,14 +151,13 @@ window.loadReport = async function() {
         const exp = doc.data();
         const expDate = exp.date.toDate();
         totalExpenses += exp.amount;
-        
-        const time = expDate.toLocaleTimeString('en-PH', {hour:'2-digit', minute:'2-digit'});
+
         expensesHTML += `
           <div class="detail-item">
             <div class="row">
               <div>
                 <strong>${exp.category}</strong><br>
-                <small>${exp.desc || 'No description'} • ${time}</small>
+                <small>${exp.desc || 'No description'} • ${expDate.toLocaleTimeString('en-PH', {hour:'2-digit', minute:'2-digit'})}</small>
               </div>
               <strong style="color:#e63946;">-₱${exp.amount}</strong>
             </div>
@@ -172,7 +166,6 @@ window.loadReport = async function() {
       });
     }
 
-    // Update UI
     document.getElementById('totalSales').textContent = `₱${totalSales.toLocaleString()}`;
     document.getElementById('totalExpenses').textContent = `₱${totalExpenses.toLocaleString()}`;
     document.getElementById('netProfit').textContent = `₱${(totalSales - totalExpenses).toLocaleString()}`;
@@ -180,16 +173,12 @@ window.loadReport = async function() {
     document.getElementById('expensesDetails').innerHTML = expensesHTML;
 
   } catch(error) {
-    console.error('Error:', error);
+    console.error(error);
     alert('Error: ' + error.message);
-    document.getElementById('salesDetails').innerHTML = '<div class="no-data">Error loading data</div>';
-    document.getElementById('expensesDetails').innerHTML = '<div class="no-data">Error loading data</div>';
   }
 }
 
-window.addEventListener('load', () => {
-  loadReport();
-});
+window.addEventListener('load', () => loadReport());
 </script>
 </body>
 </html>
