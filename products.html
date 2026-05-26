@@ -4,47 +4,89 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Products - DHAN SIOMAI</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
-body {background:linear-gradient(135deg, #fff5f0, #ffe8dd);}
+body {background:linear-gradient(135deg, #FFF8E1, #FFE0B2);}
 .header {
-  background: linear-gradient(135deg, #ff6b35, #ff8c65);
-  color:white; padding:15px; display:flex; justify-content:space-between; align-items:center;
-  box-shadow:0 4px 12px rgba(255,107,53,0.3);
+  background: linear-gradient(135deg, #D32F2F, #B71C1C);
+  color:white;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 4px 12px rgba(211,47,47,0.3);
 }
 .header h1 { font-size: 18px; font-weight:700; }
-.header a { color:#ff6b35; background:#fff; text-decoration:none; font-weight:600; padding:8px 14px; border-radius:8px; }
-
-.container {padding:15px;}
-.card {background:white; padding:18px; border-radius:16px; box-shadow:0 4px 16px rgba(0,0,0,0.08); margin-bottom:15px;}
-
-input, button {width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:2px solid #ffd4c2; font-size:14px;}
-input:focus {outline:none; border-color:#ff6b35;}
-button {background:linear-gradient(135deg, #ff6b35, #ff8c65); color:white; border:none; font-weight:700; cursor:pointer;}
-
+.header a {
+  color:#D32F2F;
+  background:#fff;
+  text-decoration:none;
+  font-weight:600;
+  padding:8px 14px;
+  border-radius:8px;
+}
+.container {padding:15px; max-width:1100px; margin:0 auto;}
+.card {
+  background:white;
+  padding:18px;
+  border-radius:16px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.08);
+  margin-bottom:15px;
+}
+input, button, select {
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  border-radius:10px;
+  border:2px solid #FFE0B2;
+  font-size:14px;
+}
+input:focus, select:focus {outline:none; border-color:#FFC107;}
+button {
+  background:linear-gradient(135deg, #D32F2F, #B71C1C);
+  color:white;
+  border:none;
+  font-weight:700;
+  cursor:pointer;
+}
 .btn-add-stock {background:linear-gradient(135deg, #4caf50, #66bb6a); padding:8px 14px; font-size:12px; width:auto;}
 .btn-remove-stock {background:linear-gradient(135deg, #f44336, #ef5350); padding:8px 14px; font-size:12px; width:auto;}
-
-.product-grid {display:grid; gap:12px;}
+.product-grid {display:grid; gap:12px; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));}
 .product-card {
-  background:white; border-radius:14px; padding:12px;
+  background:white;
+  border-radius:14px;
+  padding:12px;
   box-shadow:0 3px 10px rgba(0,0,0,0.08);
-  border-left:4px solid #ff6b35;
+  border-left:4px solid #D32F2F;
 }
 .product-img {
-  width:100%; height:120px; object-fit:cover; border-radius:10px; margin-bottom:8px;
-  background:#ffe8dd;
+  width:100%;
+  height:150px;
+  object-fit:cover;
+  border-radius:10px;
+  margin-bottom:8px;
+  background:#f5f5f5;
 }
 .product-info h4 {margin-bottom:4px; font-size:16px; color:#333;}
 .product-info p {font-size:13px; color:#666; margin-bottom:8px;}
 .product-actions {display:flex; gap:6px; align-items:center; margin-top:8px;}
 .qty-input {width:70px!important; padding:8px!important; margin:0!important;}
-
 small {color:#666; font-size:12px;}
+.img-preview {
+  max-width:100%;
+  max-height:150px;
+  object-fit:contain;
+  border-radius:10px;
+  margin-bottom:10px;
+  display:none;
+}
 </style>
 </head>
 <body>
+
 <div class="header">
   <h1>📦 Products</h1>
   <a href="index.html">← Back</a>
@@ -52,28 +94,62 @@ small {color:#666; font-size:12px;}
 
 <div class="container">
   <div class="card">
-    <h3 style="margin-bottom:12px; color:#ff6b35;">➕ Add New Product</h3>
+    <h3 style="margin-bottom:12px; color:#D32F2F;">➕ Add New Product</h3>
     <input type="text" id="prodName" placeholder="Product Name">
     <input type="number" id="prodPrice" placeholder="Price">
     <input type="number" id="prodStock" placeholder="Initial Stock">
-    <input type="url" id="prodImage" placeholder="Imgur Image URL">
-    <small>Punta ka sa imgur.com > Upload > Copy Direct Link</small>
+    <select id="prodCat">
+      <option value="65's">65's</option>
+      <option value="30's">30's</option>
+      <option value="Big SIOMAI">Big SIOMAI</option>
+      <option value="Dumplings">Dumplings</option>
+      <option value="Siopao">Siopao</option>
+      <option value="Sauce">Sauce</option>
+      <option value="Others">Others</option>
+    </select>
+
+    <div style="margin:10px 0;">
+      <label style="font-weight:600;color:#D32F2F;">📸 Product Image</label>
+      <input type="file" id="prodImage" accept="image/*">
+      <img id="imgPreview" class="img-preview">
+    </div>
+
     <button onclick="addProduct()">Add Product</button>
   </div>
 
   <div class="card">
-    <h3 style="margin-bottom:12px; color:#ff6b35;">📋 Product List</h3>
+    <h3 style="margin-bottom:12px; color:#D32F2F;">📋 Product List</h3>
     <div id="productList" class="product-grid">Loading...</div>
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, increment, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { db } from './firebase-config.js';
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyDk3ZbOXuw3PEfJzdt8AI2ueJq5yksfekE",
+authDomain: "dhan-siomai-pos-fe1e5.firebaseapp.com",
+projectId: "dhan-siomai-pos-fe1e5",
+storageBucket: "dhan-siomai-pos-fe1e5.firebasestorage.app",
+messagingSenderId: "305932123173",
+appId: "1:305932123173:web:f27894a2d5e6e6ab8253cc"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Image preview
+document.getElementById('prodImage').onchange = function(e){
+  const file = e.target.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      document.getElementById('imgPreview').src = e.target.result;
+      document.getElementById('imgPreview').style.display = 'block';
+    }
+    reader.readAsDataURL(file);
+  }
+}
 
 // Display products
-onSnapshot(collection(db, "products"), (snapshot) => {
+db.collection("dhan-pos-web").onSnapshot((snapshot) => {
   const list = document.getElementById("productList");
   if(snapshot.empty) {
     list.innerHTML = "<p style='text-align:center; color:#999;'>No products yet</p>";
@@ -83,56 +159,54 @@ onSnapshot(collection(db, "products"), (snapshot) => {
   list.innerHTML = '';
   snapshot.forEach(docSnap => {
     const p = docSnap.data();
-    const imgUrl = p.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iI2ZmZThkZCIvPjx0ZXh0IHg9IjYwIiB5PSI2MCIgZm9udC1zaXplPSIxNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmNmIzNSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+';
+    const imgUrl = p.image || 'https://via.placeholder.com/220x150?text=No+Image';
 
     list.innerHTML += `
-      <div class="product-card">
-        <img src="${imgUrl}" class="product-img" alt="${p.name}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iI2ZmZThkZCIvPjx0ZXh0IHg9IjYwIiB5PSI2MCIgZm9udC1zaXplPSIxNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmNmIzNSI+SW1hZ2UgRXJyb3I8L3RleHQ+PC9zdmc+'">
-        <div class="product-info">
-          <h4>${p.name}</h4>
-          <p>₱${p.price} | Stock: <strong style="color:#ff6b35;">${p.stock || 0}</strong></p>
-        </div>
-        <div class="product-actions">
-          <input type="number" id="qty-${docSnap.id}" placeholder="Qty" class="qty-input" inputmode="numeric" min="1">
-          <button class="btn-add-stock" onclick="quickAdjust('${docSnap.id}', 'add')">+ Add</button>
-          <button class="btn-remove-stock" onclick="quickAdjust('${docSnap.id}', 'remove')">- Remove</button>
-        </div>
+    <div class="product-card">
+      <img src="${imgUrl}" class="product-img" alt="${p.name}"
+        onerror="this.src='https://via.placeholder.com/220x150?text=Image+Error'">
+      <div class="product-info">
+        <h4>${p.name}</h4>
+        <p>₱${p.price} | Stock: <strong style="color:#D32F2F;">${p.stock || 0}</strong></p>
+        <small style="color:#999;">${p.category || 'Others'}</small>
       </div>
-    `;
+      <div class="product-actions">
+        <input type="number" id="qty-${docSnap.id}" placeholder="Qty" class="qty-input" inputmode="numeric" min="1">
+        <button class="btn-add-stock" onclick="quickAdjust('${docSnap.id}', 'add')">+ Add</button>
+        <button class="btn-remove-stock" onclick="quickAdjust('${docSnap.id}', 'remove')">- Remove</button>
+      </div>
+    </div>`;
   });
 });
 
 // Quick add/remove stock
-window.quickAdjust = async function(id, type) {
+async function quickAdjust(id, type) {
   const qtyInput = document.getElementById(`qty-${id}`);
   const qty = parseInt(qtyInput.value);
-
   if(!qty || qty <= 0) {
     alert("Lagay mo muna quantity boss");
     return;
   }
 
-  const productRef = doc(db, "products", id);
+  const productRef = db.collection("dhan-pos-web").doc(id);
 
   try {
     if(type === 'add') {
-      await updateDoc(productRef, { stock: increment(qty) });
+      await productRef.update({ stock: firebase.firestore.FieldValue.increment(qty) });
       alert(`✅ Added ${qty} stock!`);
       qtyInput.value = '';
     } else {
-      const snap = await getDoc(productRef);
+      const snap = await productRef.get();
       const currentStock = snap.data().stock || 0;
-
       if(currentStock < qty) {
         alert(`❌ Kulang sa stock. Current: ${currentStock}`);
         return;
       }
-
       const reason = prompt("Reason for removing stock:");
       if(!reason) return;
 
-      await updateDoc(productRef, { stock: increment(-qty) });
-      await addDoc(collection(db, "stockAdjustments"), {
+      await productRef.update({ stock: firebase.firestore.FieldValue.increment(-qty) });
+      await db.collection("stockAdjustments").add({
         productId: id,
         productName: snap.data().name,
         type: 'remove',
@@ -148,43 +222,57 @@ window.quickAdjust = async function(id, type) {
   }
 }
 
-// Add product with Imgur URL
-window.addProduct = async function() {
+// Add product with image upload
+async function addProduct() {
   const name = document.getElementById('prodName').value.trim();
   const price = parseFloat(document.getElementById('prodPrice').value);
   const stock = parseInt(document.getElementById('prodStock').value) || 0;
-  const imageUrl = document.getElementById('prodImage').value.trim();
+  const category = document.getElementById('prodCat').value;
+  const file = document.getElementById('prodImage').files[0];
 
   if(!name ||!price) {
     alert("Fill up name and price boss");
     return;
   }
 
+  let imageBase64 = '';
+  if(file){
+    imageBase64 = await new Promise((resolve)=>{
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.readAsDataURL(file);
+    });
+  }
+
   try {
     // Check for duplicate
+    const snapshot = await db.collection("dhan-pos-web").get();
     let existingProduct = null;
-    const snapshot = await getDocs(collection(db, "products"));
     snapshot.forEach(docSnap => {
       if(docSnap.data().name.toLowerCase() === name.toLowerCase()) {
-        existingProduct = {id: docSnap.id};
+        existingProduct = docSnap.id;
       }
     });
 
     if(existingProduct) {
-      await updateDoc(doc(db, "products", existingProduct.id), {
-        stock: increment(stock),
-        imageUrl: imageUrl || null
+      await db.collection("dhan-pos-web").doc(existingProduct).update({
+        stock: firebase.firestore.FieldValue.increment(stock),
+        image: imageBase64 || firebase.firestore.FieldValue.delete()
       });
       alert(`✅ ${name} updated! Added ${stock} to existing stock.`);
     } else {
-      await addDoc(collection(db, "products"), { name, price, stock, imageUrl });
+      await db.collection("dhan-pos-web").add({
+        name, price, stock, category, image: imageBase64
+      });
       alert("✅ Product added!");
     }
 
+    // Reset form
     document.getElementById('prodName').value = '';
     document.getElementById('prodPrice').value = '';
     document.getElementById('prodStock').value = '';
     document.getElementById('prodImage').value = '';
+    document.getElementById('imgPreview').style.display = 'none';
 
   } catch(e) {
     alert("Error: " + e.message);
