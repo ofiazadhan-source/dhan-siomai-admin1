@@ -4,86 +4,163 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>POS - DHAN SIOMAI</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
-body {background:linear-gradient(135deg, #fff5f0, #ffe8dd); min-height:100vh;}
+body {background:linear-gradient(135deg, #FFF8E1, #FFE0B2); min-height:100vh;}
 .header {
-  background: linear-gradient(135deg, #ff6b35, #ff8c65);
-  color:white; padding:15px; display:flex; justify-content:space-between; align-items:center;
-  box-shadow:0 4px 12px rgba(255,107,53,0.3);
+  background: linear-gradient(135deg, #D32F2F, #B71C1C);
+  color:white;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 4px 12px rgba(211,47,53,0.3);
 }
-.header h1 { font-size: 18px; font-weight:700; display:flex; align-items:center; gap:8px; }
-.header a { color:#ff6b35; background:#fff; text-decoration:none; font-weight:600; padding:8px 14px; border-radius:8px; }
-.container {padding:15px;}
-.card {background:white; padding:18px; border-radius:16px; box-shadow:0 4px 16px rgba(0,0,0,0.08); margin-bottom:15px;}
+.header h1 {
+  font-size: 18px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.header a {
+  color:#D32F2F;
+  background:#fff;
+  text-decoration:none;
+  font-weight:600;
+  padding:8px 14px;
+  border-radius:8px;
+}
+.container {padding:15px; max-width:1200px; margin:0 auto;}
+.card {
+  background:white;
+  padding:18px;
+  border-radius:16px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.08);
+  margin-bottom:15px;
+}
 .product-grid {
   display:grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap:12px;
 }
 .product-card {
-  background:white; border-radius:14px; padding:10px;
+  background:white;
+  border-radius:14px;
+  padding:10px;
   box-shadow:0 3px 10px rgba(0,0,0,0.08);
-  border:2px solid #ffd4c2;
+  border:2px solid #FFE0B2;
   text-align:center;
   cursor:pointer;
   transition:0.2s;
 }
-.product-card:active {transform:scale(0.96); border-color:#ff6b35;}
+.product-card:active {transform:scale(0.96); border-color:#D32F2F;}
 .product-img {
-  width:100%; height:80px; object-fit:cover; border-radius:10px; margin-bottom:6px;
-  background:#ffe8dd;
+  width:100%;
+  height:90px;
+  object-fit:cover;
+  border-radius:10px;
+  margin-bottom:6px;
+  background:#f5f5f5;
 }
 .product-name {font-size:13px; font-weight:600; color:#333; margin-bottom:4px;}
-.product-price {font-size:15px; font-weight:700; color:#ff6b35;}
+.product-price {font-size:15px; font-weight:700; color:#D32F2F;}
 .product-stock {font-size:11px; color:#666;}
 .cart-item {
-  display:flex; justify-content:space-between; align-items:center;
-  padding:10px 0; border-bottom:1px solid #eee;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 0;
+  border-bottom:1px solid #FFE0B2;
 }
 .cart-item-info {flex:1;}
 .cart-item-name {font-weight:600; font-size:14px;}
 .cart-item-qty {font-size:12px; color:#666;}
 .cart-controls {display:flex; gap:8px; align-items:center;}
 .cart-controls button {
-  width:30px; height:30px; padding:0; border-radius:50%;
-  background:#ff6b35; color:white; border:none; font-weight:700;
+  width:30px;
+  height:30px;
+  padding:0;
+  border-radius:50%;
+  background:#D32F2F;
+  color:white;
+  border:none;
+  font-weight:700;
 }
 .checkout-btn {
-  width:100%; padding:14px; background:linear-gradient(135deg, #4caf50, #66bb6a);
-  color:white; border:none; border-radius:12px; font-weight:700; font-size:16px;
+  width:100%;
+  padding:14px;
+  background:linear-gradient(135deg, #4caf50, #66bb6a);
+  color:white;
+  border:none;
+  border-radius:12px;
+  font-weight:700;
+  font-size:16px;
   margin-top:10px;
 }
 .checkout-btn:disabled {background:#ccc;}
 .total {
-  font-size:20px; font-weight:700; color:#ff6b35; text-align:right; margin-top:10px;
+  font-size:20px;
+  font-weight:700;
+  color:#D32F2F;
+  text-align:right;
+  margin-top:10px;
 }
-
 /* Payment Modal */
 #paymentModal {
-  display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-  background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center;
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.6);
+  z-index:1000;
+  justify-content:center;
+  align-items:center;
   padding:20px;
 }
 .modal-content {
-  background:white; width:100%; max-width:400px; border-radius:12px; padding:20px;
-  max-height:90vh; overflow-y:auto;
+  background:white;
+  width:100%;
+  max-width:400px;
+  border-radius:12px;
+  padding:20px;
+  max-height:90vh;
+  overflow-y:auto;
 }
 .modal-content input,.modal-content select {
-  width:100%; padding:10px; margin:5px 0; border:2px solid #ddd; border-radius:6px; font-size:16px;
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border:2px solid #FFE0B2;
+  border-radius:6px;
+  font-size:16px;
+}
+.modal-content input:focus,.modal-content select:focus {
+  outline:none;
+  border-color:#FFC107;
 }
 .cash-btns {
-  display:grid; grid-template-columns: repeat(5, 1fr); gap:5px; margin:10px 0;
+  display:grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap:5px;
+  margin:10px 0;
 }
 .cash-btns button {
-  padding:8px; border:2px solid #ffb703; background:white; border-radius:6px; cursor:pointer;
+  padding:8px;
+  border:2px solid #FFC107;
+  background:white;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:600;
 }
 #proofUpload {
   display:none;
   margin-top:10px;
   padding:10px;
-  border:2px dashed #0077ff;
+  border:2px dashed #D32F2F;
   border-radius:8px;
   text-align:center;
 }
@@ -99,18 +176,18 @@ body {background:linear-gradient(135deg, #fff5f0, #ffe8dd); min-height:100vh;}
 <body>
 
 <div class="header">
-  <h1><img src="logo.png" style="height:30px;"> POS</h1>
+  <h1>🛒 POS</h1>
   <a href="index.html">← Back</a>
 </div>
 
 <div class="container">
   <div class="card">
-    <h3 style="margin-bottom:12px; color:#ff6b35;">🛒 Products</h3>
+    <h3 style="margin-bottom:12px; color:#D32F2F;">🛒 Products</h3>
     <div id="productGrid" class="product-grid">Loading...</div>
   </div>
 
   <div class="card">
-    <h3 style="margin-bottom:12px; color:#ff6b35;">🧾 Cart</h3>
+    <h3 style="margin-bottom:12px; color:#D32F2F;">🧾 Cart</h3>
     <div id="cartItems">Empty cart</div>
     <div class="total" id="totalAmount">Total: ₱0</div>
     <button class="checkout-btn" id="checkoutBtn" disabled onclick="openPayment()">Checkout</button>
@@ -120,7 +197,7 @@ body {background:linear-gradient(135deg, #fff5f0, #ffe8dd); min-height:100vh;}
 <!-- Payment Modal -->
 <div id="paymentModal">
   <div class="modal-content">
-    <h3 style="text-align:center; color:#e63946; margin:0 0 10px;">DHAN SIOMAI</h3>
+    <h3 style="text-align:center; color:#D32F2F; margin:0 0 10px;">DHAN SIOMAI</h3>
     <div id="receiptContent" style="font-size:14px; line-height:1.6;"></div>
 
     <div style="margin-top:15px;">
@@ -151,21 +228,27 @@ body {background:linear-gradient(135deg, #fff5f0, #ffe8dd); min-height:100vh;}
     </div>
 
     <div style="display:flex; gap:10px; margin-top:15px;">
-      <button id="confirmBtn" onclick="confirmPayment()"
-              style="flex:1; padding:12px; background:#e63946; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">
+      <button id="confirmBtn" onclick="confirmPayment()" style="flex:1; padding:12px; background:#D32F2F; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">
         Confirm
       </button>
-      <button onclick="closeModal()"
-              style="flex:1; padding:12px; background:#6c757d; color:white; border:none; border-radius:8px; cursor:pointer;">
+      <button onclick="closeModal()" style="flex:1; padding:12px; background:#6c757d; color:white; border:none; border-radius:8px; cursor:pointer;">
         Cancel
       </button>
     </div>
   </div>
 </div>
 
-<script type="module">
-import { getFirestore, collection, onSnapshot, doc, updateDoc, increment, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { db } from './firebase-config.js';
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyDk3ZbOXuw3PEfJzdt8AI2ueJq5yksfekE",
+authDomain: "dhan-siomai-pos-fe1e5.firebaseapp.com",
+projectId: "dhan-siomai-pos-fe1e5",
+storageBucket: "dhan-siomai-pos-fe1e5.firebasestorage.app",
+messagingSenderId: "305932123173",
+appId: "1:305932123173:web:f27894a2d5e6e6ab8253cc"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 let cart = [];
 let products = {};
@@ -173,7 +256,7 @@ let currentTotal = 0;
 let proofBase64 = '';
 
 // Load products
-onSnapshot(collection(db, "products"), (snapshot) => {
+db.collection("dhan-pos-web").onSnapshot((snapshot) => {
   const grid = document.getElementById("productGrid");
   grid.innerHTML = '';
   products = {};
@@ -181,28 +264,30 @@ onSnapshot(collection(db, "products"), (snapshot) => {
   snapshot.forEach(docSnap => {
     const p = docSnap.data();
     products[docSnap.id] = {id: docSnap.id,...p};
-    const imgUrl = p.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZmZlOGRkIi8+PHRleHQgeD0iNDAiIHk9IjQwIiBmb250LXNpemU9IjEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmY2YjM1Ij5ObyBJbWc8L3RleHQ+PC9zdmc+';
+
+    const imgUrl = p.image || 'https://via.placeholder.com/140x90?text=No+Image';
 
     if(p.stock > 0) {
       grid.innerHTML += `
       <div class="product-card" onclick="addToCart('${docSnap.id}')">
-        <img src="${imgUrl}" class="product-img" alt="${p.name}">
+        <img src="${imgUrl}" class="product-img" alt="${p.name}"
+          onerror="this.src='https://via.placeholder.com/140x90?text=Image+Error'">
         <div class="product-name">${p.name}</div>
         <div class="product-price">₱${p.price}</div>
         <div class="product-stock">Stock: ${p.stock || 0}</div>
-      </div>
-      `;
+      </div>`;
     }
   });
 });
 
 // Add to cart
-window.addToCart = function(id) {
+function addToCart(id) {
   const product = products[id];
   if(!product || product.stock <= 0) {
     alert("Out of stock!");
     return;
   }
+
   const existing = cart.find(item => item.id === id);
   if(existing) {
     if(existing.qty >= product.stock) {
@@ -214,7 +299,7 @@ window.addToCart = function(id) {
     cart.push({id, name: product.name, price: product.price, qty: 1});
   }
   updateCart();
-};
+}
 
 // Update cart display
 function updateCart() {
@@ -244,8 +329,7 @@ function updateCart() {
         <span>${item.qty}</span>
         <button onclick="changeQty('${item.id}', 1)">+</button>
       </div>
-    </div>
-    `;
+    </div>`;
   });
 
   currentTotal = total;
@@ -254,10 +338,11 @@ function updateCart() {
 }
 
 // Change quantity
-window.changeQty = function(id, change) {
+function changeQty(id, change) {
   const item = cart.find(i => i.id === id);
   const product = products[id];
   item.qty += change;
+
   if(item.qty <= 0) {
     cart = cart.filter(i => i.id!== id);
   } else if(item.qty > product.stock) {
@@ -265,20 +350,18 @@ window.changeQty = function(id, change) {
     item.qty = product.stock;
   }
   updateCart();
-};
+}
 
 // Open payment modal
-window.openPayment = function() {
+function openPayment() {
   if(cart.length === 0) return;
 
   let receiptHTML = `
     Thank you!<br>
-    ${new Date().toLocaleString()}<br><hr>
-  `;
+    ${new Date().toLocaleString()}<br><hr>`;
 
   cart.forEach(item => {
-    receiptHTML += `${item.name} x${item.qty}
-      <span style="float:right;">₱${item.price * item.qty}</span><br>`;
+    receiptHTML += `${item.name} x${item.qty} <span style="float:right;">₱${item.price * item.qty}</span><br>`;
   });
 
   receiptHTML += `<hr><strong>Total <span style="float:right;">₱${currentTotal}</span></strong>`;
@@ -293,25 +376,25 @@ window.openPayment = function() {
   document.getElementById('paymentModal').style.display = 'flex';
 }
 
-window.toggleProofUpload = function() {
+function toggleProofUpload() {
   const method = document.getElementById('paymentMethod').value;
   document.getElementById('cashSection').style.display = method === 'Cash'? 'block' : 'none';
   document.getElementById('proofUpload').style.display = method === 'GCash'? 'block' : 'none';
 }
 
-window.addCash = function(amount) {
+function addCash(amount) {
   let current = parseFloat(document.getElementById('cashReceived').value) || 0;
   document.getElementById('cashReceived').value = current + amount;
   calculateChange();
 }
 
-window.calculateChange = function() {
+function calculateChange() {
   const cash = parseFloat(document.getElementById('cashReceived').value) || 0;
   const change = cash - currentTotal;
   document.getElementById('changeAmount').textContent = change >= 0? change : 0;
 }
 
-window.previewProof = function() {
+function previewProof() {
   const file = document.getElementById('proofFile').files[0];
   if(!file) return;
 
@@ -324,12 +407,12 @@ window.previewProof = function() {
   reader.readAsDataURL(file);
 }
 
-window.closeModal = function() {
+function closeModal() {
   document.getElementById('paymentModal').style.display = 'none';
 }
 
 // Checkout
-window.confirmPayment = async function() {
+async function confirmPayment() {
   const method = document.getElementById('paymentMethod').value;
   const cash = parseFloat(document.getElementById('cashReceived').value) || 0;
   const change = cash - currentTotal;
@@ -338,26 +421,27 @@ window.confirmPayment = async function() {
     alert('Insufficient cash!');
     return;
   }
-
   if(method === 'GCash' &&!proofBase64) {
     alert('Please upload proof of payment for GCash!');
     return;
   }
 
   try {
-    await addDoc(collection(db, "sales"), {
+    await db.collection("dhan-sales").add({
       items: cart,
       total: currentTotal,
       paymentMethod: method,
       cashReceived: method === 'Cash'? cash : currentTotal,
       change: method === 'Cash'? change : 0,
       proofOfPayment: proofBase64,
-      date: new Date()
+      orderType: 'POS',
+      status: 'Completed',
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
 
     for(const item of cart) {
-      await updateDoc(doc(db, "products", item.id), {
-        stock: increment(-item.qty)
+      await db.collection("dhan-pos-web").doc(item.id).update({
+        stock: firebase.firestore.FieldValue.increment(-item.qty)
       });
     }
 
@@ -370,6 +454,5 @@ window.confirmPayment = async function() {
   }
 }
 </script>
-
 </body>
 </html>
