@@ -4,42 +4,147 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daily Production - Admin</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
-body {background:#f5f5f5;}
-.header {background: linear-gradient(135deg, #ff6b35, #ff8c65); color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center;}
+body {background:#FFF8E1;}
+.header {
+  background: linear-gradient(135deg, #D32F2F, #B71C1C);
+  color:white;
+  padding:15px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 4px 10px rgba(211,47,47,0.3);
+}
 .container {padding:15px; max-width:1100px; margin:0 auto;}
-.notice {background:#e8f5e9; color:#2e7d32; padding:12px; border-radius:8px; margin-bottom:15px; font-size:14px;}
-.add-btn {background:#ff6b35; color:white; border:none; padding:10px 16px; border-radius:8px; font-weight:600; cursor:pointer; margin-bottom:15px;}
-.table {width:100%; background:white; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.08); border-collapse:collapse;}
-.table th {background:#fff9c4; padding:12px; text-align:left; font-weight:700; font-size:14px;}
-.table td {padding:10px; border-bottom:1px solid #eee;}
-.table input,.table select {width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; font-size:14px;}
-.btn-save {background:#4caf50; color:white; padding:10px 20px; border:none; border-radius:8px; font-weight:600; cursor:pointer;}
-.btn-back {background:#666; color:white; padding:10px 20px; border:none; border-radius:8px; font-weight:600; cursor:pointer; margin-right:10px;}
-.btn-del {background:#f44336; color:white; padding:6px 10px; border:none; border-radius:6px; cursor:pointer;}
+.notice {
+  background:#E8F5E9;
+  color:#2e7d32;
+  padding:12px;
+  border-radius:8px;
+  margin-bottom:15px;
+  font-size:14px;
+  border-left:4px solid #4caf50;
+}
+.add-btn {
+  background:linear-gradient(135deg, #D32F2F, #B71C1C);
+  color:white;
+  border:none;
+  padding:12px 16px;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+  margin-bottom:15px;
+}
+.table {
+  width:100%;
+  background:white;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 3px 8px rgba(0,0,0,0.1);
+  border-collapse:collapse;
+}
+.table th {
+  background:#FFC107;
+  padding:12px;
+  text-align:left;
+  font-weight:700;
+  font-size:14px;
+  color:#333;
+}
+.table td {
+  padding:10px;
+  border-bottom:1px solid #FFE0B2;
+}
+.table input,.table select {
+  width:100%;
+  padding:8px;
+  border:2px solid #FFE0B2;
+  border-radius:6px;
+  font-size:14px;
+}
+.table input:focus,.table select:focus {
+  outline:none;
+  border-color:#FFC107;
+}
+.btn-save {
+  background:linear-gradient(135deg, #4caf50, #66bb6a);
+  color:white;
+  padding:10px 20px;
+  border:none;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+}
+.btn-back {
+  background:#666;
+  color:white;
+  padding:10px 20px;
+  border:none;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+  margin-right:10px;
+}
+.btn-del {
+  background:#D32F2F;
+  color:white;
+  padding:6px 10px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
 .loading {text-align:center; padding:40px; color:#666;}
+.prod-select {
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.prod-select img {
+  width:35px;
+  height:35px;
+  object-fit:cover;
+  border-radius:6px;
+  border:1px solid #FFE0B2;
+}
 </style>
 </head>
 <body>
+
 <div class="header">
-<h1>📊 Daily Production</h1>
-<button onclick="window.location.href='index.html'" style="padding:8px 14px; border:none; border-radius:8px; font-weight:600; cursor:pointer; background:#fff; color:#ff6b35;">← Back</button>
-</div>
-<div class="container">
-<div class="notice">💡 Piliin mo yung product sa dropdown. Walang typing, walang mali.</div>
-<button class="add-btn" onclick="addDaily()">+ Add Daily Record</button>
-<div id="dailyList"><div class="loading">Loading...</div></div>
-<br>
-<button class="btn-back" onclick="window.location.href='index.html'">Back</button>
-<button class="btn-save" onclick="saveDaily()">💾 Save All</button>
+  <h1>📊 Daily Production</h1>
+  <button onclick="window.location.href='index.html'" style="padding:8px 14px; border:none; border-radius:8px; font-weight:600; cursor:pointer; background:#fff; color:#D32F2F;">← Back</button>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
+<div class="container">
+  <div class="notice">
+    💡 Piliin mo yung product sa dropdown. May image na para sure ka kung anong siomai.
+  </div>
+  
+  <button class="add-btn" onclick="addDaily()">+ Add Daily Record</button>
+  
+  <div id="dailyList"><div class="loading">Loading...</div></div>
+  
+  <br>
+  <button class="btn-back" onclick="window.location.href='index.html'">Back</button>
+  <button class="btn-save" onclick="saveDaily()">💾 Save All</button>
+</div>
+
 <script>
+const firebaseConfig = {
+apiKey: "AIzaSyDk3ZbOXuw3PEfJzdt8AI2ueJq5yksfekE",
+authDomain: "dhan-siomai-pos-fe1e5.firebaseapp.com",
+projectId: "dhan-siomai-pos-fe1e5",
+storageBucket: "dhan-siomai-pos-fe1e5.firebasestorage.app",
+messagingSenderId: "305932123173",
+appId: "1:305932123173:web:f27894a2d5e6e6ab8253cc"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 let dailyArray = [];
 let productsArray = [];
 
@@ -77,24 +182,42 @@ function renderDaily() {
     document.getElementById('dailyList').innerHTML = '<div class="loading">No records yet</div>';
     return;
   }
-  
-  let html = `<table class="table"><tr><th>Date</th><th>Product</th><th>Qty</th><th>Action</th></tr>`;
+
+  let html = `<table class="table">
+    <tr><th>Date</th><th>Product</th><th>Qty Produced</th><th>Action</th></tr>`;
+
   dailyArray.forEach(d => {
     let options = `<option value="">-- Select Product --</option>`;
     productsArray.forEach(p => {
-      let selected = p.id === d.productId? 'selected' : '';
+      let selected = p.id === d.productId ? 'selected' : '';
       options += `<option value="${p.id}" ${selected}>${p.name}</option>`;
     });
-    
+
+    let selectedProd = productsArray.find(p => p.id === d.productId);
+    let imgSrc = selectedProd && selectedProd.image ? selectedProd.image : 'https://via.placeholder.com/35x35?text=No';
+
     html += `<tr>
       <td><input type="date" id="date-${d.id}" value="${d.date}"></td>
-      <td><select id="prod-${d.id}">${options}</select></td>
+      <td>
+        <div class="prod-select">
+          <img id="img-${d.id}" src="${imgSrc}" alt="">
+          <select id="prod-${d.id}" onchange="updateImg('${d.id}')">${options}</select>
+        </div>
+      </td>
       <td><input type="number" id="qty-${d.id}" value="${d.qty || 0}" min="0"></td>
       <td><button class="btn-del" onclick="deleteDaily('${d.id}')">Delete</button></td>
     </tr>`;
   });
+
   html += `</table>`;
   document.getElementById('dailyList').innerHTML = html;
+}
+
+function updateImg(id){
+  let prodId = document.getElementById(`prod-${id}`).value;
+  let prod = productsArray.find(p => p.id === prodId);
+  let imgSrc = prod && prod.image ? prod.image : 'https://via.placeholder.com/35x35?text=No';
+  document.getElementById(`img-${id}`).src = imgSrc;
 }
 
 function addDaily() {
@@ -102,12 +225,12 @@ function addDaily() {
     alert("Wala pang product. Mag-add ka muna sa Products page.");
     return;
   }
-  
+
   let date = new Date().toISOString().split('T')[0];
   let firstProduct = productsArray[0];
-  
+
   db.collection("dhan-daily").add({
-    date: date, 
+    date: date,
     productId: firstProduct.id,
     productName: firstProduct.name,
     qty: 0
@@ -116,7 +239,7 @@ function addDaily() {
 
 async function saveDaily() {
   if(!confirm("Save all changes?")) return;
-  
+
   try {
     const batch = db.batch();
     let updatedCount = 0;
@@ -125,27 +248,26 @@ async function saveDaily() {
       let qty = parseInt(document.getElementById(`qty-${d.id}`).value) || 0;
       let productId = document.getElementById(`prod-${d.id}`).value;
       let date = document.getElementById(`date-${d.id}`).value;
-      
+
       if(qty > 0 && productId){
-        batch.update(db.collection("dhan-pos-web").doc(productId), { 
-          stock: firebase.firestore.FieldValue.increment(qty) 
+        batch.update(db.collection("dhan-pos-web").doc(productId), {
+          stock: firebase.firestore.FieldValue.increment(qty)
         });
         updatedCount++;
-        
+
         let prod = productsArray.find(p => p.id === productId);
-        
-        batch.update(db.collection("dhan-daily").doc(d.id), { 
-          date: date, 
+        batch.update(db.collection("dhan-daily").doc(d.id), {
+          date: date,
           productId: productId,
-          productName: prod? prod.name : "",
-          qty: qty 
+          productName: prod ? prod.name : "",
+          qty: qty
         });
       } else {
-        batch.update(db.collection("dhan-daily").doc(d.id), { 
-          date: date, 
+        batch.update(db.collection("dhan-daily").doc(d.id), {
+          date: date,
           productId: productId,
           productName: "",
-          qty: qty 
+          qty: qty
         });
       }
     }
@@ -154,14 +276,15 @@ async function saveDaily() {
     alert(`✅ Saved! ${updatedCount} product stock updated.`);
     loadDaily();
     loadProducts();
-    
   } catch(err) {
     alert("❌ Error: " + err.message);
   }
 }
 
 function deleteDaily(id) {
-  if(confirm("Delete record?")) db.collection("dhan-daily").doc(id).delete().then(loadDaily);
+  if(confirm("Delete record?")) {
+    db.collection("dhan-daily").doc(id).delete().then(loadDaily);
+  }
 }
 </script>
 </body>
