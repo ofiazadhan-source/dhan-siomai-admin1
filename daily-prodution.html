@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Production - Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
+body {background:#FFF8E1;}
+.header { background: linear-gradient(135deg, #D32F2F, #B71C1C); color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; }
+.container {padding:15px; max-width:1100px; margin:0 auto;}
+.notice { background:#E8F5E9; color:#2e7d32; padding:12px; border-radius:8px; margin-bottom:15px; font-size:14px; border-left:4px solid #4caf50; }
+.add-btn { background:linear-gradient(135deg, #D32F2F, #B71C1C); color:white; border:none; padding:12px 16px; border-radius:10px; font-weight:600; cursor:pointer; margin-bottom:15px; }
+.table { width:100%; background:white; border-radius:12px; overflow:hidden; box-shadow:0 3px 8px rgba(0,0,0,0.1); border-collapse:collapse; }
+.table th { background:#FFC107; padding:12px; text-align:left; font-weight:700; font-size:14px; color:#333; }
+.table td { padding:10px; border-bottom:1px solid #FFE0B2; }
+.table input,.table select { width:100%; padding:8px; border:2px solid #FFE0B2; border-radius:6px; font-size:14px; }
+.btn-save { background:linear-gradient(135deg, #4caf50, #66bb6a); color:white; padding:10px 20px; border:none; border-radius:8px; font-weight:600; cursor:pointer; }
+.btn-back { background:#666; color:white; padding:10px 20px; border:none; border-radius:8px; font-weight:600; cursor:pointer; margin-right:10px; }
+.btn-del { background:#D32F2F; color:white; padding:6px 10px; border:none; border-radius:6px; cursor:pointer; }
+.loading {text-align:center; padding:40px; color:#666;}
+.prod-select { display:flex; align-items:center; gap:8px; }
+.prod-select img { width:35px; height:35px; object-fit:cover; border-radius:6px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📊 Daily Production</h1>
+  <button onclick="window.location.href='index.html'" style="padding:8px 14px; border:none; border-radius:8px; font-weight:600; cursor:pointer; background:#fff; color:#D32F2F;">← Back</button>
+</div>
+<div class="container">
+  <div class="notice">💡 Piliin mo yung product sa dropdown. May image na para sure ka kung anong siomai.</div>
+  <button class="add-btn" onclick="addDaily()">+ Add Daily Record</button>
+  <div id="dailyList"><div class="loading">Loading...</div></div>
+  <br>
+  <button class="btn-back" onclick="window.location.href='index.html'">Back</button>
+  <button class="btn-save" onclick="saveDaily()">💾 Save All</button>
+</div>
+
+<script type="module">
+import { db } from './firebase-config.js';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, writeBatch, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+let dailyArray = [];
+let productsArray = [];
+
+window.onload = function() {
+  loadProducts();
+  loadDaily();
+}
+
+async function loadProducts() {
+  const snap = await getDocs(collection(db, "dhan-pos-web"));
+  productsArray = [];
+  snap.forEach(doc => {
+    let p = doc.data();
+    p.id = doc.id;
+    productsArray.push(p);
+  });
+  renderDaily();
+}
+
+async function loadDaily() {
+  const q = query(collection(db, "dhan-daily"), orderBy("date", "desc"));
+  const snap = await getDocs(q);
+  dailyArray = [];
+  snap.forEach(doc => {
+    let d = doc.data();
+    d.id = doc.id;
+    dailyArray.push(d);
+  });
+  renderDaily();
+}
+
+function renderDaily() {
+  if(dailyArray.length === 0) {
+    document.getElementById('dailyList').innerHTML = '<div class="loading">No records yet</div>';
+    return;
+  }
+  
+  let html = `<table class="table"><tr><th>Date</th><th>Product</th><th>Qty Produced</th><th>Action</th></tr>`;
+  
+  dailyArray.forEach(d => {
+    let options = `<option value="">-- Select Product --</option>`;
+    productsArray.forEach(p => {
+      let selected = p.id === d.productId ? 'selected' : '';
+      options += `<option value="${p.id}" ${selected}>${p.name}</option>`;
+    });
+    
+    let selectedProd = productsArray.find(p => p.id === d.productId);
+    let imgSrc = selectedProd && selectedProd.image ? selectedProd.image : 'https://via.placeholder.com/35x35?text=No';
+    
+    html += `<tr>
+      <td><input type="date" id="date-${d.id}" value="${d.date}"></td>
+      <td>
+        <div class="prod-select">
+          <img id="img-${d.id}" src="${imgSrc}" alt="">
+          <select id="prod-${d.id}" onchange="updateImg('${d.id}')">${options}</select>
+        </div>
+      </td>
+      <td><input type="number" id="qty-${d.id}" value="${d.qty || 0}" min="0"></td>
+      <td><button class="btn-del" onclick="deleteDaily('${d.id}')">Delete</button></td>
+    </tr>`;
+  });
+  
+  html += `</table>`;
+  document.getElementById('dailyList').innerHTML = html;
+}
+
+window.updateImg = function(id){
+  let prodId = document.getElementById(`prod-${id}`).value;
+  let prod = productsArray.find(p => p.id === prodId);
+  let imgSrc = prod && prod.image ? prod.image : 'https://via.placeholder.com/35x35?text=No';
+  document.getElementById(`img-${id}`).src = imgSrc;
+}
+
+window.addDaily = async function() {
+  if(productsArray.length === 0){
+    alert("Wala pang product. Mag-add ka muna sa Products page.");
+    return;
+  }
+  let date = new Date().toISOString().split('T')[0];
+  let firstProduct = productsArray[0];
+  
+  await addDoc(collection(db, "dhan-daily"), {
+    date: date,
+    productId: firstProduct.id,
+    productName: firstProduct.name,
+    qty: 0
+  });
+  loadDaily();
+}
+
+window.saveDaily = async function() {
+  if(!confirm("Save all changes?")) return;
+  
+  try {
+    const batch = writeBatch(db);
+    let updatedCount = 0;
+    
+    for(const d of dailyArray) {
+      let qty = parseInt(document.getElementById(`qty-${d.id}`).value) || 0;
+      let productId = document.getElementById(`prod-${d.id}`).value;
+      let date = document.getElementById(`date-${d.id}`).value;
+      
+      if(qty > 0 && productId){
+        batch.update(doc(db, "dhan-pos-web", productId), { stock: increment(qty) });
+        updatedCount++;
+        let prod = productsArray.find(p => p.id === productId);
+        batch.update(doc(db, "dhan-daily", d.id), { date, productId, productName: prod ? prod.name : "", qty });
+      } else {
+        batch.update(doc(db, "dhan-daily", d.id), { date, productId, productName: "", qty });
+      }
+    }
+    
+    await batch.commit();
+    alert(`✅ Saved! ${updatedCount} product stock updated.`);
+    loadDaily();
+    loadProducts();
+  } catch(err) {
+    alert("❌ Error: " + err.message);
+  }
+}
+
+window.deleteDaily = async function(id) {
+  if(confirm("Delete record?")) {
+    await deleteDoc(doc(db, "dhan-daily", id));
+    loadDaily();
+  }
+}
+</script>
+</body>
+</html>
