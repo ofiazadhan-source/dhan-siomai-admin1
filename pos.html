@@ -127,6 +127,75 @@ body {background:#FFF8E1;}
 .search-box:focus {outline:none; border-color:#FFC107;}
 
 .loading {text-align:center; padding:40px; color:#666;}
+
+/* Modal */
+.modal {
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.5);
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+}
+.modal.active {display:flex;}
+.modal-content {
+  background:white;
+  border-radius:16px;
+  padding:20px;
+  width:90%;
+  max-width:400px;
+}
+.modal-content h3 {
+  margin-bottom:15px;
+  color:#D32F2F;
+}
+.payment-btn {
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  border:none;
+  border-radius:10px;
+  font-weight:600;
+  font-size:15px;
+  cursor:pointer;
+}
+.btn-cash {background:#4caf50; color:white;}
+.btn-gcash {background:#0070f3; color:white;}
+.input-cash {
+  width:100%;
+  padding:12px;
+  border:2px solid #FFE0B2;
+  border-radius:10px;
+  font-size:16px;
+  margin:10px 0;
+}
+.change-box {
+  background:#E8F5E9;
+  padding:12px;
+  border-radius:10px;
+  text-align:center;
+  margin:10px 0;
+  font-size:18px;
+  font-weight:700;
+  color:#2e7d32;
+}
+.modal-actions {
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+}
+.modal-actions button {
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+}
+.btn-cancel {background:#f5f5f5; color:#333;}
+.btn-confirm {background:#D32F2F; color:white;}
 </style>
 </head>
 <body>
@@ -163,9 +232,29 @@ body {background:#FFF8E1;}
         </div>
       </div>
 
-      <button class="checkout-btn" id="checkoutBtn" onclick="checkout()" disabled>
+      <button class="checkout-btn" id="checkoutBtn" onclick="openPaymentModal()" disabled>
         💰 Checkout
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal" id="paymentModal">
+  <div class="modal-content">
+    <h3>💳 Select Payment Method</h3>
+    <button class="payment-btn btn-cash" onclick="selectPayment('cash')">💵 Cash</button>
+    <button class="payment-btn btn-gcash" onclick="selectPayment('gcash')">📱 GCash</button>
+
+    <div id="cashSection" style="display:none;">
+      <label style="font-weight:600;">Amount Received:</label>
+      <input type="number" id="amountReceived" class="input-cash" placeholder="0" inputmode="numeric" oninput="calculateChange()">
+      <div class="change-box" id="changeBox">Change: ₱0</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closePaymentModal()">Cancel</button>
+      <button class="btn-confirm" id="confirmBtn" onclick="checkout()" disabled>Confirm Payment</button>
     </div>
   </div>
 </div>
@@ -179,6 +268,8 @@ import {
 
 let products = [];
 let cart = [];
+let paymentMethod = '';
+let totalAmount = 0;
 
 // Load products live
 onSnapshot(collection(db, "dhan-pos-web"), (snapshot) => {
@@ -255,7 +346,7 @@ window.addToCart = function(productId) {
 
 // Remove from cart
 window.removeFromCart = function(productId) {
-  cart = cart.filter(item => item.id!== productId);
+  cart = cart.filter(item => item.id !== productId);
   renderCart();
 }
 
@@ -313,29 +404,75 @@ function renderCart() {
 
 // Update total
 function updateTotal() {
-  let subtotal = 0;
+  totalAmount = 0;
   cart.forEach(item => {
-    subtotal += item.price * item.qty;
+    totalAmount += item.price * item.qty;
   });
 
-  document.getElementById('subtotal').textContent = `₱${subtotal.toLocaleString()}`;
-  document.getElementById('grandTotal').textContent = `₱${subtotal.toLocaleString()}`;
+  document.getElementById('subtotal').textContent = `₱${totalAmount.toLocaleString()}`;
+  document.getElementById('grandTotal').textContent = `₱${totalAmount.toLocaleString()}`;
+}
+
+// Open payment modal
+window.openPaymentModal = function() {
+  document.getElementById('paymentModal').classList.add('active');
+  paymentMethod = '';
+  document.getElementById('cashSection').style.display = 'none';
+  document.getElementById('confirmBtn').disabled = true;
+}
+
+// Close modal
+window.closePaymentModal = function() {
+  document.getElementById('paymentModal').classList.remove('active');
+}
+
+// Select payment method
+window.selectPayment = function(method) {
+  paymentMethod = method;
+  document.getElementById('confirmBtn').disabled = false;
+  
+  if(method === 'cash') {
+    document.getElementById('cashSection').style.display = 'block';
+    document.getElementById('amountReceived').value = '';
+    document.getElementById('changeBox').textContent = 'Change: ₱0';
+    document.getElementById('amountReceived').focus();
+  } else {
+    document.getElementById('cashSection').style.display = 'none';
+  }
+}
+
+// Calculate change for cash
+window.calculateChange = function() {
+  const received = parseFloat(document.getElementById('amountReceived').value) || 0;
+  const change = received - totalAmount;
+  document.getElementById('changeBox').textContent = `Change: ₱${change >= 0 ? change.toLocaleString() : 0}`;
+  
+  // Disable confirm if amount is less than total
+  document.getElementById('confirmBtn').disabled = received < totalAmount;
 }
 
 // Checkout
 window.checkout = async function() {
-  if(cart.length === 0) return;
+  if(cart.length === 0 ||!paymentMethod) return;
 
-  if(!confirm('Confirm checkout?')) return;
+  if(paymentMethod === 'cash') {
+    const received = parseFloat(document.getElementById('amountReceived').value) || 0;
+    if(received < totalAmount) {
+      alert('❌ Kulang ang bayad!');
+      return;
+    }
+  }
 
   try {
-    const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     const timestamp = new Date();
 
-    // Save sale
+    // Save sale with payment method
     await addDoc(collection(db, "dhan-sales"), {
       items: cart,
-      total: total,
+      total: totalAmount,
+      paymentMethod: paymentMethod,
+      amountReceived: paymentMethod === 'cash' ? parseFloat(document.getElementById('amountReceived').value) : totalAmount,
+      change: paymentMethod === 'cash' ? (parseFloat(document.getElementById('amountReceived').value) - totalAmount) : 0,
       timestamp: timestamp,
       date: timestamp.toISOString().split('T')[0]
     });
@@ -347,11 +484,14 @@ window.checkout = async function() {
       });
     }
 
-    alert(`✅ Sale completed!\nTotal: ₱${total.toLocaleString()}`);
+    const change = paymentMethod === 'cash' ? (parseFloat(document.getElementById('amountReceived').value) - totalAmount) : 0;
+    
+    alert(`✅ Sale completed!\nPayment: ${paymentMethod.toUpperCase()}\nTotal: ₱${totalAmount.toLocaleString()}${change > 0 ? `\nChange: ₱${change.toLocaleString()}` : ''}`);
 
-    // Clear cart
+    // Clear cart and close modal
     cart = [];
     renderCart();
+    closePaymentModal();
 
   } catch(e) {
     alert('❌ Error: ' + e.message);
