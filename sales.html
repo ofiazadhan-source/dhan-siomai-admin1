@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Report - DHAN SIOMAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
+body {background:#FFF8E1;}
+.header {
+  background: linear-gradient(135deg, #D32F2F, #B71C1C);
+  color:white;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+.header h1 {font-size:18px; font-weight:700;}
+.header a {
+  color:#D32F2F;
+  background:#fff;
+  text-decoration:none;
+  font-weight:600;
+  padding:8px 14px;
+  border-radius:8px;
+  font-size:14px;
+}
+
+.container {padding:15px; max-width:1100px; margin:0 auto;}
+
+.filters {
+  background:white;
+  padding:15px;
+  border-radius:16px;
+  margin-bottom:15px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:end;
+}
+.filters input,.filters select {
+  padding:10px;
+  border:2px solid #FFE0B2;
+  border-radius:10px;
+  font-size:14px;
+}
+.filters label {
+  font-size:12px;
+  color:#666;
+  font-weight:600;
+  display:block;
+  margin-bottom:5px;
+}
+.filter-group {flex:1; min-width:140px;}
+.filter-btn {
+  padding:10px 20px;
+  background:#D32F2F;
+  color:white;
+  border:none;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.summary-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+  gap:12px;
+  margin-bottom:15px;
+}
+.summary-card {
+  background:white;
+  padding:18px;
+  border-radius:16px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
+  border-left:4px solid #D32F2F;
+}
+.summary-card h4 {
+  font-size:13px;
+  color:#666;
+  margin-bottom:5px;
+  font-weight:600;
+}
+.summary-card p {
+  font-size:24px;
+  font-weight:700;
+  color:#D32F2F;
+}
+
+.sales-card {
+  background:white;
+  border-radius:16px;
+  padding:15px;
+  margin-bottom:12px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
+}
+.sale-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+  padding-bottom:10px;
+  border-bottom:2px solid #FFE0B2;
+}
+.sale-time {
+  font-weight:700;
+  color:#D32F2F;
+  font-size:14px;
+}
+.sale-total {
+  font-weight:700;
+  font-size:18px;
+  color:#4caf50;
+}
+.sale-items {
+  margin-top:10px;
+}
+.item-row {
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+  font-size:14px;
+  border-bottom:1px dashed #FFE0B2;
+}
+.item-row:last-child {border-bottom:none;}
+.payment-badge {
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:15px;
+  font-size:12px;
+  font-weight:600;
+  background:#E3F2FD;
+  color:#1565C0;
+}
+.loading {
+  text-align:center;
+  padding:40px;
+  color:#666;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📊 Sales Report</h1>
+  <a href="index.html">← Back</a>
+</div>
+
+<div class="container">
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-group">
+      <label>From Date</label>
+      <input type="date" id="dateFrom">
+    </div>
+    <div class="filter-group">
+      <label>To Date</label>
+      <input type="date" id="dateTo">
+    </div>
+    <div class="filter-group">
+      <label>Payment Method</label>
+      <select id="paymentFilter">
+        <option value="all">All</option>
+        <option value="Cash">Cash</option>
+        <option value="GCash">GCash</option>
+      </select>
+    </div>
+    <button class="filter-btn" onclick="loadSales()">Filter</button>
+    <button class="filter-btn" style="background:#FFA726;" onclick="resetFilter()">Reset</button>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <h4>Total Sales</h4>
+      <p id="totalSales">₱0</p>
+    </div>
+    <div class="summary-card">
+      <h4>Total Transactions</h4>
+      <p id="totalTransactions">0</p>
+    </div>
+    <div class="summary-card">
+      <h4>Total Items Sold</h4>
+      <p id="totalItems">0</p>
+    </div>
+    <div class="summary-card">
+      <h4>Avg. per Transaction</h4>
+      <p id="avgSale">₱0</p>
+    </div>
+  </div>
+
+  <!-- Sales List -->
+  <div id="salesList">
+    <div class="loading">Loading sales...</div>
+  </div>
+</div>
+
+<script type="module">
+import { db } from './firebase-config.js';
+import {
+  collection, getDocs, query, where, orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Set default dates: today
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('dateFrom').value = today;
+document.getElementById('dateTo').value = today;
+
+window.addEventListener('load', loadSales);
+
+async function loadSales() {
+  const dateFrom = document.getElementById('dateFrom').value;
+  const dateTo = document.getElementById('dateTo').value;
+  const paymentFilter = document.getElementById('paymentFilter').value;
+  const container = document.getElementById('salesList');
+
+  container.innerHTML = '<div class="loading">Loading sales...</div>';
+
+  try {
+    let q = query(collection(db, "dhan-sales"), orderBy("timestamp", "desc"));
+
+    const snapshot = await getDocs(q);
+    let sales = [];
+
+    snapshot.forEach(docSnap => {
+      let sale = docSnap.data();
+      sale.id = docSnap.id;
+
+      // Filter by date
+      if(dateFrom && sale.date < dateFrom) return;
+      if(dateTo && sale.date > dateTo) return;
+
+      // Filter by payment method
+      if(paymentFilter!== 'all' && sale.paymentMethod!== paymentFilter) return;
+
+      sales.push(sale);
+    });
+
+    // Calculate summary
+    let totalSales = 0;
+    let totalItems = 0;
+
+    sales.forEach(sale => {
+      totalSales += sale.total || 0;
+      if(sale.items) {
+        sale.items.forEach(item => {
+          totalItems += item.qty || 0;
+        });
+      }
+    });
+
+    const avgSale = sales.length > 0? totalSales / sales.length : 0;
+
+    // Update summary
+    document.getElementById('totalSales').textContent = `₱${totalSales.toLocaleString()}`;
+    document.getElementById('totalTransactions').textContent = sales.length;
+    document.getElementById('totalItems').textContent = totalItems;
+    document.getElementById('avgSale').textContent = `₱${avgSale.toFixed(2)}`;
+
+    // Render sales list
+    if(sales.length === 0) {
+      container.innerHTML = '<div class="loading">No sales found for this period</div>';
+      return;
+    }
+
+    container.innerHTML = '';
+    sales.forEach(sale => {
+      let itemsHtml = '';
+      if(sale.items) {
+        sale.items.forEach(item => {
+          itemsHtml += `
+            <div class="item-row">
+              <span>${item.name} x${item.qty}</span>
+              <span>₱${(item.price * item.qty).toLocaleString()}</span>
+            </div>
+          `;
+        });
+      }
+
+      const time = sale.timestamp? new Date(sale.timestamp.seconds * 1000).toLocaleTimeString('en-PH', {hour:'2-digit', minute:'2-digit'}) : '';
+
+      container.innerHTML += `
+        <div class="sales-card">
+          <div class="sale-header">
+            <div>
+              <div class="sale-time">${sale.date} ${time}</div>
+              <span class="payment-badge">${sale.paymentMethod || 'Cash'}</span>
+            </div>
+            <div class="sale-total">₱${(sale.total || 0).toLocaleString()}</div>
+          </div>
+          <div class="sale-items">
+            ${itemsHtml}
+          </div>
+        </div>
+      `;
+    });
+
+  } catch(e) {
+    container.innerHTML = `<div class="loading">Error: ${e.message}</div>`;
+  }
+}
+
+window.loadSales = loadSales;
+
+window.resetFilter = function() {
+  document.getElementById('dateFrom').value = today;
+  document.getElementById('dateTo').value = today;
+  document.getElementById('paymentFilter').value = 'all';
+  loadSales();
+}
+</script>
+</body>
+</html>
