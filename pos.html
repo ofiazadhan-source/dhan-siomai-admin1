@@ -19,13 +19,7 @@ body {background:linear-gradient(135deg, #FFF8E1, #FFE0B2); min-height:100vh;}
   align-items:center;
   box-shadow:0 4px 12px rgba(211,47,53,0.3);
 }
-.header h1 {
-  font-size: 18px;
-  font-weight:700;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
+.header h1 {font-size: 18px; font-weight:700;}
 .header a {
   color:#D32F2F;
   background:#fff;
@@ -42,6 +36,33 @@ body {background:linear-gradient(135deg, #FFF8E1, #FFE0B2); min-height:100vh;}
   box-shadow:0 4px 16px rgba(0,0,0,0.08);
   margin-bottom:15px;
 }
+
+/* Category Filter */
+.category-filter {
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding-bottom:10px;
+  margin-bottom:15px;
+}
+.category-filter::-webkit-scrollbar {display:none;}
+.cat-btn {
+  padding:8px 16px;
+  border:2px solid #FFE0B2;
+  border-radius:20px;
+  background:white;
+  color:#333;
+  font-weight:600;
+  white-space:nowrap;
+  cursor:pointer;
+  transition:0.2s;
+}
+.cat-btn.active {
+  background:linear-gradient(135deg, #D32F2F, #B71C1C);
+  color:white;
+  border-color:#D32F2F;
+}
+
 .product-grid {
   display:grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -69,6 +90,7 @@ body {background:linear-gradient(135deg, #FFF8E1, #FFE0B2); min-height:100vh;}
 .product-name {font-size:13px; font-weight:600; color:#333; margin-bottom:4px;}
 .product-price {font-size:15px; font-weight:700; color:#D32F2F;}
 .product-stock {font-size:11px; color:#666;}
+
 .cart-item {
   display:flex;
   justify-content:space-between;
@@ -109,6 +131,7 @@ body {background:linear-gradient(135deg, #FFF8E1, #FFE0B2); min-height:100vh;}
   text-align:right;
   margin-top:10px;
 }
+
 /* Payment Modal */
 #paymentModal {
   display:none;
@@ -183,6 +206,19 @@ body {background:linear-gradient(135deg, #FFF8E1, #FFE0B2); min-height:100vh;}
 <div class="container">
   <div class="card">
     <h3 style="margin-bottom:12px; color:#D32F2F;">🛒 Products</h3>
+
+    <!-- Category Filter -->
+    <div class="category-filter" id="categoryFilter">
+      <button class="cat-btn active" onclick="filterCategory('all')">All</button>
+      <button class="cat-btn" onclick="filterCategory('65's')">65's</button>
+      <button class="cat-btn" onclick="filterCategory('30's')">30's</button>
+      <button class="cat-btn" onclick="filterCategory('Big SIOMAI')">Big SIOMAI</button>
+      <button class="cat-btn" onclick="filterCategory('Dumplings')">Dumplings</button>
+      <button class="cat-btn" onclick="filterCategory('Siopao')">Siopao</button>
+      <button class="cat-btn" onclick="filterCategory('Sauce')">Sauce</button>
+      <button class="cat-btn" onclick="filterCategory('Others')">Others</button>
+    </div>
+
     <div id="productGrid" class="product-grid">Loading...</div>
   </div>
 
@@ -252,33 +288,67 @@ const db = firebase.firestore();
 
 let cart = [];
 let products = {};
+let allProducts = [];
+let currentCategory = 'all';
 let currentTotal = 0;
 let proofBase64 = '';
 
 // Load products
 db.collection("dhan-pos-web").onSnapshot((snapshot) => {
-  const grid = document.getElementById("productGrid");
-  grid.innerHTML = '';
+  allProducts = [];
   products = {};
 
   snapshot.forEach(docSnap => {
     const p = docSnap.data();
-    products[docSnap.id] = {id: docSnap.id,...p};
+    p.id = docSnap.id;
+    allProducts.push(p);
+    products[docSnap.id] = p;
+  });
 
+  renderProducts();
+});
+
+// Render products with filter
+function renderProducts() {
+  const grid = document.getElementById("productGrid");
+  grid.innerHTML = '';
+
+  let filtered = allProducts.filter(p => {
+    if(currentCategory === 'all') return p.stock > 0;
+    return p.category === currentCategory && p.stock > 0;
+  });
+
+  if(filtered.length === 0) {
+    grid.innerHTML = '<p style="text-align:center;color:#999;grid-column:1/-1;">No products in this category</p>';
+    return;
+  }
+
+  filtered.forEach(p => {
     const imgUrl = p.image || 'https://via.placeholder.com/140x90?text=No+Image';
 
-    if(p.stock > 0) {
-      grid.innerHTML += `
-      <div class="product-card" onclick="addToCart('${docSnap.id}')">
-        <img src="${imgUrl}" class="product-img" alt="${p.name}"
-          onerror="this.src='https://via.placeholder.com/140x90?text=Image+Error'">
-        <div class="product-name">${p.name}</div>
-        <div class="product-price">₱${p.price}</div>
-        <div class="product-stock">Stock: ${p.stock || 0}</div>
-      </div>`;
-    }
+    grid.innerHTML += `
+    <div class="product-card" onclick="addToCart('${p.id}')">
+      <img src="${imgUrl}" class="product-img" alt="${p.name}"
+        onerror="this.src='https://via.placeholder.com/140x90?text=Image+Error'">
+      <div class="product-name">${p.name}</div>
+      <div class="product-price">₱${p.price}</div>
+      <div class="product-stock">Stock: ${p.stock || 0}</div>
+    </div>`;
   });
-});
+}
+
+// Filter category
+function filterCategory(cat) {
+  currentCategory = cat;
+
+  // Update active button
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  event.target.classList.add('active');
+
+  renderProducts();
+}
 
 // Add to cart
 function addToCart(id) {
