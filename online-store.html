@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Orders - Admin</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
+body {background:#FFF8E1;}
+.header {background:linear-gradient(135deg, #D32F2F, #B71C1C); color:white; padding:15px; display:flex; justify-content:space-between; align-items:center;}
+.container {padding:15px; max-width:1100px; margin:0 auto;}
+.order-card {
+  background:white;
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:12px;
+  box-shadow:0 3px 8px rgba(0,0,0,0.1);
+  border-left:4px solid #D32F2F;
+}
+.status-badge {
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:600;
+}
+.status-pending {background:#FFF3E0; color:#E65100;}
+.status-completed {background:#E8F5E9; color:#2E7D32;}
+.status-rejected {background:#FFEBEE; color:#C62828;}
+.proof-img {
+  max-width:100%;
+  max-height:200px;
+  border-radius:8px;
+  margin-top:10px;
+  cursor:pointer;
+}
+.action-btns {display:flex; gap:8px; margin-top:10px;}
+.btn-accept {flex:1; padding:10px; background:#4caf50; color:white; border:none; border-radius:8px; font-weight:600;}
+.btn-reject {flex:1; padding:10px; background:#D32F2F; color:white; border:none; border-radius:8px; font-weight:600;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📦 Online Orders</h1>
+  <a href="index.html" style="color:white;text-decoration:none;">← Back</a>
+</div>
+
+<div class="container">
+  <div id="ordersList">Loading...</div>
+</div>
+
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyDk3ZbOXuw3PEfJzdt8AI2ueJq5yksfekE",
+authDomain: "dhan-siomai-pos-fe1e5.firebaseapp.com",
+projectId: "dhan-siomai-pos-fe1e5",
+storageBucket: "dhan-siomai-pos-fe1e5.firebasestorage.app",
+messagingSenderId: "305932123173",
+appId: "1:305932123173:web:f27894a2d5e6e6ab8253cc"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+db.collection("dhan-sales").where("orderType", "==", "Online")
+  .orderBy("timestamp", "desc")
+  .onSnapshot(snap => {
+    const list = document.getElementById("ordersList");
+    if(snap.empty) {
+      list.innerHTML = '<p style="text-align:center;padding:40px;">No online orders yet</p>';
+      return;
+    }
+
+    list.innerHTML = '';
+    snap.forEach(doc => {
+      const o = doc.data();
+      const status = o.status || 'Pending';
+      const statusClass = status === 'Completed' ? 'status-completed' : status === 'Rejected' ? 'status-rejected' : 'status-pending';
+
+      let itemsHtml = '';
+      o.items.forEach(i => {
+        itemsHtml += `<div>${i.name} x${i.qty} - ₱${i.price*i.qty}</div>`;
+      });
+
+      list.innerHTML += `
+      <div class="order-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <strong>${o.customerName}</strong>
+          <span class="status-badge ${statusClass}">${status}</span>
+        </div>
+        <div style="font-size:13px;color:#666;margin-bottom:8px;">
+          ${o.customerPhone}<br>
+          ${o.customerAddress}<br>
+          ${o.timestamp?.toDate().toLocaleString() || ''}
+        </div>
+        <div style="border-top:1px solid #FFE0B2;padding-top:8px;">
+          ${itemsHtml}
+          <div style="margin-top:8px;font-weight:700;color:#D32F2F;">Total: ₱${o.total}</div>
+          <div>Payment: ${o.method} | Ref: ${o.gcashRef || 'N/A'}</div>
+        </div>
+        ${o.proofOfPayment ? `<img src="${o.proofOfPayment}" class="proof-img" onclick="window.open('${o.proofOfPayment}')">` : ''}
+        ${status === 'Pending' ? `
+        <div class="action-btns">
+          <button class="btn-accept" onclick="updateStatus('${doc.id}','Completed')">Accept</button>
+          <button class="btn-reject" onclick="rejectOrder('${doc.id}')">Reject</button>
+        </div>` : ''}
+      </div>`;
+    });
+  });
+
+function updateStatus(id, status) {
+  db.collection("dhan-sales").doc(id).update({status});
+}
+
+function rejectOrder(id) {
+  const msg = prompt("Reason for rejection:");
+  if(msg) {
+    db.collection("dhan-sales").doc(id).update({
+      status: 'Rejected',
+      customerMessage: msg
+    });
+  }
+}
+</script>
+</body>
+</html>
