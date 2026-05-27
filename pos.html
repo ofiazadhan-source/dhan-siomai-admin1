@@ -146,6 +146,8 @@ body {background:#FFF8E1;}
   padding:20px;
   width:90%;
   max-width:400px;
+  max-height:90vh;
+  overflow-y:auto;
 }
 .modal-content h3 {
   margin-bottom:15px;
@@ -196,6 +198,15 @@ body {background:#FFF8E1;}
 }
 .btn-cancel {background:#f5f5f5; color:#333;}
 .btn-confirm {background:#D32F2F; color:white;}
+.btn-confirm:disabled {background:#ccc; cursor:not-allowed;}
+.proof-preview {
+  max-width:100%;
+  max-height:200px;
+  object-fit:contain;
+  border-radius:10px;
+  margin-top:10px;
+  display:none;
+}
 </style>
 </head>
 <body>
@@ -252,6 +263,13 @@ body {background:#FFF8E1;}
       <div class="change-box" id="changeBox">Change: ₱0</div>
     </div>
 
+    <div id="gcashSection" style="display:none;">
+      <label style="font-weight:600;">Upload Proof of Payment:</label>
+      <input type="file" id="proofUpload" accept="image/*" capture="environment">
+      <img id="proofPreview" class="proof-preview">
+      <p style="font-size:12px; color:#666; margin-top:5px;">Screenshot ng GCash transaction</p>
+    </div>
+
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closePaymentModal()">Cancel</button>
       <button class="btn-confirm" id="confirmBtn" onclick="checkout()" disabled>Confirm Payment</button>
@@ -270,6 +288,7 @@ let products = [];
 let cart = [];
 let paymentMethod = '';
 let totalAmount = 0;
+let proofBase64 = '';
 
 // Load products live
 onSnapshot(collection(db, "dhan-pos-web"), (snapshot) => {
@@ -346,7 +365,7 @@ window.addToCart = function(productId) {
 
 // Remove from cart
 window.removeFromCart = function(productId) {
-  cart = cart.filter(item => item.id !== productId);
+  cart = cart.filter(item => item.id!== productId);
   renderCart();
 }
 
@@ -418,7 +437,11 @@ window.openPaymentModal = function() {
   document.getElementById('paymentModal').classList.add('active');
   paymentMethod = '';
   document.getElementById('cashSection').style.display = 'none';
+  document.getElementById('gcashSection').style.display = 'none';
   document.getElementById('confirmBtn').disabled = true;
+  proofBase64 = '';
+  document.getElementById('proofUpload').value = '';
+  document.getElementById('proofPreview').style.display = 'none';
 }
 
 // Close modal
@@ -429,15 +452,57 @@ window.closePaymentModal = function() {
 // Select payment method
 window.selectPayment = function(method) {
   paymentMethod = method;
-  document.getElementById('confirmBtn').disabled = false;
-  
+
   if(method === 'cash') {
     document.getElementById('cashSection').style.display = 'block';
+    document.getElementById('gcashSection').style.display = 'none';
     document.getElementById('amountReceived').value = '';
     document.getElementById('changeBox').textContent = 'Change: ₱0';
     document.getElementById('amountReceived').focus();
+    checkConfirmButton();
   } else {
     document.getElementById('cashSection').style.display = 'none';
+    document.getElementById('gcashSection').style.display = 'block';
+    checkConfirmButton();
+  }
+}
+
+// Image compression
+async function compressImage(file, maxWidth, quality) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if(width > maxWidth) {
+          height = (maxWidth / width) * height;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      }
+    }
+  });
+}
+
+// Handle proof upload
+document.getElementById('proofUpload').onchange = async function(e){
+  const file = e.target.files[0];
+  if(file){
+    proofBase64 = await compressImage(file, 800, 0.7);
+    document.getElementById('proofPreview').src = proofBase64;
+    document.getElementById('proofPreview').style.display = 'block';
+    checkConfirmButton();
   }
 }
 
@@ -445,10 +510,18 @@ window.selectPayment = function(method) {
 window.calculateChange = function() {
   const received = parseFloat(document.getElementById('amountReceived').value) || 0;
   const change = received - totalAmount;
-  document.getElementById('changeBox').textContent = `Change: ₱${change >= 0 ? change.toLocaleString() : 0}`;
-  
-  // Disable confirm if amount is less than total
-  document.getElementById('confirmBtn').disabled = received < totalAmount;
+  document.getElementById('changeBox').textContent = `Change: ₱${change >= 0? change.toLocaleString() : 0}`;
+  checkConfirmButton();
+}
+
+// Check if confirm button should be enabled
+function checkConfirmButton() {
+  if(paymentMethod === 'cash') {
+    const received = parseFloat(document.getElementById('amountReceived').value) || 0;
+    document.getElementById('confirmBtn').disabled = received < totalAmount;
+  } else if(paymentMethod === 'gcash') {
+    document.getElementById('confirmBtn').disabled =!proofBase64;
+  }
 }
 
 // Checkout
@@ -463,16 +536,23 @@ window.checkout = async function() {
     }
   }
 
+  if(paymentMethod === 'gcash' &&!proofBase64) {
+    alert('❌ Mag-upload muna ng proof of payment!');
+    return;
+  }
+
   try {
     const timestamp = new Date();
+    const change = paymentMethod === 'cash'? (parseFloat(document.getElementById('amountReceived').value) - totalAmount) : 0;
 
-    // Save sale with payment method
+    // Save sale
     await addDoc(collection(db, "dhan-sales"), {
       items: cart,
       total: totalAmount,
       paymentMethod: paymentMethod,
-      amountReceived: paymentMethod === 'cash' ? parseFloat(document.getElementById('amountReceived').value) : totalAmount,
-      change: paymentMethod === 'cash' ? (parseFloat(document.getElementById('amountReceived').value) - totalAmount) : 0,
+      amountReceived: paymentMethod === 'cash'? parseFloat(document.getElementById('amountReceived').value) : totalAmount,
+      change: change,
+      proofOfPayment: paymentMethod === 'gcash'? proofBase64 : '',
       timestamp: timestamp,
       date: timestamp.toISOString().split('T')[0]
     });
@@ -484,9 +564,7 @@ window.checkout = async function() {
       });
     }
 
-    const change = paymentMethod === 'cash' ? (parseFloat(document.getElementById('amountReceived').value) - totalAmount) : 0;
-    
-    alert(`✅ Sale completed!\nPayment: ${paymentMethod.toUpperCase()}\nTotal: ₱${totalAmount.toLocaleString()}${change > 0 ? `\nChange: ₱${change.toLocaleString()}` : ''}`);
+    alert(`✅ Sale completed!\nPayment: ${paymentMethod.toUpperCase()}\nTotal: ₱${totalAmount.toLocaleString()}${change > 0? `\nChange: ₱${change.toLocaleString()}` : ''}`);
 
     // Clear cart and close modal
     cart = [];
