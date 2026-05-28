@@ -9,6 +9,67 @@
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
 body {background:#f5f5f5; color:#333;}
+
+/* Login Screen */
+#loginScreen {
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:linear-gradient(135deg, #ff6b35, #ff8c65);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:10000;
+}
+.login-box {
+  background:white;
+  padding:40px;
+  border-radius:16px;
+  width:90%;
+  max-width:400px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+.login-box h2 {
+  text-align:center;
+  color:#ff6b35;
+  margin-bottom:25px;
+  font-size:28px;
+}
+.login-box input {
+  width:100%;
+  padding:14px;
+  margin-bottom:15px;
+  border:2px solid #FFE0B2;
+  border-radius:8px;
+  font-size:16px;
+}
+.login-box input:focus {
+  outline:none;
+  border-color:#ff6b35;
+}
+.login-btn {
+  width:100%;
+  padding:14px;
+  background:linear-gradient(135deg, #ff6b35, #ff8c65);
+  color:white;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+}
+.login-btn:hover {opacity:0.9;}
+.error-msg {
+  color:#f44336;
+  text-align:center;
+  margin-top:10px;
+  display:none;
+}
+
+/* Dashboard */
+#dashboard {
+  display:none;
+}
 .header {
   background: linear-gradient(135deg, #ff6b35, #ff8c65);
   color:white;
@@ -31,7 +92,6 @@ body {background:#f5f5f5; color:#333;}
   color:#ff6b35;
   transition:0.2s;
 }
-.logout-btn:hover {background:#fff2ee;}
 .container {padding:20px; max-width:1100px; margin:0 auto;}
 .grid {
   display:grid;
@@ -71,58 +131,103 @@ body {background:#f5f5f5; color:#333;}
 .card-production {
   border-left:4px solid #ff6b35;
 }
+
+/* Welcome Screen */
+#welcomeScreen {
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:linear-gradient(135deg, #ff6b35, #ff8c65);
+  z-index:9999;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  text-align:center;
+  color:white;
+}
+@keyframes fadeIn {
+  from {opacity:0; transform:scale(0.9);}
+  to {opacity:1; transform:scale(1);}
+}
 @media (max-width:600px){
   .grid {grid-template-columns: 1fr;}
 }
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>📦 DHAN SIOMAI Admin</h1>
-  <button onclick="logout()" class="logout-btn">🚪 Logout</button>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h2>🍢 DHAN SIOMAI</h2>
+    <input type="text" id="username" placeholder="Username" value="admin">
+    <input type="password" id="password" placeholder="Password" value="1234">
+    <button class="login-btn" onclick="login()">Login</button>
+    <p class="error-msg" id="errorMsg">Wrong username or password!</p>
+  </div>
 </div>
 
-<div class="container">
-  <div class="grid">
-    
-    <a href="pos.html" class="card">
-      <div class="card-icon">💻</div>
-      <div class="card-title">POS</div>
-      <div class="card-desc">Make sales</div>
-    </a>
+<!-- WELCOME OVERLAY -->
+<div id="welcomeScreen">
+  <div style="animation:fadeIn 0.8s ease;">
+    <div style="font-size:80px; margin-bottom:20px;">🍢</div>
+    <h1 style="font-size:48px; font-weight:700; margin-bottom:10px;">Welcome to DHAN SIOMAI</h1>
+    <p style="font-size:20px; opacity:0.9; margin-bottom:30px;">Point of Sale System</p>
+    <div style="width:100px; height:4px; background:white; margin:0 auto 30px; border-radius:2px;"></div>
+    <p id="welcomeUser" style="font-size:24px; font-weight:600;"></p>
+  </div>
+</div>
 
-    <a href="products.html" class="card">
-      <div class="card-icon">📦</div>
-      <div class="card-title">Products</div>
-      <div class="card-desc">Manage products, price, stock</div>
-      <div class="badge" id="productCount">0 Products</div>
-    </a>
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="header">
+    <h1>📦 DHAN SIOMAI Admin</h1>
+    <button onclick="logout()" class="logout-btn">🚪 Logout</button>
+  </div>
 
-    <a href="daily-production.html" class="card card-production">
-      <div class="card-icon">📊</div>
-      <div class="card-title">Daily Production</div>
-      <div class="card-desc">Log production & update stock</div>
-    </a>
+  <div class="container">
+    <div class="grid">
+      
+      <a href="pos.html" class="card">
+        <div class="card-icon">💻</div>
+        <div class="card-title">POS</div>
+        <div class="card-desc">Make sales</div>
+      </a>
 
-    <a href="expenses.html" class="card">
-      <div class="card-icon">💸</div>
-      <div class="card-title">Expenses</div>
-      <div class="card-desc">Log expenses and costs</div>
-      <div class="badge" id="expenseCount">0 Entries</div>
-    </a>
+      <a href="products.html" class="card">
+        <div class="card-icon">📦</div>
+        <div class="card-title">Products</div>
+        <div class="card-desc">Manage products, price, stock</div>
+        <div class="badge" id="productCount">0 Products</div>
+      </a>
 
-    <a href="net-profet.html" class="card">
-      <div class="card-icon">💰</div>
-      <div class="card-title">Net Profit</div>
-      <div class="card-desc">Sales & Expenses report</div>
-    </a>
+      <a href="daily-production.html" class="card card-production">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Daily Production</div>
+        <div class="card-desc">Log production & update stock</div>
+      </a>
 
-    <a href="reset.html" class="card card-danger">
-      <div class="card-icon">⚠️</div>
-      <div class="card-title">Reset Data</div>
-      <div class="card-desc">Danger zone</div>
-    </a>
+      <a href="expenses.html" class="card">
+        <div class="card-icon">💸</div>
+        <div class="card-title">Expenses</div>
+        <div class="card-desc">Log expenses and costs</div>
+        <div class="badge" id="expenseCount">0 Entries</div>
+      </a>
 
+      <a href="net-profet.html" class="card">
+        <div class="card-icon">💰</div>
+        <div class="card-title">Net Profit</div>
+        <div class="card-desc">Sales & Expenses report</div>
+      </a>
+
+      <a href="reset.html" class="card card-danger">
+        <div class="card-icon">⚠️</div>
+        <div class="card-title">Reset Data</div>
+        <div class="card-desc">Danger zone</div>
+      </a>
+
+    </div>
   </div>
 </div>
 
@@ -130,19 +235,62 @@ body {background:#f5f5f5; color:#333;}
 import { db } from './firebase-config.js';
 import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Products count - gamit dhan-pos-web
-onSnapshot(collection(db, "dhan-pos-web"), (snapshot) => {
-  document.getElementById("productCount").textContent = `${snapshot.size} Products`;
-});
-
-// Expenses count - gamit dhan-expenses
-onSnapshot(collection(db, "dhan-expenses"), (snapshot) => {
-  document.getElementById("expenseCount").textContent = `${snapshot.size} Entries`;
-});
+// ========== LOGIN LOGIC ==========
+window.login = function() {
+  const user = document.getElementById('username').value;
+  const pass = document.getElementById('password').value;
+  
+  // PALITAN MO DITO YUNG USERNAME AT PASSWORD MO
+  if(user === "admin" && pass === "1234") {
+    document.getElementById('errorMsg').style.display = 'none';
+    showWelcome(user);
+    
+    setTimeout(() => {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      loadCounts();
+    }, 3000);
+  } else {
+    document.getElementById('errorMsg').style.display = 'block';
+  }
+}
 
 window.logout = function() {
-  if(confirm("Logout?")) window.location.href = "../index.html";
+  if(confirm("Logout?")) {
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('password').value = '';
+  }
 }
+
+// ========== WELCOME SCREEN ==========
+function showWelcome(username) {
+  const welcome = document.getElementById('welcomeScreen');
+  document.getElementById('welcomeUser').textContent = `Hi, ${username}!`;
+  welcome.style.display = 'flex';
+  
+  setTimeout(() => {
+    welcome.style.display = 'none';
+  }, 3000);
+}
+
+// ========== LOAD COUNTS ==========
+function loadCounts() {
+  // Products count
+  onSnapshot(collection(db, "dhan-pos-web"), (snapshot) => {
+    document.getElementById("productCount").textContent = `${snapshot.size} Products`;
+  });
+
+  // Expenses count
+  onSnapshot(collection(db, "dhan-expenses"), (snapshot) => {
+    document.getElementById("expenseCount").textContent = `${snapshot.size} Entries`;
+  });
+}
+
+// Press Enter to login
+document.getElementById('password').addEventListener('keypress', function(e) {
+  if(e.key === 'Enter') login();
+});
 </script>
 </body>
 </html>
