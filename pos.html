@@ -119,7 +119,6 @@ body {background:#FFF8E1;}
 }
 .search-box:focus {outline:none; border-color:#FFC107;}
 .loading {text-align:center; padding:40px; color:#666;}
-/* Modal */
 .modal {
   display:none;
   position:fixed;
@@ -225,14 +224,16 @@ body {background:#FFF8E1;}
   margin-top:8px;
 }
 
-/* Receipt Modal */
 .receipt-content {
   text-align:center;
   padding:10px;
+  font-family: 'Courier New', monospace;
+  font-size:12px;
 }
 .receipt-content h2 {
   color:#D32F2F;
   margin-bottom:5px;
+  font-family:'Poppins', sans-serif;
 }
 .receipt-content.store-info {
   font-size:12px;
@@ -245,7 +246,7 @@ body {background:#FFF8E1;}
 }
 .receipt-items {
   text-align:left;
-  font-size:14px;
+  font-size:12px;
 }
 .receipt-item {
   display:flex;
@@ -254,12 +255,12 @@ body {background:#FFF8E1;}
 }
 .receipt-total {
   text-align:right;
-  font-size:16px;
+  font-size:14px;
   font-weight:700;
   margin-top:10px;
 }
 .receipt-footer {
-  font-size:12px;
+  font-size:11px;
   color:#666;
   margin-top:15px;
   text-align:center;
@@ -277,7 +278,6 @@ body {background:#FFF8E1;}
   margin-top:15px;
 }
 
-/* Print Styles */
 @media print {
   body * {
     visibility: hidden;
@@ -286,10 +286,19 @@ body {background:#FFF8E1;}
     visibility: visible;
   }
   #receiptPrint {
-    position:absolute;
-    left:0;
-    top:0;
-    width:100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 58mm;
+    margin: 0;
+    padding: 0;
+  }
+ .print-btn {
+    display: none!important;
+  }
+  @page {
+    size: 58mm auto;
+    margin: 0;
   }
 }
 </style>
@@ -301,14 +310,12 @@ body {background:#FFF8E1;}
 </div>
 <div class="container">
   <div class="grid">
-    <!-- Products Section -->
     <div class="card">
       <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search product...">
       <div id="productList" class="product-grid">
         <div class="loading">Loading products...</div>
       </div>
     </div>
-    <!-- Cart Section -->
     <div class="card">
       <h3 style="margin-bottom:12px; color:#D32F2F;">🛒 Cart</h3>
       <div id="cartList">
@@ -340,7 +347,6 @@ body {background:#FFF8E1;}
   </div>
 </div>
 
-<!-- Payment Modal -->
 <div class="modal" id="paymentModal">
   <div class="modal-content">
     <h3>💳 Select Payment Method</h3>
@@ -355,7 +361,7 @@ body {background:#FFF8E1;}
 
     <div id="gcashSection" style="display:none;">
       <label style="font-weight:600;">Upload Proof of Payment:</label>
-      <input type="file" id="proofUpload" accept="image/*" capture="environment">
+      <input type="file" id="proofUpload" accept="image/*">
       <img id="proofPreview" class="proof-preview">
       <p style="font-size:12px; color:#666; margin-top:5px;">Screenshot ng GCash transaction</p>
     </div>
@@ -367,7 +373,6 @@ body {background:#FFF8E1;}
   </div>
 </div>
 
-<!-- Receipt Modal -->
 <div class="modal" id="receiptModal">
   <div class="modal-content" id="receiptPrint">
     <div class="receipt-content">
@@ -403,7 +408,7 @@ body {background:#FFF8E1;}
 
 <script type="module">
 import { db } from './firebase-config.js';
-import { collection, doc, addDoc, updateDoc, getDoc, getDocs, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { collection, doc, addDoc, updateDoc, getDoc, getDocs, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firebasejs/10.12.2/firebase-firestore.js";
 
 let products = [];
 let cart = [];
@@ -412,9 +417,7 @@ let totalAmount = 0;
 let proofBase64 = '';
 let amountReceived = 0;
 let changeAmount = 0;
-let lastSale = null;
 
-// Load products live
 onSnapshot(collection(db, "dhan-pos-web"), (snapshot) => {
   products = [];
   snapshot.forEach(docSnap => {
@@ -425,7 +428,6 @@ onSnapshot(collection(db, "dhan-pos-web"), (snapshot) => {
   renderProducts(products);
 });
 
-// Render products
 function renderProducts(list) {
   const container = document.getElementById('productList');
   if(list.length === 0) {
@@ -447,14 +449,12 @@ function renderProducts(list) {
   });
 }
 
-// Search filter
 document.getElementById('searchBox').addEventListener('input', (e) => {
   const search = e.target.value.toLowerCase();
   const filtered = products.filter(p => p.name.toLowerCase().includes(search));
   renderProducts(filtered);
 });
 
-// Add to cart
 window.addToCart = function(productId) {
   const product = products.find(p => p.id === productId);
   if(!product) return;
@@ -483,14 +483,12 @@ window.addToCart = function(productId) {
   resetPaymentSummary();
 }
 
-// Remove from cart
 window.removeFromCart = function(productId) {
   cart = cart.filter(item => item.id!== productId);
   renderCart();
   resetPaymentSummary();
 }
 
-// Update qty
 window.updateQty = function(productId, change) {
   const item = cart.find(i => i.id === productId);
   const product = products.find(p => p.id === productId);
@@ -509,7 +507,6 @@ window.updateQty = function(productId, change) {
   resetPaymentSummary();
 }
 
-// Render cart
 function renderCart() {
   const container = document.getElementById('cartList');
   const checkoutBtn = document.getElementById('checkoutBtn');
@@ -538,7 +535,6 @@ function renderCart() {
   updateTotal();
 }
 
-// Update total
 function updateTotal() {
   totalAmount = 0;
   cart.forEach(item => {
@@ -548,7 +544,6 @@ function updateTotal() {
   document.getElementById('grandTotal').textContent = `₱${totalAmount.toLocaleString()}`;
 }
 
-// Reset payment summary
 function resetPaymentSummary() {
   document.getElementById('paymentSummary').style.display = 'none';
   paymentMethod = '';
@@ -557,7 +552,6 @@ function resetPaymentSummary() {
   changeAmount = 0;
 }
 
-// Open payment modal
 window.openPaymentModal = function() {
   document.getElementById('paymentModal').classList.add('active');
   paymentMethod = '';
@@ -569,12 +563,10 @@ window.openPaymentModal = function() {
   document.getElementById('proofPreview').style.display = 'none';
 }
 
-// Close modal
 window.closePaymentModal = function() {
   document.getElementById('paymentModal').classList.remove('active');
 }
 
-// Select payment method
 window.selectPayment = function(method) {
   paymentMethod = method;
   if(method === 'cash') {
@@ -591,7 +583,6 @@ window.selectPayment = function(method) {
   }
 }
 
-// Image compression
 async function compressImage(file, maxWidth, quality) {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -617,7 +608,6 @@ async function compressImage(file, maxWidth, quality) {
   });
 }
 
-// Handle proof upload
 document.getElementById('proofUpload').onchange = async function(e){
   const file = e.target.files[0];
   if(file){
@@ -628,7 +618,6 @@ document.getElementById('proofUpload').onchange = async function(e){
   }
 }
 
-// Calculate change for cash
 window.calculateChange = function() {
   amountReceived = parseFloat(document.getElementById('amountReceived').value) || 0;
   changeAmount = amountReceived - totalAmount;
@@ -636,7 +625,6 @@ window.calculateChange = function() {
   checkConfirmButton();
 }
 
-// Check if confirm button should be enabled
 function checkConfirmButton() {
   if(paymentMethod === 'cash') {
     document.getElementById('confirmBtn').disabled = amountReceived < totalAmount;
@@ -645,7 +633,6 @@ function checkConfirmButton() {
   }
 }
 
-// Show payment summary sa cart
 function showPaymentSummary() {
   document.getElementById('paymentSummary').style.display = 'block';
   document.getElementById('summaryMethod').textContent = `Method: ${paymentMethod.toUpperCase()}`;
@@ -664,12 +651,10 @@ function showPaymentSummary() {
   }
 }
 
-// Show receipt modal
 function showReceipt(saleData) {
   const now = new Date();
   document.getElementById('receiptDate').textContent = now.toLocaleString('en-PH');
 
-  // Items
   let itemsHtml = '';
   saleData.items.forEach(item => {
     itemsHtml += `
@@ -681,7 +666,6 @@ function showReceipt(saleData) {
   });
   document.getElementById('receiptItems').innerHTML = itemsHtml;
 
-  // Totals
   document.getElementById('receiptTotal').textContent = `₱${saleData.total.toLocaleString()}`;
   document.getElementById('receiptPayment').textContent = `Payment: ${saleData.paymentMethod.toUpperCase()}`;
 
@@ -704,7 +688,6 @@ window.printReceipt = function() {
   window.print();
 }
 
-// Checkout
 window.checkout = async function() {
   if(cart.length === 0 ||!paymentMethod) return;
 
@@ -733,23 +716,17 @@ window.checkout = async function() {
       date: timestamp.toISOString().split('T')[0]
     };
 
-    // Save sale
     await addDoc(collection(db, "dhan-sales"), saleData);
 
-    // Update stock
     for(let item of cart) {
       await updateDoc(doc(db, "dhan-pos-web", item.id), {
         stock: increment(-item.qty)
       });
     }
 
-    // Show summary sa cart
     showPaymentSummary();
-
-    // Show printable receipt
     showReceipt(saleData);
 
-    // Clear cart after 500ms
     setTimeout(() => {
       cart = [];
       renderCart();
