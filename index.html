@@ -1,4 +1,187 @@
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DHAN SIOMAI POS</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
+
+body {
+  background: #000;
+  color: white;
+  overflow: hidden;
+}
+
+/* Login Screen with Background Image */
+#loginScreen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: url('bg.jpg') center/cover no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+/* Dark overlay para mabasa text */
+#loginScreen::before,
+#welcomeScreen::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: -1;
+}
+
+.login-box {
+  background: rgba(255,255,255,0.95);
+  padding: 30px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 350px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.login-box h2 {
+  color: #D32F2F;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 2px solid #FFE0B2;
+  font-size: 15px;
+}
+
+.login-box input:focus {
+  outline: none;
+  border-color: #D32F2F;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #D32F2F, #B71C1C);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.login-box button:active {
+  transform: scale(0.98);
+}
+
+.error-msg {
+  color: #D32F2F;
+  font-size: 13px;
+  margin-top: 10px;
+  display: none;
+}
+
+/* Welcome Screen */
+#welcomeScreen {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: url('bg.jpg') center/cover no-repeat;
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 20px;
+}
+
+#welcomeScreen h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+}
+
+#welcomeScreen p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
+}
+
+#welcomeScreen button {
+  padding: 14px 30px;
+  background: linear-gradient(135deg, #D32F2F, #B71C1C);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(211,47,47,0.4);
+}
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h2>🍡 DHAN SIOMAI</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <div class="error-msg" id="errorMsg">Invalid username or password</div>
+  </div>
+</div>
+
+<!-- Welcome Screen -->
+<div id="welcomeScreen">
+  <h1>Welcome, <span id="userName"></span>!</h1>
+  <p>Ready to manage your siomai business?</p>
+  <button onclick="goToDashboard()">Go to Dashboard</button>
+</div>
+
+<script>
+function login() {
+  const user = document.getElementById('username').value.trim();
+  const pass = document.getElementById('password').value.trim();
+  
+  // Palitan mo dito yung actual username/password mo
+  if(user === 'admin' && pass === '1234') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('welcomeScreen').style.display = 'flex';
+    document.getElementById('userName').textContent = user;
+    document.getElementById('errorMsg').style.display = 'none';
+  } else {
+    document.getElementById('errorMsg').style.display = 'block';
+  }
+}
+
+function goToDashboard() {
+  window.location.href = 'products.html'; // Palitan mo kung ano main page mo
+}
+
+// Enter key to login
+document.addEventListener('keypress', function(e) {
+  if(e.key === 'Enter') login();
+});
+</script>
+
+</body>
+</html>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
