@@ -3,167 +3,137 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#DC2626">
-<title>DHAN SIOMAI Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>DHAN SIOMAI POS</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-* {margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif;}
-body {background:#F9FAFB; color:#111827;}
-.header {
-  background:linear-gradient(135deg, #DC2626, #B91C1C);
-  color:white;
-  padding:16px 20px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  position:sticky;
-  top:0;
-  z-index:10;
-  box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
+body {
+  background: linear-gradient(135deg, #FFF8E1 0%, #FFE0B2 100%);
+  min-height:100vh;
 }
-.header h1 { font-size:18px; font-weight:700; display:flex; align-items:center; gap:8px; }
-.logout-btn { padding:8px 16px; background:white; color:#DC2626; border:none; border-radius:8px; font-weight:600; cursor:pointer; font-size:14px; }
-.container { max-width:600px; margin:0 auto; padding:20px 16px; }
-.grid { display:flex; flex-direction:column; gap:14px; }
-.card {
+.header {
+  background: linear-gradient(135deg, #D32F2F, #B71C1C);
+  color:white;
+  padding:20px 15px;
+  text-align:center;
+  box-shadow:0 4px 12px rgba(211,47,47,0.3);
+}
+.header h1 {
+  font-size:24px;
+  font-weight:700;
+  margin-bottom:5px;
+}
+.header p {
+  font-size:14px;
+  opacity:0.9;
+}
+.container {
+  max-width:600px;
+  margin:0 auto;
+  padding:30px 20px;
+}
+.menu-grid {
+  display:grid;
+  gap:15px;
+  grid-template-columns:1fr 1fr;
+}
+.menu-card {
   background:white;
   border-radius:16px;
-  padding:20px;
-  box-shadow:0 1px 3px rgba(0,0,0,0.08);
-  border:1px solid #F3F4F6;
+  padding:25px 20px;
+  text-align:center;
+  box-shadow:0 4px 15px rgba(0,0,0,0.08);
   text-decoration:none;
-  color:inherit;
-  display:flex;
-  align-items:center;
-  gap:16px;
-  transition:all 0.2s;
+  color:#333;
+  transition:0.2s;
 }
-.card-icon { width:56px; height:56px; background:linear-gradient(135deg, #FEF2F2, #FECACA); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:28px; }
-.card-title { font-size:16px; font-weight:700; color:#111827; margin-bottom:4px; }
-.card-desc { font-size:13px; color:#6B7280; }
-.badge { background:#DC2626; color:white; padding:6px 12px; border-radius:20px; font-size:13px; font-weight:600; margin-top:8px; display:inline-block; }
-.badge.green { background:#059669; }
-.net-card { background:linear-gradient(135deg, #059669, #10B981); color:white; }
-.net-card .card-title, .net-card .card-desc { color:white; }
-.danger-card { border-color:#FECACA; }
+.menu-card:active {
+  transform:scale(0.95);
+}
+.menu-card .icon {
+  font-size:40px;
+  margin-bottom:10px;
+}
+.menu-card h3 {
+  font-size:16px;
+  font-weight:700;
+  margin-bottom:5px;
+  color:#D32F2F;
+}
+.menu-card p {
+  font-size:12px;
+  color:#666;
+}
+.menu-card.pos {
+  background:linear-gradient(135deg, #D32F2F, #E57373);
+  color:white;
+}
+.menu-card.pos h3, .menu-card.pos p {
+  color:white;
+}
+.menu-card.profit {
+  background:linear-gradient(135deg, #4caf50, #66bb6a);
+  color:white;
+}
+.menu-card.profit h3, .menu-card.profit p {
+  color:white;
+}
+.menu-card.inventory {
+  background:linear-gradient(135deg, #FF9800, #FFB74D);
+  color:white;
+}
+.menu-card.inventory h3, .menu-card.inventory p {
+  color:white;
+}
+.footer {
+  text-align:center;
+  padding:20px;
+  color:#666;
+  font-size:12px;
+}
+@media (max-width:400px){
+.menu-grid {grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
 <div class="header">
-  <h1>📦 DHAN SIOMAI Admin</h1>
-  <button onclick="logout()" class="logout-btn">Logout</button>
+  <h1>🍢 DHAN SIOMAI</h1>
+  <p>Point of Sale System</p>
 </div>
+
 <div class="container">
-  <div class="grid">
-    <a href="pos.html" class="card">
-      <div class="card-icon">💻</div>
-      <div class="card-content">
-        <div class="card-title">POS</div>
-        <div class="card-desc">Make sales and manage orders</div>
-      </div>
+  <div class="menu-grid">
+    
+    <a href="pos.html" class="menu-card pos">
+      <div class="icon">💻</div>
+      <h3>POS</h3>
+      <p>Magbenta dito</p>
     </a>
-    <a href="sales.html" class="card">
-      <div class="card-icon">📊</div>
-      <div class="card-content">
-        <div class="card-title">Sales</div>
-        <div class="card-desc">View sales records and reports</div>
-        <div class="badge" id="salesMonth">₱0 This Month</div>
-      </div>
+
+    <a href="net-profet.html" class="menu-card profit">
+      <div class="icon">💰</div>
+      <h3>Net Profit</h3>
+      <p>Sales & Expenses</p>
     </a>
-    <a href="products.html" class="card">
-      <div class="card-icon">📦</div>
-      <div class="card-content">
-        <div class="card-title">Products</div>
-        <div class="card-desc">Manage products, price, stock</div>
-        <div class="badge" id="productCount">0 Products</div>
-      </div>
+
+    <a href="inventory.html" class="menu-card inventory">
+      <div class="icon">📦</div>
+      <h3>Inventory</h3>
+      <p>Manage Products</p>
     </a>
-    <a href="daily-expenses.html" class="card">
-      <div class="card-icon">💸</div>
-      <div class="card-content">
-        <div class="card-title">Expenses</div>
-        <div class="card-desc">Log expenses and costs</div>
-        <div class="badge" id="expenseCount">0 Entries</div>
-      </div>
+
+    <a href="#" class="menu-card" style="opacity:0.5;">
+      <div class="icon">📊</div>
+      <h3>Reports</h3>
+      <p>Coming Soon</p>
     </a>
-    <div class="card net-card">
-      <div class="card-icon">💰</div>
-      <div class="card-content">
-        <div class="card-title">Net Profit</div>
-        <div class="card-desc">Sales minus expenses</div>
-        <div class="badge green" id="netProfit">₱0</div>
-      </div>
-    </div>
-    <a href="daily-production.html" class="card">
-      <div class="card-icon">📊</div>
-      <div class="card-content">
-        <div class="card-title">Daily Production</div>
-        <div class="card-desc">Track daily production</div>
-      </div>
-    </a>
-    <a href="online-store.html" class="card">
-      <div class="card-icon">🌐</div>
-      <div class="card-content">
-        <div class="card-title">Online Store</div>
-        <div class="card-desc">Manage online orders</div>
-      </div>
-    </a>
+
   </div>
 </div>
 
-<script type="module">
-import { db } from './firebase-config.js';
-import { collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-let salesTotal = 0;
-let expensesTotal = 0;
-const now = new Date();
-const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-// Products count
-onSnapshot(collection(db, "dhan-pos-web"), (snap) => {
-  document.getElementById("productCount").textContent = `${snap.size} Products`;
-});
-
-// Expenses count
-onSnapshot(collection(db, "expenses"), (snap) => {
-  document.getElementById("expenseCount").textContent = `${snap.size} Entries`;
-});
-
-// Sales this month
-const salesQuery = query(collection(db, "dhan-sales"), where("timestamp", ">=", monthStart));
-onSnapshot(salesQuery, (snap) => {
-  salesTotal = 0;
-  snap.forEach(doc => {
-    let total = doc.data().total || 0;
-    salesTotal += Number(total) || 0;
-  });
-  document.getElementById("salesMonth").textContent = `₱${salesTotal.toLocaleString()} This Month`;
-  updateNet();
-});
-
-// Expenses this month
-const expQuery = query(collection(db, "expenses"), where("date", ">=", monthStart));
-onSnapshot(expQuery, (snap) => {
-  expensesTotal = 0;
-  snap.forEach(doc => {
-    let amount = doc.data().amount || 0;
-    expensesTotal += Number(amount) || 0;
-  });
-  updateNet();
-});
-
-function updateNet() {
-  const net = salesTotal - expensesTotal;
-  document.getElementById("netProfit").textContent = `₱${net.toLocaleString()}`;
-}
-
-window.logout = function() {
-  if(confirm("Logout?")) {
-    localStorage.removeItem('dhanLoggedIn');
-    location.reload();
-  }
-}
-</script>
+<div class="footer">
+  © 2026 DHAN SIOMAI POS System
+</div>
 </body>
 </html>
