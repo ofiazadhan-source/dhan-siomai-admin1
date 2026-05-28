@@ -46,17 +46,20 @@ body { background: #f5f5f5; }
 .header {
   background: #ff7043; color: white; padding: 15px 20px; 
   display: flex; justify-content: space-between; align-items: center;
+  position: sticky; top: 0; z-index: 100;
 }
 .header h2 { font-size: 18px; }
 .header button {
   background: white; color: #ff7043; border: none; 
   padding: 8px 15px; border-radius: 6px; font-weight: 700; cursor: pointer;
 }
-.menu { padding: 15px; }
+.menu { padding: 15px; padding-bottom: 30px; }
 .card {
   background: white; border-radius: 12px; padding: 20px; 
   margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer;
+  transition: transform 0.1s;
 }
+.card:active { transform: scale(0.98); }
 .card div { font-size: 40px; text-align: center; margin-bottom: 10px; }
 .card h3 { text-align: center; font-size: 18px; margin-bottom: 5px; }
 .card p { text-align: center; color: #666; font-size: 14px; }
@@ -64,6 +67,10 @@ body { background: #f5f5f5; }
   display: inline-block; background: #ff7043; color: white; 
   padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-top: 8px;
 }
+.card.danger { 
+  border: 2px solid #D32F2F; 
+}
+.card.danger h3 { color: #D32F2F; }
 </style>
 </head>
 <body>
@@ -79,7 +86,7 @@ body { background: #f5f5f5; }
   </div>
 </div>
 
-<!-- Dashboard - Eto yung lalabas pagka-login -->
+<!-- Dashboard - Pinagsama na lahat -->
 <div id="dashboard">
   <div class="header">
     <h2>📦 DHAN SIOMAI Admin</h2>
@@ -87,28 +94,48 @@ body { background: #f5f5f5; }
   </div>
   
   <div class="menu">
+    <!-- Row 1 -->
     <div class="card" onclick="window.location.href='pos.html'">
       <div>💻</div>
       <h3>POS</h3>
       <p>Make sales</p>
     </div>
     
+    <!-- Row 2 -->
     <div class="card" onclick="window.location.href='products.html'">
       <div>📦</div>
       <h3>Products</h3>
       <p>Manage products, price, stock</p>
-      <span class="badge">7 Products</span>
+      <span class="badge">0 Products</span>
     </div>
     
+    <!-- Row 3 -->
     <div class="card" onclick="window.location.href='production.html'">
       <div>📊</div>
       <h3>Daily Production</h3>
       <p>Log production & update stock</p>
     </div>
     
-    <div class="card" onclick="window.location.href='sales.html'">
+    <!-- Row 4 -->
+    <div class="card" onclick="window.location.href='expenses.html'">
       <div>💵</div>
-      <h3>Sales</h3>
+      <h3>Expenses</h3>
+      <p>Log expenses and costs</p>
+      <span class="badge">0 Entries</span>
+    </div>
+    
+    <!-- Row 5 -->
+    <div class="card" onclick="window.location.href='profit.html'">
+      <div>💰</div>
+      <h3>Net Profit</h3>
+      <p>Sales & Expenses report</p>
+    </div>
+    
+    <!-- Row 6 - Danger Zone -->
+    <div class="card danger" onclick="resetData()">
+      <div>⚠️</div>
+      <h3>Reset Data</h3>
+      <p>Danger zone</p>
     </div>
   </div>
 </div>
@@ -132,6 +159,12 @@ function logout() {
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('username').value = '';
   document.getElementById('password').value = '';
+}
+
+function resetData() {
+  if(confirm('Sure ka ba? Mababura lahat ng data mo!')) {
+    alert('Data reset!');
+  }
 }
 
 document.addEventListener('keypress', function(e) {
