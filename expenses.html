@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expenses - DHAN SIOMAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
+body {background:#FFF8E1;}
+.header {
+  background: linear-gradient(135deg, #D32F2F, #B71C1C);
+  color:white;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+.header h1 {font-size:18px; font-weight:700;}
+.header a {
+  color:#D32F2F;
+  background:#fff;
+  text-decoration:none;
+  font-weight:600;
+  padding:8px 14px;
+  border-radius:8px;
+  font-size:14px;
+}
+
+.container {padding:15px; max-width:900px; margin:0 auto;}
+
+.card {
+  background:white;
+  padding:18px;
+  border-radius:16px;
+  margin-bottom:15px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
+}
+
+.filters {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:end;
+  margin-bottom:15px;
+}
+.filters input {
+  padding:10px;
+  border:2px solid #FFE0B2;
+  border-radius:10px;
+  font-size:14px;
+}
+.filters label {
+  font-size:12px;
+  color:#666;
+  font-weight:600;
+  display:block;
+  margin-bottom:5px;
+}
+.filter-group {flex:1; min-width:140px;}
+.filter-btn {
+  padding:10px 20px;
+  background:#D32F2F;
+  color:white;
+  border:none;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.summary-card {
+  background:linear-gradient(135deg, #f44336, #e57373);
+  color:white;
+  padding:20px;
+  border-radius:16px;
+  text-align:center;
+}
+.summary-card h4 {
+  font-size:14px;
+  opacity:0.9;
+  margin-bottom:8px;
+}
+.summary-card p {
+  font-size:32px;
+  font-weight:700;
+}
+
+.expense-card {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px;
+  border-bottom:1px solid #FFE0B2;
+}
+.expense-card:last-child {border-bottom:none;}
+.expense-info h4 {
+  font-size:15px;
+  color:#333;
+  margin-bottom:4px;
+}
+.expense-info p {
+  font-size:12px;
+  color:#666;
+}
+.expense-amount {
+  font-size:18px;
+  font-weight:700;
+  color:#f44336;
+}
+
+.add-form input,.add-form textarea {
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  border:2px solid #FFE0B2;
+  border-radius:10px;
+  font-size:14px;
+}
+.add-form label {
+  font-weight:600;
+  color:#D32F2F;
+  font-size:14px;
+  margin-bottom:5px;
+  display:block;
+}
+.add-btn {
+  width:100%;
+  padding:12px;
+  background:#4caf50;
+  color:white;
+  border:none;
+  border-radius:10px;
+  font-weight:700;
+  font-size:15px;
+  cursor:pointer;
+}
+.loading {
+  text-align:center;
+  padding:40px;
+  color:#666;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>💸 Expenses</h1>
+  <a href="index.html">← Back</a>
+</div>
+
+<div class="container">
+  <!-- Add Expense Form -->
+  <div class="card">
+    <h3 style="color:#D32F2F; margin-bottom:15px;">➕ Add Expense</h3>
+    <div class="add-form">
+      <label>Expense Name</label>
+      <input type="text" id="expenseName" placeholder="e.g. Gas, Electric Bill, Ingredients">
+
+      <label>Amount</label>
+      <input type="number" id="expenseAmount" placeholder="0">
+
+      <label>Notes / Description</label>
+      <textarea id="expenseNotes" rows="2" placeholder="Optional"></textarea>
+
+      <button class="add-btn" onclick="addExpense()">Add Expense</button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card">
+    <div class="filters">
+      <div class="filter-group">
+        <label>From Date</label>
+        <input type="date" id="dateFrom">
+      </div>
+      <div class="filter-group">
+        <label>To Date</label>
+        <input type="date" id="dateTo">
+      </div>
+      <button class="filter-btn" onclick="loadExpenses()">Filter</button>
+      <button class="filter-btn" style="background:#FFA726;" onclick="resetFilter()">Reset</button>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-card">
+      <h4>Total Expenses</h4>
+      <p id="totalExpenses">₱0</p>
+    </div>
+  </div>
+
+  <!-- Expenses List -->
+  <div class="card">
+    <h3 style="color:#D32F2F; margin-bottom:15px;">📋 Expense List</h3>
+    <div id="expensesList">
+      <div class="loading">Loading expenses...</div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { db } from './firebase-config.js';
+import {
+  collection, addDoc, getDocs, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Set default dates: today
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('dateFrom').value = today;
+document.getElementById('dateTo').value = today;
+
+window.addEventListener('load', loadExpenses);
+
+// Add Expense
+window.addExpense = async function() {
+  const name = document.getElementById('expenseName').value.trim();
+  const amount = parseFloat(document.getElementById('expenseAmount').value);
+  const notes = document.getElementById('expenseNotes').value.trim();
+
+  if(!name ||!amount || amount <= 0) {
+    alert('❌ Please enter valid expense name and amount');
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "dhan-expenses"), {
+      name: name,
+      amount: amount,
+      notes: notes,
+      date: new Date().toISOString().split('T')[0],
+      timestamp: new Date()
+    });
+
+    alert('✅ Expense added!');
+    document.getElementById('expenseName').value = '';
+    document.getElementById('expenseAmount').value = '';
+    document.getElementById('expenseNotes').value = '';
+    loadExpenses();
+  } catch(e) {
+    alert('❌ Error: ' + e.message);
+  }
+}
+
+// Load Expenses
+async function loadExpenses() {
+  const dateFrom = document.getElementById('dateFrom').value;
+  const dateTo = document.getElementById('dateTo').value;
+  const container = document.getElementById('expensesList');
+
+  container.innerHTML = '<div class="loading">Loading expenses...</div>';
+
+  try {
+    const q = query(collection(db, "dhan-expenses"), orderBy("timestamp", "desc"));
+    const snapshot = await getDocs(q);
+
+    let expenses = [];
+    let total = 0;
+
+    snapshot.forEach(docSnap => {
+      let exp = docSnap.data();
+      exp.id = docSnap.id;
+
+      // Filter by date
+      if(dateFrom && exp.date < dateFrom) return;
+      if(dateTo && exp.date > dateTo) return;
+
+      expenses.push(exp);
+      total += exp.amount || 0;
+    });
+
+    // Update total
+    document.getElementById('totalExpenses').textContent = `₱${total.toLocaleString()}`;
+
+    // Render list
+    if(expenses.length === 0) {
+      container.innerHTML = '<div class="loading">No expenses found</div>';
+      return;
+    }
+
+    container.innerHTML = '';
+    expenses.forEach(exp => {
+      const time = exp.timestamp? new Date(exp.timestamp.seconds * 1000).toLocaleTimeString('en-PH', {hour:'2-digit', minute:'2-digit'}) : '';
+
+      container.innerHTML += `
+        <div class="expense-card">
+          <div class="expense-info">
+            <h4>${exp.name}</h4>
+            <p>${exp.date} ${time} ${exp.notes? '• ' + exp.notes : ''}</p>
+          </div>
+          <div class="expense-amount">₱${exp.amount.toLocaleString()}</div>
+        </div>
+      `;
+    });
+
+  } catch(e) {
+    container.innerHTML = `<div class="loading">Error: ${e.message}</div>`;
+  }
+}
+
+window.loadExpenses = loadExpenses;
+
+window.resetFilter = function() {
+  document.getElementById('dateFrom').value = today;
+  document.getElementById('dateTo').value = today;
+  loadExpenses();
+}
+</script>
+</body>
+</html>
