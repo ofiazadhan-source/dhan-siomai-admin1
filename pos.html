@@ -200,7 +200,6 @@ body {background:#FFF8E1;}
   margin-top:10px;
   display:none;
 }
-/* NEW: Payment summary sa cart */
 .payment-summary {
   background:#FFF3E0;
   border:2px solid #FFC107;
@@ -224,6 +223,74 @@ body {background:#FFF8E1;}
   object-fit:contain;
   border-radius:8px;
   margin-top:8px;
+}
+
+/* Receipt Modal */
+.receipt-content {
+  text-align:center;
+  padding:10px;
+}
+.receipt-content h2 {
+  color:#D32F2F;
+  margin-bottom:5px;
+}
+.receipt-content.store-info {
+  font-size:12px;
+  color:#666;
+  margin-bottom:15px;
+}
+.receipt-divider {
+  border-top:1px dashed #999;
+  margin:10px 0;
+}
+.receipt-items {
+  text-align:left;
+  font-size:14px;
+}
+.receipt-item {
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:5px;
+}
+.receipt-total {
+  text-align:right;
+  font-size:16px;
+  font-weight:700;
+  margin-top:10px;
+}
+.receipt-footer {
+  font-size:12px;
+  color:#666;
+  margin-top:15px;
+  text-align:center;
+}
+.print-btn {
+  width:100%;
+  padding:12px;
+  background:#D32F2F;
+  color:white;
+  border:none;
+  border-radius:10px;
+  font-weight:700;
+  font-size:15px;
+  cursor:pointer;
+  margin-top:15px;
+}
+
+/* Print Styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #receiptPrint, #receiptPrint * {
+    visibility: visible;
+  }
+  #receiptPrint {
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+  }
 }
 </style>
 </head>
@@ -258,7 +325,6 @@ body {background:#FFF8E1;}
         </div>
       </div>
 
-      <!-- NEW: Payment Summary -->
       <div class="payment-summary" id="paymentSummary">
         <h4>💳 Payment Details</h4>
         <p id="summaryMethod"></p>
@@ -301,6 +367,40 @@ body {background:#FFF8E1;}
   </div>
 </div>
 
+<!-- Receipt Modal -->
+<div class="modal" id="receiptModal">
+  <div class="modal-content" id="receiptPrint">
+    <div class="receipt-content">
+      <h2>DHAN SIOMAI</h2>
+      <div class="store-info">
+        POS Receipt<br>
+        <span id="receiptDate"></span>
+      </div>
+
+      <div class="receipt-divider"></div>
+
+      <div class="receipt-items" id="receiptItems"></div>
+
+      <div class="receipt-divider"></div>
+
+      <div class="receipt-total">
+        <div>Total: <span id="receiptTotal">₱0</span></div>
+        <div id="receiptPayment"></div>
+        <div id="receiptReceived"></div>
+        <div id="receiptChange"></div>
+      </div>
+
+      <div class="receipt-footer">
+        Thank you for purchasing!<br>
+        Please come again 🙏
+      </div>
+    </div>
+
+    <button class="print-btn" onclick="printReceipt()">🖨️ Print Receipt</button>
+    <button class="print-btn" style="background:#666; margin-top:8px;" onclick="closeReceiptModal()">Close</button>
+  </div>
+</div>
+
 <script type="module">
 import { db } from './firebase-config.js';
 import { collection, doc, addDoc, updateDoc, getDoc, getDocs, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -312,6 +412,7 @@ let totalAmount = 0;
 let proofBase64 = '';
 let amountReceived = 0;
 let changeAmount = 0;
+let lastSale = null;
 
 // Load products live
 onSnapshot(collection(db, "dhan-pos-web"), (snapshot) => {
@@ -423,7 +524,7 @@ function renderCart() {
         <div class="cart-item">
           <div class="cart-info">
             <h4>${item.name}</h4>
-            <p>₱${item.price} x ${item.qty}</p>
+            <p>₱${item.price} x ${item.qty} = ₱${(item.price * item.qty).toLocaleString()}</p>
           </div>
           <div class="qty-controls">
             <button onclick="updateQty('${item.id}', -1)">-</button>
@@ -563,6 +664,46 @@ function showPaymentSummary() {
   }
 }
 
+// Show receipt modal
+function showReceipt(saleData) {
+  const now = new Date();
+  document.getElementById('receiptDate').textContent = now.toLocaleString('en-PH');
+
+  // Items
+  let itemsHtml = '';
+  saleData.items.forEach(item => {
+    itemsHtml += `
+      <div class="receipt-item">
+        <span>${item.name} x${item.qty}</span>
+        <span>₱${(item.price * item.qty).toLocaleString()}</span>
+      </div>
+    `;
+  });
+  document.getElementById('receiptItems').innerHTML = itemsHtml;
+
+  // Totals
+  document.getElementById('receiptTotal').textContent = `₱${saleData.total.toLocaleString()}`;
+  document.getElementById('receiptPayment').textContent = `Payment: ${saleData.paymentMethod.toUpperCase()}`;
+
+  if(saleData.paymentMethod === 'cash') {
+    document.getElementById('receiptReceived').textContent = `Cash: ₱${saleData.amountReceived.toLocaleString()}`;
+    document.getElementById('receiptChange').textContent = `Change: ₱${saleData.change.toLocaleString()}`;
+  } else {
+    document.getElementById('receiptReceived').textContent = '';
+    document.getElementById('receiptChange').textContent = 'GCash Payment';
+  }
+
+  document.getElementById('receiptModal').classList.add('active');
+}
+
+window.closeReceiptModal = function() {
+  document.getElementById('receiptModal').classList.remove('active');
+}
+
+window.printReceipt = function() {
+  window.print();
+}
+
 // Checkout
 window.checkout = async function() {
   if(cart.length === 0 ||!paymentMethod) return;
@@ -581,9 +722,8 @@ window.checkout = async function() {
   try {
     const timestamp = new Date();
 
-    // Save sale
-    await addDoc(collection(db, "dhan-sales"), {
-      items: cart,
+    const saleData = {
+      items: [...cart],
       total: totalAmount,
       paymentMethod: paymentMethod,
       amountReceived: paymentMethod === 'cash'? amountReceived : totalAmount,
@@ -591,7 +731,10 @@ window.checkout = async function() {
       proofOfPayment: paymentMethod === 'gcash'? proofBase64 : '',
       timestamp: timestamp,
       date: timestamp.toISOString().split('T')[0]
-    });
+    };
+
+    // Save sale
+    await addDoc(collection(db, "dhan-sales"), saleData);
 
     // Update stock
     for(let item of cart) {
@@ -600,28 +743,18 @@ window.checkout = async function() {
       });
     }
 
-    // Show summary sa cart bago mag-clear
+    // Show summary sa cart
     showPaymentSummary();
 
-    // Receipt alert
-    let receipt = `✅ Sale Completed!\n`;
-    receipt += `Payment: ${paymentMethod.toUpperCase()}\n`;
-    receipt += `Total: ₱${totalAmount.toLocaleString()}\n`;
-    if(paymentMethod === 'cash') {
-      receipt += `Amount Received: ₱${amountReceived.toLocaleString()}\n`;
-      receipt += `Change: ₱${changeAmount.toLocaleString()}\n`;
-    }
-    if(paymentMethod === 'gcash') {
-      receipt += `Proof uploaded ✓\n`;
-    }
-    alert(receipt);
+    // Show printable receipt
+    showReceipt(saleData);
 
-    // Clear cart and close modal
+    // Clear cart after 500ms
     setTimeout(() => {
       cart = [];
       renderCart();
       closePaymentModal();
-    }, 1000);
+    }, 500);
 
   } catch(e) {
     alert('❌ Error: ' + e.message);
