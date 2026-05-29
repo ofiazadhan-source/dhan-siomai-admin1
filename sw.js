@@ -1,7 +1,16 @@
+const CACHE_NAME = 'dhan-pos-v5';
+
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open('dhan-pos-v1').then((cache) => {
-      return cache.addAll(['index.html', 'settings.html', 'firebase-config.js']);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const files = ['/', '/index.html', '/products.html', '/expenses.html', '/settings.html'];
+      for(let file of files) {
+        try {
+          await cache.add(file);
+        } catch(err) {
+          console.log('Skip:', file);
+        }
+      }
     })
   );
 });
