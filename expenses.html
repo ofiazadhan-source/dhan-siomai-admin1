@@ -9,262 +9,171 @@
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
 body {background:#f5f5f5; color:#333;}
-.header {
-  background: linear-gradient(135deg, #ff6b35, #ff8c65);
-  color:white;
-  padding:15px 20px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  box-shadow:0 2px 10px rgba(255,107,53,0.3);
-}
+.header { background: linear-gradient(135deg, #ff6b35, #ff8c65); color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 10px rgba(255,107,53,0.3); }
 .header h1 {font-size:18px; font-weight:700;}
-.back-btn {
-  padding:8px 14px;
-  border:none;
-  border-radius:8px;
-  font-weight:600;
-  cursor:pointer;
-  background:#fff;
-  color:#ff6b35;
-}
+.back-btn { padding:8px 14px; border:none; border-radius:8px; font-weight:600; cursor:pointer; background:#fff; color:#ff6b35; }
 .container {padding:15px; max-width:700px; margin:0 auto;}
-.card {
-  background:white;
-  padding:15px;
-  border-radius:12px;
-  margin-bottom:15px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.08);
-}
+.card { background:white; padding:15px; border-radius:12px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
 label {display:block; margin-bottom:5px; font-weight:600; color:#555; font-size:14px;}
-input, textarea {
-  width:100%;
-  padding:12px;
-  border:2px solid #FFE0B2;
-  border-radius:8px;
-  font-size:16px;
-  font-family:'Poppins', sans-serif;
-}
-input:focus, textarea:focus {
-  outline:none;
-  border-color:#ff6b35;
-}
-.btn-add {
-  background:linear-gradient(135deg, #ff6b35, #ff8c65);
-  color:white;
-  border:none;
-  padding:14px;
-  border-radius:8px;
-  font-weight:700;
-  font-size:16px;
-  width:100%;
-  cursor:pointer;
-  margin-top:10px;
-}
+input, textarea { width:100%; padding:12px; border:2px solid #FFE0B2; border-radius:8px; font-size:16px; font-family:'Poppins', sans-serif; }
+input:focus, textarea:focus { outline:none; border-color:#ff6b35; }
+.btn-add { background:linear-gradient(135deg, #ff6b35, #ff8c65); color:white; border:none; padding:14px; border-radius:8px; font-weight:700; font-size:16px; width:100%; cursor:pointer; margin-top:10px; }
 .btn-add:hover {opacity:0.9;}
-.filter-row {
-  display:grid;
-  grid-template-columns:1fr 1fr auto;
-  gap:10px;
-  align-items:end;
-}
-.btn-filter {
-  background:#ff6b35;
-  color:white;
-  border:none;
-  padding:12px 20px;
-  border-radius:8px;
-  font-weight:600;
-  cursor:pointer;
-}
-.btn-reset {
-  background:#ffa726;
-  color:white;
-  border:none;
-  padding:12px 20px;
-  border-radius:8px;
-  font-weight:600;
-  cursor:pointer;
-}
-.total-box {
-  background:linear-gradient(135deg, #ff6b35, #ff8c65);
-  color:white;
-  padding:20px;
-  border-radius:12px;
-  text-align:center;
-}
+.filter-row { display:grid; grid-template-columns:1fr 1fr auto; gap:10px; align-items:end; }
+.btn-filter { background:#ff6b35; color:white; border:none; padding:12px 20px; border-radius:8px; font-weight:600; cursor:pointer; }
+.btn-reset { background:#ffa726; color:white; border:none; padding:12px 20px; border-radius:8px; font-weight:600; cursor:pointer; }
+.total-box { background:linear-gradient(135deg, #ff6b35, #ff8c65); color:white; padding:20px; border-radius:12px; text-align:center; }
 .total-box h3 {font-size:14px; font-weight:600; opacity:0.9;}
 .total-box h2 {font-size:32px; font-weight:700; margin-top:5px;}
-.expense-item {
-  display:flex;
-  justify-content:space-between;
-  align-items:start;
-  padding:12px 0;
-  border-bottom:1px solid #FFE0B2;
-}
+.expense-item { display:flex; justify-content:space-between; align-items:start; padding:12px 0; border-bottom:1px solid #FFE0B2; }
 .expense-item:last-child {border-bottom:none;}
 .expense-info h4 {font-size:16px; font-weight:700; margin-bottom:4px;}
 .expense-info p {font-size:12px; color:#666;}
-.expense-amount {
-  font-size:18px;
-  font-weight:700;
-  color:#ff6b35;
-}
-.empty {
-  text-align:center;
-  padding:40px;
-  color:#999;
-}
-@media (max-width:600px){
- .filter-row {grid-template-columns:1fr 1fr;}
- .btn-filter,.btn-reset {grid-column:span 2;}
-}
+.expense-amount { font-size:18px; font-weight:700; color:#ff6b35; }
+.empty { text-align:center; padding:40px; color:#999; }
+@media (max-width:600px){.filter-row {grid-template-columns:1fr 1fr;}.btn-filter,.btn-reset {grid-column:span 2;} }
 </style>
 </head>
 <body>
 <div class="header">
-  <h1>💸 Expenses</h1>
-  <button class="back-btn" onclick="window.location.href='index.html'">← Back</button>
+<h1>💸 Expenses</h1>
+<button class="back-btn" onclick="window.location.href='index.html'">← Back</button>
 </div>
-
 <div class="container">
-  <div class="card">
-    <label>Amount</label>
-    <input type="number" id="amount" placeholder="0" min="0">
-
-    <label style="margin-top:12px;">Notes / Description</label>
-    <textarea id="notes" rows="2" placeholder="Optional"></textarea>
-
-    <button class="btn-add" onclick="addExpense()">Add Expense</button>
-  </div>
-
-  <div class="card">
-    <div class="filter-row">
-      <div>
-        <label>From Date</label>
-        <input type="date" id="dateFrom">
-      </div>
-      <div>
-        <label>To Date</label>
-        <input type="date" id="dateTo">
-      </div>
-      <button class="btn-filter" onclick="filterExpenses()">Filter</button>
-      <button class="btn-reset" onclick="resetFilter()">Reset</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="total-box">
-      <h3>Total Expenses</h3>
-      <h2 id="totalAmount">₱0</h2>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3 style="margin-bottom:10px; color:#ff6b35;">📋 Expense List</h3>
-    <div id="expenseList">
-      <div class="empty">Loading...</div>
-    </div>
-  </div>
+<div class="card">
+<label>Amount</label>
+<input type="number" id="amount" placeholder="0" min="0">
+<label style="margin-top:12px;">Notes / Description</label>
+<textarea id="notes" rows="2" placeholder="Optional"></textarea>
+<button class="btn-add" onclick="addExpense()">Add Expense</button>
 </div>
-
+<div class="card">
+<div class="filter-row">
+<div>
+<label>From Date</label>
+<input type="date" id="dateFrom">
+</div>
+<div>
+<label>To Date</label>
+<input type="date" id="dateTo">
+</div>
+<button class="btn-filter" onclick="filterExpenses()">Filter</button>
+<button class="btn-reset" onclick="resetFilter()">Reset</button>
+</div>
+</div>
+<div class="card">
+<div class="total-box">
+<h3>Total Expenses</h3>
+<h2 id="totalAmount">₱0</h2>
+</div>
+</div>
+<div class="card">
+<h3 style="margin-bottom:10px; color:#ff6b35;">📋 Expense List</h3>
+<div id="expenseList">
+<div class="empty">Loading...</div>
+</div>
+</div>
+</div>
 <script type="module">
-import { db } from './firebase-config.js';
+import { auth, db } from './firebase-config.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { collection, addDoc, getDocs, query, orderBy, where, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 let allExpenses = [];
 
-// Set default dates to today
-window.onload = function() {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('dateFrom').value = today;
-  document.getElementById('dateTo').value = today;
-  loadExpenses();
-}
-
-async function loadExpenses() {
-  const q = query(collection(db, "dhan-expenses"), orderBy("timestamp", "desc"));
-  const snap = await getDocs(q);
-  allExpenses = [];
-  snap.forEach(doc => {
-    let d = doc.data();
-    d.id = doc.id;
-    allExpenses.push(d);
-  });
-  renderExpenses(allExpenses);
-}
-
-function renderExpenses(expenses) {
-  let total = 0;
-  let html = '';
-
-  if(expenses.length === 0) {
-    document.getElementById('expenseList').innerHTML = '<div class="empty">No expenses yet</div>';
-    document.getElementById('totalAmount').textContent = '₱0';
+// Auth check - dito mag-start pag naka-login
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    alert('Mag-login ka muna sa Settings boss');
+    window.location.href = 'settings.html';
     return;
   }
 
-  expenses.forEach(e => {
-    total += e.amount || 0;
-    const date = e.timestamp? new Date(e.timestamp.seconds * 1000).toLocaleString('en-PH') : e.date;
-    html += `
-      <div class="expense-item">
-        <div class="expense-info">
-          <h4>${e.notes || 'No description'}</h4>
-          <p>${date}</p>
-        </div>
-        <div class="expense-amount">₱${e.amount}</div>
-      </div>
-    `;
-  });
-
-  document.getElementById('expenseList').innerHTML = html;
-  document.getElementById('totalAmount').textContent = `₱${total}`;
-}
-
-window.addExpense = async function() {
-  const amount = parseFloat(document.getElementById('amount').value);
-  const notes = document.getElementById('notes').value;
-
-  if(!amount || amount <= 0) {
-    alert('Enter valid amount');
-    return;
-  }
-
-  try {
-    await addDoc(collection(db, "dhan-expenses"), {
-      amount: amount,
-      notes: notes,
-      date: new Date().toISOString().split('T')[0],
-      timestamp: Timestamp.now()
-    });
-
-    document.getElementById('amount').value = '';
-    document.getElementById('notes').value = '';
+  // Set default dates to today
+  window.onload = function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('dateFrom').value = today;
+    document.getElementById('dateTo').value = today;
     loadExpenses();
-    alert('✅ Expense added!');
-  } catch(err) {
-    alert('❌ Error: ' + err.message);
   }
-}
 
-window.filterExpenses = function() {
-  const from = document.getElementById('dateFrom').value;
-  const to = document.getElementById('dateTo').value;
+  async function loadExpenses() {
+    const q = query(collection(db, "dhan-expenses"), orderBy("timestamp", "desc"));
+    const snap = await getDocs(q);
+    allExpenses = [];
+    snap.forEach(doc => {
+      let d = doc.data();
+      d.id = doc.id;
+      allExpenses.push(d);
+    });
+    renderExpenses(allExpenses);
+  }
 
-  const filtered = allExpenses.filter(e => {
-    return e.date >= from && e.date <= to;
-  });
+  function renderExpenses(expenses) {
+    let total = 0;
+    let html = '';
+    if(expenses.length === 0) {
+      document.getElementById('expenseList').innerHTML = '<div class="empty">No expenses yet</div>';
+      document.getElementById('totalAmount').textContent = '₱0';
+      return;
+    }
+    expenses.forEach(e => {
+      total += e.amount || 0;
+      const date = e.timestamp? new Date(e.timestamp.seconds * 1000).toLocaleString('en-PH') : e.date;
+      html += `
+        <div class="expense-item">
+          <div class="expense-info">
+            <h4>${e.notes || 'No description'}</h4>
+            <p>${date}</p>
+          </div>
+          <div class="expense-amount">₱${e.amount}</div>
+        </div>
+      `;
+    });
+    document.getElementById('expenseList').innerHTML = html;
+    document.getElementById('totalAmount').textContent = `₱${total}`;
+  }
 
-  renderExpenses(filtered);
-}
+  window.addExpense = async function() {
+    const amount = parseFloat(document.getElementById('amount').value);
+    const notes = document.getElementById('notes').value;
+    if(!amount || amount <= 0) {
+      alert('Enter valid amount');
+      return;
+    }
+    try {
+      await addDoc(collection(db, "dhan-expenses"), {
+        amount: amount,
+        notes: notes,
+        date: new Date().toISOString().split('T')[0],
+        timestamp: Timestamp.now()
+      });
+      document.getElementById('amount').value = '';
+      document.getElementById('notes').value = '';
+      loadExpenses();
+      alert('✅ Expense added!');
+    } catch(err) {
+      alert('❌ Error: ' + err.message);
+    }
+  }
 
-window.resetFilter = function() {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('dateFrom').value = today;
-  document.getElementById('dateTo').value = today;
-  renderExpenses(allExpenses);
-}
+  window.filterExpenses = function() {
+    const from = document.getElementById('dateFrom').value;
+    const to = document.getElementById('dateTo').value;
+    const filtered = allExpenses.filter(e => {
+      return e.date >= from && e.date <= to;
+    });
+    renderExpenses(filtered);
+  }
+
+  window.resetFilter = function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('dateFrom').value = today;
+    document.getElementById('dateTo').value = today;
+    renderExpenses(allExpenses);
+  }
+
+}); // pang-close ng onAuthStateChanged
 </script>
 </body>
 </html>
