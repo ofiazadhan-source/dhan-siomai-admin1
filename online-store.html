@@ -238,18 +238,22 @@ label {font-weight:600; color:#D32F2F; font-size:14px; margin-bottom:5px; displa
           📌 Delivery via Lalamove/Grab. Customer will shoulder the delivery fee. 
           We will contact you for delivery booking after confirming payment.
         </div>
-
 <div style="background:linear-gradient(135deg, #0070BA, #009CDE); color:white; padding:15px; border-radius:12px; margin-bottom:15px;">
 <h4 style="margin-bottom:8px;">📱 PLS PAY TO GCASH:</h4>
-<p style="font-size:16px; margin-bottom:5px;">Name: <strong>Dante V.</strong></p>
-<p style="font-size:20px; font-weight:700;">
-<a href="gcash://wallet/pay?receiver=09052733253" 
-   style="color:#FFC107; text-decoration:none;">
-   09052733253
-</a>
-</p>
-<small style="opacity:0.9;">Tap mo number para auto-open GCash app</small>
+<p style="font-size:16px; margin-bottom:8px;">Name: <strong>Dante V.</strong></p>
+<div style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.2); padding:10px; border-radius:8px;">
+<span id="gcashNum" style="font-size:20px; font-weight:700; flex:1;">09052733253</span>
+<button onclick="copyGCash()" style="background:#FFC107; color:#000; border:none; padding:8px 15px; border-radius:6px; font-weight:700; cursor:pointer;">Copy</button>
 </div>
+<small style="opacity:0.9; display:block; margin-top:5px;">Click Copy > Open GCash app > Paste</small>
+</div>
+
+<script>
+function copyGCash() {
+navigator.clipboard.writeText('09052733253');
+alert('✅ GCash number copied! Paste mo sa GCash app');
+}
+</script>
           </label> 
         <label>GCash Proof of Payment</label>
         <input type="file" id="proofUpload" accept="image/*">
