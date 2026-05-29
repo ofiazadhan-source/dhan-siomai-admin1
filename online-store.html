@@ -241,19 +241,35 @@ label {font-weight:600; color:#D32F2F; font-size:14px; margin-bottom:5px; displa
 <div style="background:linear-gradient(135deg, #0070BA, #009CDE); color:white; padding:15px; border-radius:12px; margin-bottom:15px;">
 <h4 style="margin-bottom:8px;">📱 PLS PAY TO GCASH:</h4>
 <p style="font-size:16px; margin-bottom:8px;">Name: <strong>Dante V.</strong></p>
-<div style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.2); padding:10px; border-radius:8px;">
+
+<div style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.2); padding:12px; border-radius:8px; margin-bottom:8px;">
 <span id="gcashNum" style="font-size:20px; font-weight:700; flex:1;">09052733253</span>
-<button onclick="copyGCash()" style="background:#FFC107; color:#000; border:none; padding:8px 15px; border-radius:6px; font-weight:700; cursor:pointer;">Copy</button>
+<button onclick="openGCash()" style="background:#FFC107; color:#000; border:none; padding:8px 15px; border-radius:6px; font-weight:700; cursor:pointer;">Open GCash</button>
 </div>
-<small style="opacity:0.9; display:block; margin-top:5px;">Click Copy > Open GCash app > Paste</small>
+
+<div style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.15); padding:10px; border-radius:8px;">
+<span style="font-size:18px; font-weight:700; flex:1;">09052733253</span>
+<button onclick="copyGCash()" style="background:white; color:#0070BA; border:none; padding:6px 12px; border-radius:6px; font-weight:700; cursor:pointer; font-size:12px;">Copy</button>
+</div>
+
+<small style="opacity:0.9; display:block; margin-top:8px;">Tap "Open GCash" para deretso app. Pag ayaw, Copy mo na lang</small>
 </div>
 
 <script>
+// Pang open ng GCash app deretso
+function openGCash() {
+const number = '09052733253';
+// Android intent link - deretso GCash app
+window.location.href = 'intent://wallet/pay?receiver=' + number + '#Intent;scheme=gcash;package=com.globe.gcash.android;end';
+}
+
+// Pang copy number
 function copyGCash() {
 navigator.clipboard.writeText('09052733253');
 alert('✅ GCash number copied! Paste mo sa GCash app');
 }
 </script>
+  
           </label> 
         <label>GCash Proof of Payment</label>
         <input type="file" id="proofUpload" accept="image/*">
