@@ -8,109 +8,59 @@
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
 body {background:linear-gradient(135deg, #FFF8E1, #FFE0B2);}
-
-.header {
-  background: linear-gradient(135deg, #D32F2F, #B71C1C);
-  color:white;
-  padding:15px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  position:sticky;
-  top:0;
-  z-index:10;
+.header { 
+  background: linear-gradient(135deg, #D32F2F, #B71C1C); 
+  color:white; padding:15px; display:flex; justify-content:space-between; align-items:center; 
+  position:sticky; top:0; z-index:10; 
 }
 .header h1 {font-size:18px; font-weight:700;}
-.header a {
-  color:#D32F2F; 
-  background:#fff; 
-  text-decoration:none; 
-  font-weight:600; 
-  padding:8px 14px; 
-  border-radius:8px;
-  font-size:14px;
+.header a { 
+  color:#D32F2F; background:#fff; text-decoration:none; font-weight:600; 
+  padding:8px 14px; border-radius:8px; font-size:14px; 
 }
-
 .container {padding:20px; max-width:600px; margin:0 auto;}
 
 /* Login Box */
-.login-box {
-  background:white;
-  border-radius:16px;
-  padding:25px;
-  box-shadow:0 4px 16px rgba(0,0,0,0.1);
-  margin-top:50px;
+.login-box { 
+  background:white; border-radius:16px; padding:25px; 
+  box-shadow:0 4px 16px rgba(0,0,0,0.1); margin-top:50px; 
 }
-.login-box h2 {
-  color:#D32F2F;
-  margin-bottom:15px;
-  text-align:center;
+.login-box h2 { color:#D32F2F; margin-bottom:15px; text-align:center; }
+.login-box input { 
+  width:100%; padding:12px; border:2px solid #FFE0B2; 
+  border-radius:10px; font-size:15px; margin-bottom:15px; 
 }
-.login-box input {
-  width:100%;
-  padding:12px;
-  border:2px solid #FFE0B2;
-  border-radius:10px;
-  font-size:15px;
-  margin-bottom:15px;
+.login-box button { 
+  width:100%; padding:12px; background:#D32F2F; color:white; 
+  border:none; border-radius:10px; font-weight:700; font-size:15px; cursor:pointer; 
 }
-.login-box button {
-  width:100%;
-  padding:12px;
-  background:#D32F2F;
-  color:white;
-  border:none;
-  border-radius:10px;
-  font-weight:700;
-  font-size:15px;
-  cursor:pointer;
-}
+.login-box button:disabled { opacity:0.6; cursor:not-allowed; }
+.error-msg { color:#D32F2F; font-size:13px; margin-top:10px; text-align:center; }
 
 /* Settings Content */
 .settings-content {display:none;}
-.card {
-  background:white;
-  border-radius:16px;
-  padding:20px;
-  margin-bottom:20px;
-  box-shadow:0 4px 16px rgba(0,0,0,0.08);
+.card { 
+  background:white; border-radius:16px; padding:20px; margin-bottom:20px; 
+  box-shadow:0 4px 16px rgba(0,0,0,0.08); 
 }
-.card h3 {
-  color:#D32F2F;
-  margin-bottom:10px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.card p {
-  font-size:13px;
-  color:#666;
-  margin-bottom:15px;
-}
-.reset-grid {
-  display:grid;
-  gap:10px;
-}
-.reset-btn {
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  font-weight:600;
-  cursor:pointer;
-  font-size:14px;
-}
+.card h3 { color:#D32F2F; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.card p { font-size:13px; color:#666; margin-bottom:15px; }
+.reset-grid { display:grid; gap:10px; }
+.reset-btn { padding:12px; border:none; border-radius:10px; font-weight:600; cursor:pointer; font-size:14px; }
 .btn-orange {background:#FFA726; color:white;}
 .btn-red {background:#f44336; color:white;}
 .btn-red:hover {background:#d32f2f;}
-
-.warning-box {
-  background:#FFF3CD;
-  border-left:4px solid #FFC107;
-  padding:12px;
-  border-radius:8px;
-  font-size:13px;
-  color:#856404;
-  margin-bottom:15px;
+.warning-box { 
+  background:#FFF3CD; border-left:4px solid #FFC107; padding:12px; 
+  border-radius:8px; font-size:13px; color:#856404; margin-bottom:15px; 
+}
+.user-info {
+  background:#E3F2FD; padding:10px; border-radius:8px; margin-bottom:15px;
+  font-size:13px; color:#1565C0;
+}
+.logout-btn {
+  background:#666; color:white; border:none; padding:8px 14px; 
+  border-radius:8px; cursor:pointer; font-size:13px;
 }
 </style>
 </head>
@@ -124,13 +74,19 @@ body {background:linear-gradient(135deg, #FFF8E1, #FFE0B2);}
   <!-- Login Box -->
   <div class="login-box" id="loginBox">
     <h2>🔒 Admin Login</h2>
-    <input type="password" id="passwordInput" placeholder="Enter password" onkeyup="if(event.key==='Enter') checkPassword()">
-    <button onclick="checkPassword()">Login</button>
+    <input type="email" id="emailInput" placeholder="Email" autocomplete="email">
+    <input type="password" id="passwordInput" placeholder="Password" onkeyup="if(event.key==='Enter') login()">
+    <button id="loginBtn" onclick="login()">Login</button>
+    <div class="error-msg" id="errorMsg"></div>
   </div>
 
   <!-- Settings Content -->
   <div class="settings-content" id="settingsContent">
-    
+    <div class="user-info">
+      <span id="userEmail">Loading...</span>
+      <button class="logout-btn" onclick="logout()" style="float:right;">Logout</button>
+    </div>
+
     <div class="warning-box">
       ⚠️ Warning: Reset actions cannot be undone. Make sure you have a backup before proceeding.
     </div>
@@ -138,23 +94,11 @@ body {background:linear-gradient(135deg, #FFF8E1, #FFE0B2);}
     <div class="card">
       <h3>🧹 Reset Data</h3>
       <p>Delete specific data from your system. Be careful with this.</p>
-      
       <div class="reset-grid">
-        <button class="reset-btn btn-orange" onclick="resetSales()">
-          Reset Sales Only
-        </button>
-        
-        <button class="reset-btn btn-orange" onclick="resetExpenses()">
-          Reset Expenses Only
-        </button>
-        
-        <button class="reset-btn btn-orange" onclick="resetProducts()">
-          Reset Products Only
-        </button>
-        
-        <button class="reset-btn btn-red" onclick="resetAll()">
-          🗑️ Reset ALL Data
-        </button>
+        <button class="reset-btn btn-orange" onclick="resetSales()">Reset Sales Only</button>
+        <button class="reset-btn btn-orange" onclick="resetExpenses()">Reset Expenses Only</button>
+        <button class="reset-btn btn-orange" onclick="resetProducts()">Reset Products Only</button>
+        <button class="reset-btn btn-red" onclick="resetAll()">🗑️ Reset ALL Data</button>
       </div>
     </div>
 
@@ -162,31 +106,65 @@ body {background:linear-gradient(135deg, #FFF8E1, #FFE0B2);}
       <h3>ℹ️ System Info</h3>
       <p id="systemInfo">Loading...</p>
     </div>
-
   </div>
 </div>
 
 <script type="module">
 import { db } from './firebase-config.js';
-import {
-  collection, getDocs, doc, writeBatch
+import { 
+  collection, getDocs, doc, writeBatch 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { 
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// CHANGE THIS PASSWORD
-const ADMIN_PASSWORD = "Dhan3426";
+const auth = getAuth();
 
-// Check password
-window.checkPassword = function() {
-  const input = document.getElementById('passwordInput').value;
-  
-  if(input === ADMIN_PASSWORD) {
+// Check if user is already logged in
+onAuthStateChanged(auth, (user) => {
+  if (user) {
     document.getElementById('loginBox').style.display = 'none';
     document.getElementById('settingsContent').style.display = 'block';
+    document.getElementById('userEmail').textContent = user.email;
     loadSystemInfo();
   } else {
-    alert('❌ Wrong password!');
-    document.getElementById('passwordInput').value = '';
+    document.getElementById('loginBox').style.display = 'block';
+    document.getElementById('settingsContent').style.display = 'none';
   }
+});
+
+// Login function
+window.login = async function() {
+  const email = document.getElementById('emailInput').value.trim();
+  const password = document.getElementById('passwordInput').value;
+  const btn = document.getElementById('loginBtn');
+  const errorMsg = document.getElementById('errorMsg');
+  
+  if (!email || !password) {
+    errorMsg.textContent = 'Fill up email and password';
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'Logging in...';
+  errorMsg.textContent = '';
+  
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    errorMsg.textContent = '❌ Wrong email or password';
+    console.error(error);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Login';
+  }
+}
+
+// Logout function
+window.logout = async function() {
+  await signOut(auth);
+  document.getElementById('emailInput').value = '';
+  document.getElementById('passwordInput').value = '';
 }
 
 // Load system info
@@ -207,6 +185,7 @@ async function loadSystemInfo() {
     `;
   } catch(e) {
     document.getElementById('systemInfo').textContent = 'Error loading info';
+    console.error(e);
   }
 }
 
@@ -219,14 +198,12 @@ async function deleteCollection(collectionName) {
   querySnapshot.forEach((docSnap) => {
     batch.delete(doc(db, collectionName, docSnap.id));
   });
-  
   await batch.commit();
 }
 
 // Reset Sales only
 window.resetSales = async function() {
   if(!confirm('⚠️ Sigurado ka? Buburahin lahat ng sales records.')) return;
-  
   try {
     await deleteCollection('dhan-sales');
     alert('✅ Sales data reset successfully!');
@@ -239,7 +216,6 @@ window.resetSales = async function() {
 // Reset Expenses only
 window.resetExpenses = async function() {
   if(!confirm('⚠️ Sigurado ka? Buburahin lahat ng expenses records.')) return;
-  
   try {
     await deleteCollection('dhan-expenses');
     alert('✅ Expenses data reset successfully!');
@@ -252,7 +228,6 @@ window.resetExpenses = async function() {
 // Reset Products only
 window.resetProducts = async function() {
   if(!confirm('⚠️ Sigurado ka? Buburahin lahat ng products.')) return;
-  
   try {
     await deleteCollection('dhan-pos-web');
     alert('✅ Products data reset successfully!');
@@ -274,11 +249,12 @@ window.resetAll = async function() {
   }
   
   try {
-    await deleteCollection('dhan-sales');
-    await deleteCollection('dhan-expenses');
-    await deleteCollection('dhan-pos-web');
-    await deleteCollection('online-orders');
-    
+    await Promise.all([
+      deleteCollection('dhan-sales'),
+      deleteCollection('dhan-expenses'),
+      deleteCollection('dhan-pos-web'),
+      deleteCollection('online-orders')
+    ]);
     alert('✅ All data reset successfully!');
     loadSystemInfo();
   } catch(e) {
