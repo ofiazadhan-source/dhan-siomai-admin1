@@ -1,193 +1,161 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHAN SIOMAI POS</title>
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+<meta charset="UTF-8"> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+<title>DHAN SIOMAI POS</title> 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-* {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
-body { background: #f5f5f5; }
 
-/* Login Screen */
-#loginScreen {
-  position: fixed; top: 0; left: 0; 
-  width: 100%; height: 100%; 
-  background: url('bg.jpg') center/cover no-repeat; 
-  display: flex; justify-content: center; align-items: center; 
-  z-index: 10000;
-}
-#loginScreen::before {
-  content: ''; position: absolute; top: 0; left: 0; 
-  width: 100%; height: 100%; 
-  background: rgba(0,0,0,0.6); z-index: -1;
-}
-.login-box {
-  background: rgba(255,255,255,0.95); padding: 30px; 
-  border-radius: 20px; width: 90%; max-width: 350px; 
-  text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-}
-.login-box h2 { color: #D32F2F; margin-bottom: 20px; font-weight: 700; }
-.login-box input {
-  width: 100%; padding: 14px; margin-bottom: 12px; 
-  border-radius: 10px; border: 2px solid #FFE0B2; font-size: 15px;
-}
-.login-box input:focus { outline: none; border-color: #D32F2F; }
-.login-box button {
-  width: 100%; padding: 14px; 
-  background: linear-gradient(135deg, #D32F2F, #B71C1C); 
-  color: white; border: none; border-radius: 10px; 
-  font-weight: 700; font-size: 16px; cursor: pointer;
-}
-.error-msg { color: #D32F2F; font-size: 13px; margin-top: 10px; display: none; }
+<!-- PWA Manifest + Theme Color -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#D32F2F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dhan POS">
 
-/* Dashboard */
-#dashboard { display: none; }
-.header {
-  background: #ff7043; color: white; padding: 15px 20px; 
-  display: flex; justify-content: space-between; align-items: center;
-  position: sticky; top: 0; z-index: 100;
-}
-.header h2 { font-size: 18px; }
-.header button {
-  background: white; color: #ff7043; border: none; 
-  padding: 8px 15px; border-radius: 6px; font-weight: 700; cursor: pointer;
-}
-.menu { padding: 15px; padding-bottom: 30px; }
-.card {
-  background: white; border-radius: 12px; padding: 20px; 
-  margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer;
-  transition: transform 0.1s;
-}
-.card:active { transform: scale(0.98); }
-.card div { font-size: 40px; text-align: center; margin-bottom: 10px; }
-.card h3 { text-align: center; font-size: 18px; margin-bottom: 5px; }
-.card p { text-align: center; color: #666; font-size: 14px; }
-.badge {
-  display: inline-block; background: #ff7043; color: white; 
-  padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-top: 8px;
-}
-.card.danger { 
-  border: 2px solid #D32F2F; 
-}
-.card.danger h3 { color: #D32F2F; }
-.loading { color: #999; font-size: 12px; }
-</style>
-</head>
-<body>
+<style> 
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;} 
+body { background: #f5f5f5; } 
+/* Login Screen */ 
+#loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('bg.jpg') center/cover no-repeat; display: flex; justify-content: center; align-items: center; z-index: 10000; } 
+#loginScreen::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: -1; } 
+.login-box { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); } 
+.login-box h2 { color: #D32F2F; margin-bottom: 20px; font-weight: 700; } 
+.login-box input { width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 10px; border: 2px solid #FFE0B2; font-size: 15px; } 
+.login-box input:focus { outline: none; border-color: #D32F2F; } 
+.login-box button { width: 100%; padding: 14px; background: linear-gradient(135deg, #D32F2F, #B71C1C); color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: pointer; } 
+.error-msg { color: #D32F2F; font-size: 13px; margin-top: 10px; display: none; } 
+/* Dashboard */ 
+#dashboard { display: none; } 
+.header { background: #ff7043; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; } 
+.header h2 { font-size: 18px; } 
+.header button { background: white; color: #ff7043; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 700; cursor: pointer; } 
+.menu { padding: 15px; padding-bottom: 30px; } 
+.card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.1s; } 
+.card:active { transform: scale(0.98); } 
+.card div { font-size: 40px; text-align: center; margin-bottom: 10px; } 
+.card h3 { text-align: center; font-size: 18px; margin-bottom: 5px; } 
+.card p { text-align: center; color: #666; font-size: 14px; } 
+.badge { display: inline-block; background: #ff7043; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-top: 8px; } 
+.card.danger { border: 2px solid #D32F2F; } 
+.card.danger h3 { color: #D32F2F; } 
+.loading { color: #999; font-size: 12px; } 
+</style> 
+</head> 
+<body> 
+<!-- Login Screen --> 
+<div id="loginScreen"> 
+<div class="login-box"> 
+<h2>🍡 DHAN SIOMAI</h2> 
+<input type="text" id="username" placeholder="Username"> 
+<input type="password" id="password" placeholder="Password"> 
+<button onclick="login()">Login</button> 
+<div class="error-msg" id="errorMsg">Invalid username or password</div> 
+</div> 
+</div> 
+<!-- Dashboard --> 
+<div id="dashboard"> 
+<div class="header"> 
+<h2>📦 DHAN SIOMAI Admin</h2> 
+<button onclick="logout()">Logout</button> 
+</div> 
+<div class="menu"> 
+<div class="card" onclick="window.location.href='pos.html'"> 
+<div>💻</div> 
+<h3>POS</h3> 
+<p>Make sales</p> 
+</div> 
+<div class="card" onclick="window.location.href='products.html'"> 
+<div>📦</div> 
+<h3>Products</h3> 
+<p>Manage products, price, stock</p> 
+<span class="badge" id="productCount"><span class="loading">Loading...</span></span> 
+</div> 
+<div class="card" onclick="window.location.href='daily-production.html'"> 
+<div>📊</div> 
+<h3>Daily Production</h3> 
+<p>Log production & update stock</p> 
+</div> 
+<div class="card" onclick="window.location.href='expenses.html'"> 
+<div>💵</div> 
+<h3>Expenses</h3> 
+<p>Log expenses and costs</p> 
+<span class="badge" id="expenseCount"><span class="loading">Loading...</span></span> 
+</div> 
+<div class="card" onclick="window.location.href='net-profet.html'"> 
+<div>💰</div> 
+<h3>Net Profit</h3> 
+<p>Sales & Expenses report</p> 
+</div> 
+<div class="card danger" onclick="resetData()"> 
+<div>⚠️</div> 
+<h3>Reset Data</h3> 
+<p>Danger zone</p> 
+</div> 
+</div> 
+</div> 
 
-<!-- Login Screen -->
-<div id="loginScreen">
-  <div class="login-box">
-    <h2>🍡 DHAN SIOMAI</h2>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <div class="error-msg" id="errorMsg">Invalid username or password</div>
-  </div>
-</div>
+<script type="module"> 
+import { db } from './firebase-config.js'; 
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; 
+window.login = login; 
+window.logout = logout; 
+window.resetData = resetData; 
 
-<!-- Dashboard -->
-<div id="dashboard">
-  <div class="header">
-    <h2>📦 DHAN SIOMAI Admin</h2>
-    <button onclick="logout()">Logout</button>
-  </div>
-  
-  <div class="menu">
-    <div class="card" onclick="window.location.href='pos.html'">
-      <div>💻</div>
-      <h3>POS</h3>
-      <p>Make sales</p>
-    </div>
-    
-    <div class="card" onclick="window.location.href='products.html'">
-      <div>📦</div>
-      <h3>Products</h3>
-      <p>Manage products, price, stock</p>
-      <span class="badge" id="productCount"><span class="loading">Loading...</span></span>
-    </div>
-    
-    <div class="card" onclick="window.location.href='daily-production.html'">
-      <div>📊</div>
-      <h3>Daily Production</h3>
-      <p>Log production & update stock</p>
-    </div>
-    
-    <div class="card" onclick="window.location.href='expenses.html'">
-      <div>💵</div>
-      <h3>Expenses</h3>
-      <p>Log expenses and costs</p>
-      <span class="badge" id="expenseCount"><span class="loading">Loading...</span></span>
-    </div>
-    
-    <div class="card" onclick="window.location.href='net-profet.html'">
-      <div>💰</div>
-      <h3>Net Profit</h3>
-      <p>Sales & Expenses report</p>
-    </div>
-    
-    <div class="card danger" onclick="resetData()">
-      <div>⚠️</div>
-      <h3>Reset Data</h3>
-      <p>Danger zone</p>
-    </div>
-  </div>
-</div>
+function login() { 
+const user = document.getElementById('username').value.trim(); 
+const pass = document.getElementById('password').value.trim(); 
+if(user === 'admin' && pass === '1234') { 
+document.getElementById('loginScreen').style.display = 'none'; 
+document.getElementById('dashboard').style.display = 'block'; 
+document.getElementById('errorMsg').style.display = 'none'; 
+loadCounts(); 
+} else { 
+document.getElementById('errorMsg').style.display = 'block'; 
+} 
+} 
 
-<script type="module">
-import { db } from './firebase-config.js';
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+function logout() { 
+document.getElementById('loginScreen').style.display = 'flex'; 
+document.getElementById('dashboard').style.display = 'none'; 
+document.getElementById('username').value = ''; 
+document.getElementById('password').value = ''; 
+} 
 
-window.login = login;
-window.logout = logout;
-window.resetData = resetData;
+async function loadCounts() { 
+try { 
+// Products count from dhan-pos-web 
+const productsSnap = await getDocs(collection(db, "dhan-pos-web")); 
+document.getElementById('productCount').textContent = productsSnap.size + ' Products'; 
+// Expenses count from dhan-expenses 
+const expensesSnap = await getDocs(collection(db, "dhan-expenses")); 
+document.getElementById('expenseCount').textContent = expensesSnap.size + ' Entries'; 
+} catch (error) { 
+console.error("Error loading counts: ", error); 
+document.getElementById('productCount').textContent = 'Error'; 
+document.getElementById('expenseCount').textContent = 'Error'; 
+} 
+} 
 
-function login() {
-  const user = document.getElementById('username').value.trim();
-  const pass = document.getElementById('password').value.trim();
-  
-  if(user === 'admin' && pass === '1234') {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('errorMsg').style.display = 'none';
-    loadCounts();
-  } else {
-    document.getElementById('errorMsg').style.display = 'block';
-  }
+function resetData() { 
+alert('Delete mo sa Firebase Console para safe boss. Delikado pag nasa frontend yan.'); 
+} 
+
+document.addEventListener('keypress', function(e) { 
+if(e.key === 'Enter') login(); 
+}); 
+</script> 
+
+<!-- PWA Service Worker Registration -->
+<script>
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW registered:', reg))
+      .catch(err => console.log('SW error:', err));
+  });
 }
-
-function logout() {
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('username').value = '';
-  document.getElementById('password').value = '';
-}
-
-async function loadCounts() {
-  try {
-    // Products count from dhan-pos-web
-    const productsSnap = await getDocs(collection(db, "dhan-pos-web"));
-    document.getElementById('productCount').textContent = productsSnap.size + ' Products';
-    
-    // Expenses count from dhan-expenses
-    const expensesSnap = await getDocs(collection(db, "dhan-expenses"));
-    document.getElementById('expenseCount').textContent = expensesSnap.size + ' Entries';
-    
-  } catch (error) {
-    console.error("Error loading counts: ", error);
-    document.getElementById('productCount').textContent = 'Error';
-    document.getElementById('expenseCount').textContent = 'Error';
-  }
-}
-
-function resetData() {
-  alert('Delete mo sa Firebase Console para safe boss. Delikado pag nasa frontend yan.');
-}
-
-document.addEventListener('keypress', function(e) {
-  if(e.key === 'Enter') login();
-});
 </script>
-</body>
+
+</body> 
 </html>
