@@ -71,6 +71,7 @@ body { background: #f5f5f5; }
   border: 2px solid #D32F2F; 
 }
 .card.danger h3 { color: #D32F2F; }
+.loading { color: #999; font-size: 12px; }
 </style>
 </head>
 <body>
@@ -104,10 +105,10 @@ body { background: #f5f5f5; }
       <div>📦</div>
       <h3>Products</h3>
       <p>Manage products, price, stock</p>
-      <span class="badge" id="productCount">0 Products</span>
+      <span class="badge" id="productCount"><span class="loading">Loading...</span></span>
     </div>
     
-    <div class="card" onclick="window.location.href='production.html'">
+    <div class="card" onclick="window.location.href='daily-production.html'">
       <div>📊</div>
       <h3>Daily Production</h3>
       <p>Log production & update stock</p>
@@ -117,10 +118,10 @@ body { background: #f5f5f5; }
       <div>💵</div>
       <h3>Expenses</h3>
       <p>Log expenses and costs</p>
-      <span class="badge" id="expenseCount">0 Entries</span>
+      <span class="badge" id="expenseCount"><span class="loading">Loading...</span></span>
     </div>
     
-    <div class="card" onclick="window.location.href='profit.html'">
+    <div class="card" onclick="window.location.href='net-profet.html'">
       <div>💰</div>
       <h3>Net Profit</h3>
       <p>Sales & Expenses report</p>
@@ -134,7 +135,15 @@ body { background: #f5f5f5; }
   </div>
 </div>
 
-<script>
+<script type="module">
+import { db } from './firebase-config.js';
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Make functions global para magamit sa onclick
+window.login = login;
+window.logout = logout;
+window.resetData = resetData;
+
 function login() {
   const user = document.getElementById('username').value.trim();
   const pass = document.getElementById('password').value.trim();
@@ -143,7 +152,7 @@ function login() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     document.getElementById('errorMsg').style.display = 'none';
-    loadCounts(); // Load counts pagka-login
+    loadCounts(); // Load from Firebase pagka-login
   } else {
     document.getElementById('errorMsg').style.display = 'block';
   }
@@ -156,21 +165,26 @@ function logout() {
   document.getElementById('password').value = '';
 }
 
-function loadCounts() {
-  // Load Products Count
-  let products = JSON.parse(localStorage.getItem('products')) || [];
-  document.getElementById('productCount').textContent = products.length + ' Products';
-  
-  // Load Expenses Count
-  let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-  document.getElementById('expenseCount').textContent = expenses.length + ' Entries';
+async function loadCounts() {
+  try {
+    // Get Products Count from Firestore
+    const productsSnap = await getDocs(collection(db, "products"));
+    document.getElementById('productCount').textContent = productsSnap.size + ' Products';
+    
+    // Get Expenses Count from Firestore
+    const expensesSnap = await getDocs(collection(db, "expenses"));
+    document.getElementById('expenseCount').textContent = expensesSnap.size + ' Entries';
+    
+  } catch (error) {
+    console.error("Error loading counts: ", error);
+    document.getElementById('productCount').textContent = 'Error';
+    document.getElementById('expenseCount').textContent = 'Error';
+  }
 }
 
 function resetData() {
-  if(confirm('Sure ka ba? Mababura lahat ng data mo!')) {
-    localStorage.clear();
-    loadCounts();
-    alert('Data reset!');
+  if(confirm('Sure ka ba? Mababura lahat ng data sa Firebase!')) {
+    alert('Gawa ka ng function sa Firebase console para i-delete lahat. Delikado yan pag nasa frontend.');
   }
 }
 
@@ -178,9 +192,8 @@ document.addEventListener('keypress', function(e) {
   if(e.key === 'Enter') login();
 });
 
-// Auto-load counts pagka-open ng page
 window.onload = function() {
-  loadCounts();
+  // Wag load agad kasi need muna mag-login
 }
 </script>
 </body>
