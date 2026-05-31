@@ -3,6 +3,75 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings - DHAN SIOMAI Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
+body {background:linear-gradient(135deg, #FFF8E1, #FFE0B2);}
+.header { 
+  background: linear-gradient(135deg, #D32F2F, #B71C1C); 
+  color:white; padding:15px; display:flex; justify-content:space-between; align-items:center; 
+  position:sticky; top:0; z-index:10; 
+}
+.header h1 {font-size:18px; font-weight:700;}
+.header a { 
+  color:#D32F2F; background:#fff; text-decoration:none; font-weight:600; 
+  padding:8px 14px; border-radius:8px; font-size:14px; 
+}
+.container {padding:20px; max-width:600px; margin:0 auto;}
+
+/* Login Box */
+.login-box { 
+  background:white; border-radius:16px; padding:25px; 
+  box-shadow:0 4px 16px rgba(0,0,0,0.1); margin-top:50px; 
+}
+.login-box h2 { color:#D32F2F; margin-bottom:15px; text-align:center; }
+.login-box input { 
+  width:100%; padding:12px; border:2px solid #FFE0B2; 
+  border-radius:10px; font-size:15px; margin-bottom:15px; 
+}
+.login-box button { 
+  width:100%; padding:12px; background:#D32F2F; color:white; 
+  border:none; border-radius:10px; font-weight:700; font-size:15px; cursor:pointer; 
+}
+.login-box button:disabled { opacity:0.6; cursor:not-allowed; }
+.error-msg { color:#D32F2F; font-size:13px; margin-top:10px; text-align:center; }
+
+/* Settings Content */
+.settings-content {display:none;}
+.card { 
+  background:white; border-radius:16px; padding:20px; margin-bottom:20px; 
+  box-shadow:0 4px 16px rgba(0,0,0,0.08); 
+}
+.card h3 { color:#D32F2F; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.card p { font-size:13px; color:#666; margin-bottom:15px; }
+.reset-grid { display:grid; gap:10px; }
+.reset-btn { padding:12px; border:none; border-radius:10px; font-weight:600; cursor:pointer; font-size:14px; }
+.btn-orange {background:#FFA726; color:white;}
+.btn-red {background:#f44336; color:white;}
+.btn-red:hover {background:#d32f2f;}
+.warning-box { 
+  background:#FFF3CD; border-left:4px solid #FFC107; padding:12px; 
+  border-radius:8px; font-size:13px; color:#856404; margin-bottom:15px; 
+}
+.user-info {
+  background:#E3F2FD; padding:10px; border-radius:8px; margin-bottom:15px;
+  font-size:13px; color:#1565C0;
+}
+.logout-btn {
+  background:#666; color:white; border:none; padding:8px 14px; 
+  border-radius:8px; cursor:pointer; font-size:13px;
+}
+</style>
+</head>
+<body>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DHAN SIOMAI POS</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
