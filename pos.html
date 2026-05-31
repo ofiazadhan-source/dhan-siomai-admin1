@@ -6,399 +6,255 @@
 <title>POS - DHAN SIOMAI</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-* {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
-body {background:#FFF8E1;}
-.header {
-  background: linear-gradient(135deg, #D32F2F, #B71C1C);
-  color:white;
-  padding:15px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  position:sticky;
-  top:0;
-  z-index:10;
-}
-.header h1 {font-size:18px; font-weight:700;}
-.header a {color:#D32F2F; background:#fff; text-decoration:none; font-weight:600; padding:8px 14px; border-radius:8px;}
-.container {padding:15px; max-width:1200px; margin:0 auto;}
-.grid {display:grid; gap:15px; grid-template-columns:2fr 1fr;}
+*{margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
+body{background:#FFF8E1;}
+.header{background:linear-gradient(135deg, #D32F2F, #B71C1C); color:white; padding:15px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:10;}
+.header h1{font-size:18px; font-weight:700;}
+.header a{color:#D32F2F; background:#fff; text-decoration:none; font-weight:600; padding:8px 14px; border-radius:8px;}
+.container{padding:15px; max-width:1200px; margin:0 auto;}
+.grid{display:grid; gap:15px; grid-template-columns:2fr 1fr;}
 @media (max-width:768px){.grid{grid-template-columns:1fr;}}
-.card {
-  background:white;
-  border-radius:16px;
-  padding:15px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.08);
+.card{background:white; border-radius:16px; padding:15px; box-shadow:0 3px 10px rgba(0,0,0,0.08);}
+
+/* FIXED PRODUCT GRID */
+#productList{
+display:grid;
+gap:10px;
+grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));
+padding:10px 0;
 }
-.product-grid {
-  display:grid;
-  gap:10px;
-  grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));
+
+.product-card{
+background:white;
+border-radius:12px;
+padding:10px;
+text-align:center;
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
+border:2px solid #FFE0B2;
+cursor:pointer;
+transition:0.2s;
 }
-.product-card {
-  border:2px solid #FFE0B2;
-  border-radius:12px;
-  padding:10px;
-  text-align:center;
-  cursor:pointer;
-  transition:0.2s;
+.product-card:active{border-color:#D32F2F; transform:scale(0.97);}
+
+/* FIXED IMAGE - PANTAY NA LAHAT */
+.prod-img{
+width:100%;
+height:120px;
+object-fit:cover;
+border-radius:8px;
+margin-bottom:6px;
+background:#f5f5f5;
 }
-.product-card:active {transform:scale(0.95); border-color:#D32F2F;}
-.product-card img {
-  width:100%;
-  height:90px;
-  object-fit:cover;
-  border-radius:8px;
-  margin-bottom:6px;
+
+.prod-name{
+font-size:13px;
+font-weight:600;
+margin-bottom:3px;
+color:#333;
+height:32px;
+overflow:hidden;
+display:-webkit-box;
+-webkit-line-clamp:2;
+-webkit-box-orient:vertical;
 }
-.product-card h4 {font-size:14px; color:#333; margin-bottom:4px;}
-.product-card p {font-size:13px; color:#D32F2F; font-weight:700;}
-.product-card small {font-size:12px; color:#666;}
-.cart-item {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px 0;
-  border-bottom:1px solid #FFE0B2;
+
+.prod-price{
+font-size:15px;
+font-weight:700;
+color:#D32F2F;
+margin-bottom:2px;
 }
-.cart-item:last-child {border-bottom:none;}
-.cart-info h4 {font-size:14px; margin-bottom:2px;}
-.cart-info p {font-size:13px; color:#666;}
-.qty-controls {
-  display:flex;
-  align-items:center;
-  gap:8px;
+
+.prod-stock{
+font-size:11px;
+color:#666;
 }
-.qty-controls button {
-  width:28px;
-  height:28px;
-  border:none;
-  border-radius:6px;
-  background:#D32F2F;
-  color:white;
-  font-weight:700;
-  cursor:pointer;
+
+/* CATEGORY FILTER BUTTONS */
+#catFilterPOS{
+display:flex;
+gap:8px;
+margin-bottom:12px;
+overflow-x:auto;
+padding-bottom:5px;
 }
-.qty-controls span {font-weight:600; min-width:20px; text-align:center;}
-.total-section {
-  margin-top:15px;
-  padding-top:15px;
-  border-top:2px solid #FFE0B2;
+.cat-btn-pos{
+padding:7px 12px;
+border:2px solid #D32F2F;
+background:white;
+color:#D32F2F;
+border-radius:18px;
+font-weight:600;
+font-size:12px;
+cursor:pointer;
+white-space:nowrap;
+flex-shrink:0;
 }
-.total-row {
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:8px;
-  font-size:15px;
+.cat-btn-pos.active{
+background:#D32F2F;
+color:white;
 }
-.total-row.grand {
-  font-size:20px;
-  font-weight:700;
-  color:#D32F2F;
-}
-.checkout-btn {
-  width:100%;
-  padding:14px;
-  background:linear-gradient(135deg, #4caf50, #66bb6a);
-  color:white;
-  border:none;
-  border-radius:12px;
-  font-size:16px;
-  font-weight:700;
-  cursor:pointer;
-  margin-top:15px;
-}
-.checkout-btn:disabled {background:#ccc; cursor:not-allowed;}
-.search-box {
-  width:100%;
-  padding:12px;
-  border:2px solid #FFE0B2;
-  border-radius:10px;
-  margin-bottom:15px;
-  font-size:14px;
-}
-.search-box:focus {outline:none; border-color:#FFC107;}
-.loading {text-align:center; padding:40px; color:#666;}
+
+.cart-item{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #FFE0B2;}
+.cart-item:last-child{border-bottom:none;}
+.cart-info h4{font-size:14px; margin-bottom:2px;}
+.cart-info p{font-size:13px; color:#666;}
+.qty-controls{display:flex; align-items:center; gap:8px;}
+.qty-controls button{width:28px; height:28px; border:none; border-radius:6px; background:#D32F2F; color:white; font-weight:700; cursor:pointer;}
+.qty-controls span{font-weight:600; min-width:20px; text-align:center;}
+.total-section{margin-top:15px; padding-top:15px; border-top:2px solid #FFE0B2;}
+.total-row{display:flex; justify-content:space-between; margin-bottom:8px; font-size:15px;}
+.total-row.grand{font-size:20px; font-weight:700; color:#D32F2F;}
+.checkout-btn{width:100%; padding:14px; background:linear-gradient(135deg, #4caf50, #66bb6a); color:white; border:none; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer; margin-top:15px;}
+.checkout-btn:disabled{background:#ccc; cursor:not-allowed;}
+.search-box{width:100%; padding:12px; border:2px solid #FFE0B2; border-radius:10px; margin-bottom:15px; font-size:14px;}
+.search-box:focus{outline:none; border-color:#FFC107;}
+.loading{text-align:center; padding:40px; color:#666;}
+
 /* Modal */
-.modal {
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.5);
-  z-index:100;
-  align-items:center;
-  justify-content:center;
-}
-.modal.active {display:flex;}
-.modal-content {
-  background:white;
-  border-radius:16px;
-  padding:20px;
-  width:90%;
-  max-width:400px;
-  max-height:90vh;
-  overflow-y:auto;
-}
-.modal-content h3 {
-  margin-bottom:15px;
-  color:#D32F2F;
-}
-.payment-btn {
-  width:100%;
-  padding:12px;
-  margin-bottom:10px;
-  border:none;
-  border-radius:10px;
-  font-weight:600;
-  font-size:15px;
-  cursor:pointer;
-}
-.btn-cash {background:#4caf50; color:white;}
-.btn-gcash {background:#0070f3; color:white;}
-.input-cash {
-  width:100%;
-  padding:12px;
-  border:2px solid #FFE0B2;
-  border-radius:10px;
-  font-size:16px;
-  margin:10px 0;
-}
-.change-box {
-  background:#E8F5E9;
-  padding:12px;
-  border-radius:10px;
-  text-align:center;
-  margin:10px 0;
-  font-size:18px;
-  font-weight:700;
-  color:#2e7d32;
-}
-.modal-actions {
-  display:flex;
-  gap:10px;
-  margin-top:15px;
-}
-.modal-actions button {
-  flex:1;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  font-weight:600;
-  cursor:pointer;
-}
-.btn-cancel {background:#f5f5f5; color:#333;}
-.btn-confirm {background:#D32F2F; color:white;}
-.btn-confirm:disabled {background:#ccc; cursor:not-allowed;}
-.proof-preview {
-  max-width:100%;
-  max-height:200px;
-  object-fit:contain;
-  border-radius:10px;
-  margin-top:10px;
-  display:none;
-}
-.payment-summary {
-  background:#FFF3E0;
-  border:2px solid #FFC107;
-  border-radius:10px;
-  padding:12px;
-  margin-top:12px;
-  display:none;
-}
-.payment-summary h4 {
-  font-size:14px;
-  color:#E65100;
-  margin-bottom:6px;
-}
-.payment-summary p {
-  font-size:14px;
-  margin-bottom:4px;
-}
-.payment-summary img {
-  width:100%;
-  max-height:150px;
-  object-fit:contain;
-  border-radius:8px;
-  margin-top:8px;
-}
+.modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:100; align-items:center; justify-content:center;}
+.modal.active{display:flex;}
+.modal-content{background:white; border-radius:16px; padding:20px; width:90%; max-width:400px; max-height:90vh; overflow-y:auto;}
+.modal-content h3{margin-bottom:15px; color:#D32F2F;}
+.payment-btn{width:100%; padding:12px; margin-bottom:10px; border:none; border-radius:10px; font-weight:600; font-size:15px; cursor:pointer;}
+.btn-cash{background:#4caf50; color:white;}
+.btn-gcash{background:#0070f3; color:white;}
+.input-cash{width:100%; padding:12px; border:2px solid #FFE0B2; border-radius:10px; font-size:16px; margin:10px 0;}
+.change-box{background:#E8F5E9; padding:12px; border-radius:10px; text-align:center; margin:10px 0; font-size:18px; font-weight:700; color:#2e7d32;}
+.modal-actions{display:flex; gap:10px; margin-top:15px;}
+.modal-actions button{flex:1; padding:12px; border:none; border-radius:10px; font-weight:600; cursor:pointer;}
+.btn-cancel{background:#f5f5f5; color:#333;}
+.btn-confirm{background:#D32F2F; color:white;}
+.btn-confirm:disabled{background:#ccc; cursor:not-allowed;}
+.proof-preview{max-width:100%; max-height:200px; object-fit:contain; border-radius:10px; margin-top:10px; display:none;}
+.payment-summary{background:#FFF3E0; border:2px solid #FFC107; border-radius:10px; padding:12px; margin-top:12px; display:none;}
+.payment-summary h4{font-size:14px; color:#E65100; margin-bottom:6px;}
+.payment-summary p{font-size:14px; margin-bottom:4px;}
+.payment-summary img{width:100%; max-height:150px; object-fit:contain; border-radius:8px; margin-top:8px;}
 
 /* Receipt Modal */
-.receipt-content {
-  text-align:center;
-  padding:10px;
-}
-.receipt-content h2 {
-  color:#D32F2F;
-  margin-bottom:5px;
-}
-.receipt-content.store-info {
-  font-size:12px;
-  color:#666;
-  margin-bottom:15px;
-}
-.receipt-divider {
-  border-top:1px dashed #999;
-  margin:10px 0;
-}
-.receipt-items {
-  text-align:left;
-  font-size:14px;
-}
-.receipt-item {
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:5px;
-}
-.receipt-total {
-  text-align:right;
-  font-size:16px;
-  font-weight:700;
-  margin-top:10px;
-}
-.receipt-footer {
-  font-size:12px;
-  color:#666;
-  margin-top:15px;
-  text-align:center;
-}
-.print-btn {
-  width:100%;
-  padding:12px;
-  background:#D32F2F;
-  color:white;
-  border:none;
-  border-radius:10px;
-  font-weight:700;
-  font-size:15px;
-  cursor:pointer;
-  margin-top:15px;
-}
-
-/* Print Styles */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  #receiptPrint, #receiptPrint * {
-    visibility: visible;
-  }
-  #receiptPrint {
-    position:absolute;
-    left:0;
-    top:0;
-    width:100%;
-  }
-}
+.receipt-content{text-align:center; padding:10px;}
+.receipt-content h2{color:#D32F2F; margin-bottom:5px;}
+.receipt-content.store-info{font-size:12px; color:#666; margin-bottom:15px;}
+.receipt-divider{border-top:1px dashed #999; margin:10px 0;}
+.receipt-items{text-align:left; font-size:14px;}
+.receipt-item{display:flex; justify-content:space-between; margin-bottom:5px;}
+.receipt-total{text-align:right; font-size:16px; font-weight:700; margin-top:10px;}
+.receipt-footer{font-size:12px; color:#666; margin-top:15px; text-align:center;}
+.print-btn{width:100%; padding:12px; background:#D32F2F; color:white; border:none; border-radius:10px; font-weight:700; font-size:15px; cursor:pointer; margin-top:15px;}
+@media print{body *{visibility:hidden;} #receiptPrint, #receiptPrint *{visibility:visible;} #receiptPrint{position:absolute; left:0; top:0; width:100%;}}
 </style>
 </head>
 <body>
+
 <div class="header">
-  <h1>💻 POS</h1>
-  <a href="index.html">← Back</a>
+<h1>💻 POS</h1>
+<a href="index.html">← Back</a>
 </div>
+
 <div class="container">
-  <div class="grid">
-    <!-- Products Section -->
-    <div class="card">
-      <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search product...">
-      <div id="productList" class="product-grid">
-        <div class="loading">Loading products...</div>
-      </div>
-    </div>
-    <!-- Cart Section -->
-    <div class="card">
-      <h3 style="margin-bottom:12px; color:#D32F2F;">🛒 Cart</h3>
-      <div id="cartList">
-        <p style="text-align:center; color:#999; padding:20px;">Cart is empty</p>
-      </div>
-      <div class="total-section">
-        <div class="total-row">
-          <span>Subtotal:</span>
-          <span id="subtotal">₱0</span>
-        </div>
-        <div class="total-row grand">
-          <span>Total:</span>
-          <span id="grandTotal">₱0</span>
-        </div>
-      </div>
+<div class="grid">
+<!-- Products Section -->
+<div class="card">
+<input type="text" id="searchBox" class="search-box" placeholder="🔍 Search product...">
 
-      <div class="payment-summary" id="paymentSummary">
-        <h4>💳 Payment Details</h4>
-        <p id="summaryMethod"></p>
-        <p id="summaryReceived"></p>
-        <p id="summaryChange"></p>
-        <img id="summaryProof" style="display:none;">
-      </div>
+<!-- CATEGORY FILTER - DAGDAG KO TO -->
+<div id="catFilterPOS">
+<button onclick="filterCategoryPOS('All')" class="cat-btn-pos active">All</button>
+<button onclick="filterCategoryPOS('65\'s')" class="cat-btn-pos">65's</button>
+<button onclick="filterCategoryPOS('30\'s')" class="cat-btn-pos">30's</button>
+<button onclick="filterCategoryPOS('Big SIOMAI')" class="cat-btn-pos">Big</button>
+<button onclick="filterCategoryPOS('Dumplings')" class="cat-btn-pos">Dumplings</button>
+<button onclick="filterCategoryPOS('Siopao')" class="cat-btn-pos">Siopao</button>
+<button onclick="filterCategoryPOS('Sauce')" class="cat-btn-pos">Sauce</button>
+<button onclick="filterCategoryPOS('Others')" class="cat-btn-pos">Others</button>
+</div>
 
-      <button class="checkout-btn" id="checkoutBtn" onclick="openPaymentModal()" disabled>
-        💰 Checkout
-      </button>
-    </div>
-  </div>
+<div id="productList" class="product-grid">
+<div class="loading">Loading products...</div>
+</div>
+</div>
+
+<!-- Cart Section -->
+<div class="card">
+<h3 style="margin-bottom:12px; color:#D32F2F;">🛒 Cart</h3>
+<div id="cartList">
+<p style="text-align:center; color:#999; padding:20px;">Cart is empty</p>
+</div>
+<div class="total-section">
+<div class="total-row">
+<span>Subtotal:</span>
+<span id="subtotal">₱0</span>
+</div>
+<div class="total-row grand">
+<span>Total:</span>
+<span id="grandTotal">₱0</span>
+</div>
+</div>
+<div class="payment-summary" id="paymentSummary">
+<h4>💳 Payment Details</h4>
+<p id="summaryMethod"></p>
+<p id="summaryReceived"></p>
+<p id="summaryChange"></p>
+<img id="summaryProof" style="display:none;">
+</div>
+<button class="checkout-btn" id="checkoutBtn" onclick="openPaymentModal()" disabled>
+💰 Checkout
+</button>
+</div>
+</div>
 </div>
 
 <!-- Payment Modal -->
 <div class="modal" id="paymentModal">
-  <div class="modal-content">
-    <h3>💳 Select Payment Method</h3>
-    <button class="payment-btn btn-cash" onclick="selectPayment('cash')">💵 Cash</button>
-    <button class="payment-btn btn-gcash" onclick="selectPayment('gcash')">📱 GCash</button>
-
-    <div id="cashSection" style="display:none;">
-      <label style="font-weight:600;">Amount Received:</label>
-      <input type="number" id="amountReceived" class="input-cash" placeholder="0" inputmode="numeric" oninput="calculateChange()">
-      <div class="change-box" id="changeBox">Change: ₱0</div>
-    </div>
-
-    <div id="gcashSection" style="display:none;">
-      <label style="font-weight:600;">Upload Proof of Payment:</label>
-      <input type="file" id="proofUpload" accept="image/*" capture="environment">
-      <img id="proofPreview" class="proof-preview">
-      <p style="font-size:12px; color:#666; margin-top:5px;">Screenshot ng GCash transaction</p>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closePaymentModal()">Cancel</button>
-      <button class="btn-confirm" id="confirmBtn" onclick="checkout()" disabled>Confirm Payment</button>
-    </div>
-  </div>
+<div class="modal-content">
+<h3>💳 Select Payment Method</h3>
+<button class="payment-btn btn-cash" onclick="selectPayment('cash')">💵 Cash</button>
+<button class="payment-btn btn-gcash" onclick="selectPayment('gcash')">📱 GCash</button>
+<div id="cashSection" style="display:none;">
+<label style="font-weight:600;">Amount Received:</label>
+<input type="number" id="amountReceived" class="input-cash" placeholder="0" inputmode="numeric" oninput="calculateChange()">
+<div class="change-box" id="changeBox">Change: ₱0</div>
+</div>
+<div id="gcashSection" style="display:none;">
+<label style="font-weight:600;">Upload Proof of Payment:</label>
+<input type="file" id="proofUpload" accept="image/*" capture="environment">
+<img id="proofPreview" class="proof-preview">
+<p style="font-size:12px; color:#666; margin-top:5px;">Screenshot ng GCash transaction</p>
+</div>
+<div class="modal-actions">
+<button class="btn-cancel" onclick="closePaymentModal()">Cancel</button>
+<button class="btn-confirm" id="confirmBtn" onclick="checkout()" disabled>Confirm Payment</button>
+</div>
+</div>
 </div>
 
 <!-- Receipt Modal -->
 <div class="modal" id="receiptModal">
-  <div class="modal-content" id="receiptPrint">
-    <div class="receipt-content">
-      <h2>DHAN SIOMAI</h2>
-      <div class="store-info">
-        POS Receipt<br>
-        <span id="receiptDate"></span>
-      </div>
-
-      <div class="receipt-divider"></div>
-
-      <div class="receipt-items" id="receiptItems"></div>
-
-      <div class="receipt-divider"></div>
-
-      <div class="receipt-total">
-        <div>Total: <span id="receiptTotal">₱0</span></div>
-        <div id="receiptPayment"></div>
-        <div id="receiptReceived"></div>
-        <div id="receiptChange"></div>
-      </div>
-
-      <div class="receipt-footer">
-        Thank you for purchasing!<br>
-        Please come again 🙏
-      </div>
-    </div>
-
-    <button class="print-btn" onclick="printReceipt()">🖨️ Print Receipt</button>
-    <button class="print-btn" style="background:#666; margin-top:8px;" onclick="closeReceiptModal()">Close</button>
-  </div>
+<div class="modal-content" id="receiptPrint">
+<div class="receipt-content">
+<h2>DHAN SIOMAI</h2>
+<div class="store-info">
+POS Receipt<br>
+<span id="receiptDate"></span>
+</div>
+<div class="receipt-divider"></div>
+<div class="receipt-items" id="receiptItems"></div>
+<div class="receipt-divider"></div>
+<div class="receipt-total">
+<div>Total: <span id="receiptTotal">₱0</span></div>
+<div id="receiptPayment"></div>
+<div id="receiptReceived"></div>
+<div id="receiptChange"></div>
+</div>
+<div class="receipt-footer">
+Thank you for purchasing!<br>
+Please come again 🙏
+</div>
+</div>
+<button class="print-btn" onclick="printReceipt()">🖨️ Print Receipt</button>
+<button class="print-btn" style="background:#666; margin-top:8px;" onclick="closeReceiptModal()">Close</button>
+</div>
 </div>
 
 <script type="module">
@@ -414,6 +270,10 @@ let amountReceived = 0;
 let changeAmount = 0;
 let lastSale = null;
 
+// Global for filter
+let currentCategory = 'All';
+let searchKeyword = '';
+
 // Load products live
 onSnapshot(collection(db, "dhan-pos-web"), (snapshot) => {
   products = [];
@@ -422,43 +282,61 @@ onSnapshot(collection(db, "dhan-pos-web"), (snapshot) => {
     p.id = docSnap.id;
     products.push(p);
   });
-  renderProducts(products);
+  renderProducts(); // WALANG PARAMETER
 });
 
-// Render products
-function renderProducts(list) {
+// FIXED Render products with category filter
+function renderProducts() {
   const container = document.getElementById('productList');
-  if(list.length === 0) {
-    container.innerHTML = '<div class="loading">No products yet</div>';
+
+  let filtered = products.filter(p => {
+    const matchSearch = p.name.toLowerCase().includes(searchKeyword.toLowerCase());
+    const matchCat = currentCategory === 'All' || p.category === currentCategory;
+    return matchSearch && matchCat;
+  });
+
+  if(filtered.length === 0) {
+    container.innerHTML = '<div class="loading">No products found</div>';
     return;
   }
+
   container.innerHTML = '';
-  list.forEach(p => {
-    const imgUrl = p.image || 'https://via.placeholder.com/140x90?text=No+Image';
+  filtered.forEach(p => {
+    const imgUrl = p.image || 'https://via.placeholder.com/140x120?text=No+Image';
     const stock = p.stock || 0;
     const isOut = stock <= 0;
+
     container.innerHTML += `
-      <div class="product-card" onclick="${isOut? '' : `addToCart('${p.id}')`}" style="${isOut? 'opacity:0.5;cursor:not-allowed;' : ''}">
-        <img src="${imgUrl}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/140x90?text=No+Image'">
-        <h4>${p.name}</h4>
-        <p>₱${p.price || 0}</p>
-        <small>Stock: ${stock}</small>
-      </div>`;
+      <div class="product-card" onclick="${isOut? '' : `addToCart('${p.id}')`}"
+           style="${isOut? 'opacity:0.5;cursor:not-allowed;' : ''}">
+        <img src="${imgUrl}" class="prod-img" alt="${p.name}"
+             onerror="this.src='https://via.placeholder.com/140x120?text=No+Image'">
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-price">₱${p.price || 0}</div>
+        <div class="prod-stock">Stock: ${stock}</div>
+      </div>
+    `;
   });
 }
 
-// Search filter
+// Category filter function
+window.filterCategoryPOS = function(cat) {
+  currentCategory = cat;
+  document.querySelectorAll('.cat-btn-pos').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  renderProducts();
+}
+
+// Search filter - FIXED
 document.getElementById('searchBox').addEventListener('input', (e) => {
-  const search = e.target.value.toLowerCase();
-  const filtered = products.filter(p => p.name.toLowerCase().includes(search));
-  renderProducts(filtered);
+  searchKeyword = e.target.value.toLowerCase();
+  renderProducts();
 });
 
 // Add to cart
 window.addToCart = function(productId) {
   const product = products.find(p => p.id === productId);
   if(!product) return;
-
   const existing = cart.find(item => item.id === productId);
   if(existing) {
     if(existing.qty >= product.stock) {
@@ -471,13 +349,7 @@ window.addToCart = function(productId) {
       alert('⚠️ Out of stock!');
       return;
     }
-    cart.push({
-      id: product.id,
-      name: product.name,
-      price: product.price || 0,
-      qty: 1,
-      stock: product.stock
-    });
+    cart.push({ id: product.id, name: product.name, price: product.price || 0, qty: 1, stock: product.stock });
   }
   renderCart();
   resetPaymentSummary();
@@ -495,7 +367,6 @@ window.updateQty = function(productId, change) {
   const item = cart.find(i => i.id === productId);
   const product = products.find(p => p.id === productId);
   if(!item ||!product) return;
-
   item.qty += change;
   if(item.qty <= 0) {
     removeFromCart(productId);
@@ -513,7 +384,6 @@ window.updateQty = function(productId, change) {
 function renderCart() {
   const container = document.getElementById('cartList');
   const checkoutBtn = document.getElementById('checkoutBtn');
-
   if(cart.length === 0) {
     container.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">Cart is empty</p>';
     checkoutBtn.disabled = true;
@@ -649,7 +519,6 @@ function checkConfirmButton() {
 function showPaymentSummary() {
   document.getElementById('paymentSummary').style.display = 'block';
   document.getElementById('summaryMethod').textContent = `Method: ${paymentMethod.toUpperCase()}`;
-
   if(paymentMethod === 'cash') {
     document.getElementById('summaryReceived').textContent = `Amount Received: ₱${amountReceived.toLocaleString()}`;
     document.getElementById('summaryChange').textContent = `Change: ₱${changeAmount.toLocaleString()}`;
@@ -668,8 +537,6 @@ function showPaymentSummary() {
 function showReceipt(saleData) {
   const now = new Date();
   document.getElementById('receiptDate').textContent = now.toLocaleString('en-PH');
-
-  // Items
   let itemsHtml = '';
   saleData.items.forEach(item => {
     itemsHtml += `
@@ -680,11 +547,8 @@ function showReceipt(saleData) {
     `;
   });
   document.getElementById('receiptItems').innerHTML = itemsHtml;
-
-  // Totals
   document.getElementById('receiptTotal').textContent = `₱${saleData.total.toLocaleString()}`;
   document.getElementById('receiptPayment').textContent = `Payment: ${saleData.paymentMethod.toUpperCase()}`;
-
   if(saleData.paymentMethod === 'cash') {
     document.getElementById('receiptReceived').textContent = `Cash: ₱${saleData.amountReceived.toLocaleString()}`;
     document.getElementById('receiptChange').textContent = `Change: ₱${saleData.change.toLocaleString()}`;
@@ -692,7 +556,6 @@ function showReceipt(saleData) {
     document.getElementById('receiptReceived').textContent = '';
     document.getElementById('receiptChange').textContent = 'GCash Payment';
   }
-
   document.getElementById('receiptModal').classList.add('active');
 }
 
@@ -707,7 +570,6 @@ window.printReceipt = function() {
 // Checkout
 window.checkout = async function() {
   if(cart.length === 0 ||!paymentMethod) return;
-
   if(paymentMethod === 'cash') {
     if(amountReceived < totalAmount) {
       alert('❌ Kulang ang bayad!');
@@ -718,10 +580,8 @@ window.checkout = async function() {
     alert('❌ Mag-upload muna ng proof of payment!');
     return;
   }
-
   try {
     const timestamp = new Date();
-
     const saleData = {
       items: [...cart],
       total: totalAmount,
@@ -732,30 +592,19 @@ window.checkout = async function() {
       timestamp: timestamp,
       date: timestamp.toISOString().split('T')[0]
     };
-
-    // Save sale
     await addDoc(collection(db, "dhan-sales"), saleData);
-
-    // Update stock
     for(let item of cart) {
       await updateDoc(doc(db, "dhan-pos-web", item.id), {
         stock: increment(-item.qty)
       });
     }
-
-    // Show summary sa cart
     showPaymentSummary();
-
-    // Show printable receipt
     showReceipt(saleData);
-
-    // Clear cart after 500ms
     setTimeout(() => {
       cart = [];
       renderCart();
       closePaymentModal();
     }, 500);
-
   } catch(e) {
     alert('❌ Error: ' + e.message);
   }
