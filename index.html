@@ -161,7 +161,14 @@ window.login = async function() {
   }
 }
   
+// Logout function
+window.logout = async function() {
+  await signOut(auth);
+  document.getElementById('emailInput').value = '';
+  document.getElementById('passwordInput').value = '';
+}
 
+  
 <!DOCTYPE html>
 <html lang="en">
 <head>
