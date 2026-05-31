@@ -66,6 +66,101 @@ body {background:linear-gradient(135deg, #FFF8E1, #FFE0B2);}
 </head>
 <body>
 
+<div class="header">
+  <h1>⚙️ Settings</h1>
+  <a href="index.html">← Back</a>
+</div>
+
+<div class="container">
+  <!-- Login Box -->
+  <div class="login-box" id="loginBox">
+    <h2>🔒 Admin Login</h2>
+    <input type="email" id="emailInput" placeholder="Email" autocomplete="email">
+    <input type="password" id="passwordInput" placeholder="Password" onkeyup="if(event.key==='Enter') login()">
+    <button id="loginBtn" onclick="login()">Login</button>
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <!-- Settings Content -->
+  <div class="settings-content" id="settingsContent">
+    <div class="user-info">
+      <span id="userEmail">Loading...</span>
+      <button class="logout-btn" onclick="logout()" style="float:right;">Logout</button>
+    </div>
+
+    <div class="warning-box">
+      ⚠️ Warning: Reset actions cannot be undone. Make sure you have a backup before proceeding.
+    </div>
+
+    <div class="card">
+      <h3>🧹 Reset Data</h3>
+      <p>Delete specific data from your system. Be careful with this.</p>
+      <div class="reset-grid">
+        <button class="reset-btn btn-orange" onclick="resetSales()">Reset Sales Only</button>
+        <button class="reset-btn btn-orange" onclick="resetExpenses()">Reset Expenses Only</button>
+        <button class="reset-btn btn-orange" onclick="resetProducts()">Reset Products Only</button>
+        <button class="reset-btn btn-red" onclick="resetAll()">🗑️ Reset ALL Data</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>ℹ️ System Info</h3>
+      <p id="systemInfo">Loading...</p>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { db } from './firebase-config.js';
+import { 
+  collection, getDocs, doc, writeBatch 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { 
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const auth = getAuth();
+
+// Check if user is already logged in
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('settingsContent').style.display = 'block';
+    document.getElementById('userEmail').textContent = user.email;
+    loadSystemInfo();
+  } else {
+    document.getElementById('loginBox').style.display = 'block';
+    document.getElementById('settingsContent').style.display = 'none';
+  }
+});
+
+// Login function
+window.login = async function() {
+  const email = document.getElementById('emailInput').value.trim();
+  const password = document.getElementById('passwordInput').value;
+  const btn = document.getElementById('loginBtn');
+  const errorMsg = document.getElementById('errorMsg');
+  
+  if (!email || !password) {
+    errorMsg.textContent = 'Fill up email and password';
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'Logging in...';
+  errorMsg.textContent = '';
+  
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    errorMsg.textContent = '❌ Wrong email or password';
+    console.error(error);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Login';
+  }
+}
+  
 
 <!DOCTYPE html>
 <html lang="en">
