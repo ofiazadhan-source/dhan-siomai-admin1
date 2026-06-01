@@ -3,190 +3,177 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHAN SIOMAI POS</title>
+<meta name="theme-color" content="#ff6b35">
+<title>DHAN SIOMAI Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
-body { background: #f5f5f5; }
-/* Login Screen */
-#loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('bg.jpg') center/cover no-repeat; display: flex; justify-content: center; align-items: center; z-index: 10000; }
-#loginScreen::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: -1; }
-.login-box { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-.login-box h2 { color: #D32F2F; margin-bottom: 20px; font-weight: 700; }
-.login-box input { width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 10px; border: 2px solid #FFE0B2; font-size: 15px; }
-.login-box input:focus { outline: none; border-color: #D32F2F; }
-.login-box button { width: 100%; padding: 14px; background: linear-gradient(135deg, #D32F2F, #B71C1C); color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: pointer; }
-.login-box button:disabled { opacity: 0.6; cursor: not-allowed; }
-.error-msg { color: #D32F2F; font-size: 13px; margin-top: 10px; display: none; }
-/* Dashboard */
-#dashboard { display: none; }
-.header { background: #ff7043; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-.header h2 { font-size: 18px; }
-.header button { background: white; color: #ff7043; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 700; cursor: pointer; }
-.menu { padding: 15px; padding-bottom: 30px; }
-.card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.1s; }
-.card:active { transform: scale(0.98); }
-.card div { font-size: 40px; text-align: center; margin-bottom: 10px; }
-.card h3 { text-align: center; font-size: 18px; margin-bottom: 5px; }
-.card p { text-align: center; color: #666; font-size: 14px; }
-.badge { display: inline-block; background: #ff7043; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-top: 8px; }
-.card.danger { border: 2px solid #D32F2F; }
-.card.danger h3 { color: #D32F2F; }
-.loading { color: #999; font-size: 12px; }
+body {background:#f8f9fa; color:#333;}
+
+.header {
+  background: linear-gradient(135deg, #ff6b35, #ff8c65);
+  color:white;
+  padding:16px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;
+  top:0;
+  z-index:100;
+  box-shadow:0 4px 12px rgba(255,107,53,0.25);
+}
+
+.header h1 {font-size:22px; font-weight:700; display:flex; align-items:center; gap:8px;}
+.logout-btn {
+  padding:10px 16px;
+  border:none;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+  background:#fff;
+  color:#ff6b35;
+  transition:0.2s;
+  font-size:14px;
+}
+.logout-btn:hover {background:#fff2ee; transform:scale(1.05);}
+
+.container {padding:30px 20px; max-width:1200px; margin:0 auto;}
+.page-title {font-size:24px; font-weight:700; margin-bottom:8px; color:#222;}
+.page-desc {color:#666; margin-bottom:30px; font-size:15px;}
+
+.grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap:20px;
+}
+
+.card {
+  background:white;
+  padding:28px 24px;
+  border-radius:16px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.04);
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.3s ease;
+  text-decoration:none;
+  color:#333;
+  display:block;
+  border:1px solid #f0f0f0;
+}
+.card:hover {
+  transform:translateY(-6px);
+  box-shadow:0 12px 24px rgba(255,107,53,0.18);
+  border-color:#ff6b35;
+}
+
+.card-icon {
+  width:70px; height:70px;
+  background:linear-gradient(135deg, #ff6b35, #ff8c65);
+  border-radius:20px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:36px; margin:0 auto 14px;
+  color:white;
+  box-shadow:0 4px 12px rgba(255,107,53,0.3);
+}
+
+.card-title {font-size:20px; font-weight:700; margin-bottom:6px;}
+.card-desc {font-size:14px; color:#777; line-height:1.5;}
+
+.badge {
+  background:#fff2ee;
+  color:#ff6b35;
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:600;
+  display:inline-block;
+  margin-top:12px;
+  border:1px solid #ffe4d9;
+}
+
+.card-danger {border:2px solid #ffdddd;}
+.card-danger:hover {border-color:#f44336; box-shadow:0 12px 24px rgba(244,67,54,0.2);}
+.card-danger .card-icon {background:linear-gradient(135deg, #f44336, #ff6b6b);}
+
+.card-production {border-left:4px solid #ff6b35;}
+
+@media (max-width:768px){
+  .container {padding:20px 15px;}
+  .header {padding:14px 16px;}
+  .header h1 {font-size:18px;}
+  .grid {grid-template-columns: 1fr;}
+  .card {padding:24px 20px;}
+}
 </style>
 </head>
 <body>
-
-<!-- Login Screen -->
-<div id="loginScreen">
-  <div class="login-box">
-    <h2>🍡 DHAN SIOMAI</h2>
-    <input type="email" id="username" placeholder="Email" value="ofiazadhan@gmail.com">
-    <input type="password" id="password" placeholder="Password">
-    <button id="loginBtn">Login</button>
-    <div class="error-msg" id="errorMsg">Invalid email or password</div>
-  </div>
+<div class="header">
+  <h1>📦 DHAN SIOMAI Admin</h1>
+  <button onclick="logout()" class="logout-btn">🚪 Logout</button>
 </div>
 
-<!-- Dashboard -->
-<div id="dashboard">
-  <div class="header">
-    <h2>📦 DHAN SIOMAI Admin</h2>
-    <button id="logoutBtn">Logout</button>
-  </div>
-  <div class="menu">
-    <div class="card" onclick="window.location.href='pos.html'">
-      <div>💻</div>
-      <h3>POS</h3>
-      <p>Make sales</p>
-    </div>
-    <div class="card" onclick="window.location.href='products.html'">
-      <div>📦</div>
-      <h3>Products</h3>
-      <p>Manage products, price, stock</p>
-      <span class="badge" id="productCount"><span class="loading">Loading...</span></span>
-    </div>
-    <div class="card" onclick="window.location.href='daily-production.html'">
-      <div>📊</div>
-      <h3>Daily Production</h3>
-      <p>Log production & update stock</p>
-    </div>
-    <div class="card" onclick="window.location.href='expenses.html'">
-      <div>💵</div>
-      <h3>Expenses</h3>
-      <p>Log expenses and costs</p>
-      <span class="badge" id="expenseCount"><span class="loading">Loading...</span></span>
-    </div>
-    <div class="card" onclick="window.location.href='net-profet.html'">
-      <div>💰</div>
-      <h3>Net Profit</h3>
-      <p>Sales & Expenses report</p>
-    </div>
-    <div class="card danger" id="resetBtn">
-      <div>⚠️</div>
-      <h3>Reset Data</h3>
-      <p>Danger zone</p>
-    </div>
+<div class="container">
+  <h2 class="page-title">Dashboard</h2>
+  <p class="page-desc">Quick access sa lahat ng modules ni DHAN SIOMAI</p>
+  
+  <div class="grid">
+    <a href="pos.html" class="card">
+      <div class="card-icon">💻</div>
+      <div class="card-title">POS</div>
+      <div class="card-desc">Make sales at i-process orders</div>
+    </a>
+
+    <a href="products.html" class="card">
+      <div class="card-icon">📦</div>
+      <div class="card-title">Products</div>
+      <div class="card-desc">Manage products, price, stock</div>
+      <div class="badge" id="productCount">0 Products</div>
+    </a>
+
+    <a href="daily-production.html" class="card card-production">
+      <div class="card-icon">📊</div>
+      <div class="card-title">Daily Production</div>
+      <div class="card-desc">Log production & update stock</div>
+    </a>
+
+    <a href="expenses.html" class="card">
+      <div class="card-icon">💸</div>
+      <div class="card-title">Expenses</div>
+      <div class="card-desc">Log expenses and costs</div>
+      <div class="badge" id="expenseCount">0 Entries</div>
+    </a>
+
+    <a href="net-profet.html" class="card">
+      <div class="card-icon">💰</div>
+      <div class="card-title">Net Profit</div>
+      <div class="card-desc">Sales & Expenses report</div>
+    </a>
+
+    <a href="reset.html" class="card card-danger">
+      <div class="card-icon">⚠️</div>
+      <div class="card-title">Reset Data</div>
+      <div class="card-desc">Danger zone - delete all data</div>
+    </a>
   </div>
 </div>
 
 <script type="module">
 import { db } from './firebase-config.js';
-import { collection, getDocs, writeBatch, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const auth = getAuth();
-const loginScreen = document.getElementById('loginScreen');
-const dashboard = document.getElementById('dashboard');
-const loginBtn = document.getElementById('loginBtn');
-const logoutBtn = document.getElementById('logoutBtn');
-const errorMsg = document.getElementById('errorMsg');
-
-// Auto-check if logged in
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    loginScreen.style.display = 'none';
-    dashboard.style.display = 'block';
-    loadCounts();
-  } else {
-    loginScreen.style.display = 'flex';
-    dashboard.style.display = 'none';
-  }
+// Products count
+onSnapshot(collection(db, "dhan-pos-web"), (snapshot) => {
+  document.getElementById("productCount").textContent = `${snapshot.size} Products`;
 });
 
-// Login with Firebase Auth
-loginBtn.addEventListener('click', async () => {
-  const email = document.getElementById('username').value.trim();
-  const pass = document.getElementById('password').value.trim();
-  
-  if(!email || !pass) {
-    errorMsg.style.display = 'block';
-    errorMsg.textContent = 'Fill up email and password';
-    return;
-  }
-  
-  loginBtn.disabled = true;
-  loginBtn.textContent = 'Logging in...';
-  errorMsg.style.display = 'none';
-  
-  try {
-    await signInWithEmailAndPassword(auth, email, pass);
-  } catch (error) {
-    errorMsg.style.display = 'block';
-    errorMsg.textContent = '❌ Wrong email or password';
-    console.error(error);
-  } finally {
-    loginBtn.disabled = false;
-    loginBtn.textContent = 'Login';
-  }
+// Expenses count
+onSnapshot(collection(db, "dhan-expenses"), (snapshot) => {
+  document.getElementById("expenseCount").textContent = `${snapshot.size} Entries`;
 });
 
-// Logout
-logoutBtn.addEventListener('click', () => signOut(auth));
-
-// Load counts - FIXED COLLECTION NAMES
-async function loadCounts() {
-  try {
-    const productsSnap = await getDocs(collection(db, "products"));
-    document.getElementById('productCount').textContent = productsSnap.size + ' Products';
-    
-    const expensesSnap = await getDocs(collection(db, "expenses"));
-    document.getElementById('expenseCount').textContent = expensesSnap.size + ' Entries';
-  } catch (error) {
-    console.error("Error loading counts: ", error);
-    document.getElementById('productCount').textContent = 'Error';
-    document.getElementById('expenseCount').textContent = 'Error';
-  }
+window.logout = function() {
+  if(confirm("Logout ka na ba?")) window.location.href = "../index.html";
 }
-
-// Reset Data - ACTUAL DELETE
-document.getElementById('resetBtn').addEventListener('click', async () => {
-  if(!confirm('⚠️ DELETE ALL DATA? Products, Sales, Expenses?')) return;
-  if(!confirm('Last warning boss! Di na maibabalik to!')) return;
-  
-  try {
-    await deleteCollection('products');
-    await deleteCollection('expenses');
-    await deleteCollection('sales');
-    alert('✅ All data deleted!');
-    loadCounts();
-  } catch (error) {
-    alert('Error: ' + error.message);
-  }
-});
-
-async function deleteCollection(colName) {
-  const snapshot = await getDocs(collection(db, colName));
-  const batch = writeBatch(db);
-  snapshot.forEach((docSnap) => batch.delete(doc(db, colName, docSnap.id)));
-  await batch.commit();
-}
-
-// Enter key
-document.getElementById('password').addEventListener('keypress', function(e) {
-  if(e.key === 'Enter') loginBtn.click();
-});
 </script>
-
 </body>
 </html>
